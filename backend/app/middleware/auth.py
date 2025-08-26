@@ -3,6 +3,7 @@ from flask import jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from app.models.user.user import User
 from app.utils.responses import error_response
+from app.core.extensions import db
 
 def auth_required(f):
     """Decorator to require authentication for routes."""
@@ -11,7 +12,7 @@ def auth_required(f):
     def decorated_function(*args, **kwargs):
         try:
             current_user_id = get_jwt_identity()
-            current_user = User.query.get(current_user_id)
+            current_user = db.session.get(User, current_user_id)
             
             if not current_user:
                 return error_response('User not found', 404)
@@ -32,7 +33,7 @@ def optional_auth(f):
             current_user = None
             
             if current_user_id:
-                current_user = User.query.get(current_user_id)
+                current_user = db.session.get(User, current_user_id)
             
             return f(current_user, *args, **kwargs)
         except Exception as e:
@@ -48,7 +49,7 @@ def admin_required(f):
     def decorated_function(*args, **kwargs):
         try:
             current_user_id = get_jwt_identity()
-            current_user = User.query.get(current_user_id)
+            current_user = db.session.get(User, current_user_id)
             
             if not current_user:
                 return error_response('User not found', 404)

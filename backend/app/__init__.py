@@ -36,7 +36,7 @@ def create_app(config_name='default'):
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data['sub']
         # Convert string identity back to integer for database lookup
-        return User.query.get(int(identity))
+        return db.session.get(User, int(identity))
     
     # Register blueprints
     from app.auth import auth_bp

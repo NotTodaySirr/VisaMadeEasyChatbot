@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.extensions import db
 
 class TokenBlacklist(db.Model):
@@ -8,7 +8,7 @@ class TokenBlacklist(db.Model):
     jti = db.Column(db.String(36), nullable=False, unique=True)  # JWT ID
     token_type = db.Column(db.String(16), nullable=False)  # 'access' or 'refresh'
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     expires_at = db.Column(db.DateTime, nullable=False)
     
     def __repr__(self):
@@ -27,7 +27,7 @@ class TokenBlacklist(db.Model):
             jti=jti,
             token_type=token_type,
             user_id=user_id,
-            expires_at=expires_at or datetime.utcnow()
+            expires_at=expires_at or datetime.now(timezone.utc)
         )
         db.session.add(blacklisted_token)
         return blacklisted_token

@@ -103,7 +103,9 @@ def validate_login(data):
     if not data:
         return False, "No data provided"
     
-    required_fields = ['email', 'password']
+    # Accept both 'email' and 'login' as field names for backward compatibility
+    email_field = 'email' if 'email' in data else 'login'
+    required_fields = [email_field, 'password']
     
     # Check required fields
     for field in required_fields:
@@ -111,7 +113,7 @@ def validate_login(data):
             return False, f"{field} is required"
     
     # Basic validation for email field
-    if len(data['email']) < 3:
+    if len(data[email_field]) < 3:
         return False, "Email must be at least 3 characters long"
     
     # Basic validation for password

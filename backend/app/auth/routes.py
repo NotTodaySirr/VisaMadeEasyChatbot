@@ -149,7 +149,7 @@ def refresh():
         if not current_user_id:
             return error_response('Invalid token identity', 401)
             
-        user = User.query.get(current_user_id)
+        user = db.session.get(User, current_user_id)
         
         if not user:
             return error_response('User not found', 404)
@@ -184,7 +184,7 @@ def get_current_user():
         if not current_user_id:
             return error_response('Invalid token identity', 401)
             
-        user = User.query.get(current_user_id)
+        user = db.session.get(User, current_user_id)
         
         if not user:
             return error_response('User not found', 404)
