@@ -1,10 +1,10 @@
 import pytest
-from app.utils.validators import (
+from app.core.utils import (
     validate_email, validate_password, validate_username,
     validate_year_of_birth, validate_educational_level,
-    validate_registration, validate_login
+    validate_registration, validate_login,
+    success_response, error_response, validation_error_response
 )
-from app.utils.responses import success_response, error_response, validation_error_response
 
 class TestValidators:
     """Test validation utility functions."""

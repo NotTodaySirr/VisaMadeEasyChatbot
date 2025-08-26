@@ -1,7 +1,7 @@
 import pytest
 import json
-from app.models.user.user import User
-from app.models.auth.token import TokenBlacklist
+from app.db.models.user import User
+from app.db.models.token import TokenBlacklist
 from app.core.extensions import db
 
 class TestAuthRegistration:

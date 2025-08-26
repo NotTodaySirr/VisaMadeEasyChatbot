@@ -5,10 +5,9 @@ from flask_jwt_extended import (
 )
 from datetime import datetime, timedelta
 from app.core.extensions import db
-from app.models.user.user import User
-from app.models.auth.token import TokenBlacklist
-from app.utils.validators import validate_registration, validate_login
-from app.utils.responses import success_response, error_response
+from app.db.models.user import User
+from app.db.models.token import TokenBlacklist
+from app.core.utils import validate_registration, validate_login, success_response, error_response
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 

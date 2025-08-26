@@ -11,8 +11,8 @@ os.environ['TEST_DATABASE_URL'] = 'sqlite:///:memory:'
 
 from app import create_app
 from app.core.extensions import db
-from app.models.user.user import User
-from app.models.auth.token import TokenBlacklist
+from app.db.models.user import User
+from app.db.models.token import TokenBlacklist
 
 class TestConfig:
     """Test configuration."""

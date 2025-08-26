@@ -1,7 +1,8 @@
 from flask import Flask
 from config import config
 from app.core.extensions import init_extensions, db, login_manager, jwt
-from app.models import User, TokenBlacklist
+from app.db.models.user import User
+from app.db.models.token import TokenBlacklist
 
 def create_app(config_name='default'):
     """Create and configure Flask application."""
@@ -34,12 +35,13 @@ def create_app(config_name='default'):
     
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
+        from app.core.extensions import db
         identity = jwt_data['sub']
         # Convert string identity back to integer for database lookup
         return db.session.get(User, int(identity))
     
     # Register blueprints
-    from app.auth import auth_bp
+    from app.api.auth.routes import auth_bp
     app.register_blueprint(auth_bp)
     
     return app

@@ -2,7 +2,7 @@ import pytest
 from flask import Blueprint
 from app import create_app
 from app.middleware.auth import auth_required, optional_auth, admin_required
-from app.models.user.user import User
+from app.db.models.user import User
 from app.core.extensions import db
 
 # Create test routes for middleware testing

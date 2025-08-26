@@ -1,0 +1,20 @@
+[
+  "tests/test_auth.py::TestAuthLogin::test_login_with_nonexistent_user",
+  "tests/test_auth.py::TestAuthLogin::test_login_with_wrong_password",
+  "tests/test_auth.py::TestAuthLogin::test_successful_login_with_email",
+  "tests/test_auth.py::TestAuthLogin::test_successful_login_with_username",
+  "tests/test_auth.py::TestAuthLogout::test_logout_without_token",
+  "tests/test_auth.py::TestAuthLogout::test_successful_logout",
+  "tests/test_auth.py::TestAuthMe::test_get_current_user_success",
+  "tests/test_auth.py::TestAuthMe::test_get_current_user_without_token",
+  "tests/test_auth.py::TestAuthRefresh::test_refresh_with_access_token",
+  "tests/test_auth.py::TestAuthRefresh::test_successful_token_refresh",
+  "tests/test_auth.py::TestAuthRegistration::test_duplicate_email_registration",
+  "tests/test_auth.py::TestAuthRegistration::test_duplicate_username_registration",
+  "tests/test_auth.py::TestAuthRegistration::test_invalid_email_registration",
+  "tests/test_auth.py::TestAuthRegistration::test_successful_registration",
+  "tests/test_auth.py::TestAuthRegistration::test_weak_password_registration",
+  "tests/test_auth.py::TestTokenBlacklist::test_blacklisted_token_rejection",
+  "tests/test_auth.py::TestValidation::test_missing_required_fields_login",
+  "tests/test_auth.py::TestValidation::test_missing_required_fields_registration"
+]
