@@ -1,0 +1,382 @@
+/* AuthForm Styling */
+.auth-form-container {
+    background-color: #FFFFFF;
+    border: 1px solid #7C8FBE;
+    border-radius: 32px;
+    width: 360px; /* Reduced from 400px */
+    padding: 32px 24px; /* Reduced from 40px 32px */
+    max-height: 85vh; /* Increased max height */
+    overflow-y: auto; /* Allow scrolling within form if needed */
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* Reduced from 24px */
+}
+
+/* Error Message */
+.auth-form-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    padding: 12px 16px;
+    border-radius: 8px;
+}
+
+.auth-form-error p {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Form Fields */
+.auth-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.auth-form-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; /* Reduced from 18px */
+    color: #0F172B;
+    font-weight: 400;
+    text-align: left; /* Explicitly set to left alignment */
+    align-self: flex-start; /* Ensure it aligns to the left */
+}
+
+.auth-form-input-wrapper {
+    position: relative;
+}
+
+.auth-form-input {
+    width: 100%;
+    padding: 12px 16px; /* Reduced from 14px 18px */
+    border: 1px solid #D9D9D9;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; /* Reduced from 18px */
+    color: #0F172B;
+    background-color: #FFFFFF;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* Disable browser's native password visibility toggle */
+.auth-form-input[type="password"]::-ms-reveal,
+.auth-form-input[type="password"]::-ms-clear {
+    display: none;
+}
+
+.auth-form-input[type="password"]::-webkit-credentials-auto-fill-button,
+.auth-form-input[type="password"]::-webkit-strong-password-auto-fill-button {
+    display: none !important;
+}
+
+/* Additional rules for different browsers */
+.auth-form-input[type="password"]::-webkit-password-toggle-button {
+    display: none;
+}
+
+.auth-form-input[type="password"]::-moz-password-reveal {
+    display: none;
+}
+
+/* Hide any potential eye icons from browsers */
+input[type="password"]::-webkit-password-reveal {
+    display: none;
+}
+
+input[type="password"]::-webkit-eye {
+    display: none;
+}
+
+.auth-form-input:focus {
+    outline: none;
+    border-color: #1E46A4;
+    box-shadow: 0 0 0 2px rgba(30, 70, 164, 0.1);
+}
+
+.auth-form-input::placeholder {
+    color: #B3B3B3;
+}
+
+.auth-form-input-password {
+    padding-right: 48px;
+}
+
+/* Password Toggle Button */
+.auth-form-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #0F172B;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.auth-form-password-toggle:hover {
+    color: #1E46A4;
+}
+
+/* Submit Button */
+.auth-form-submit {
+    width: 100%;
+    background-color: #1E46A4;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px; /* Reduced from 18px */
+    padding: 12px; /* Reduced from 14px */
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-form-submit:hover:not(:disabled) {
+    background-color: #1a3d8f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 70, 164, 0.2);
+}
+
+.auth-form-submit:disabled {
+    background-color: #93c5fd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Footer Links */
+.auth-form-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Reduced from 16px */
+}
+
+.auth-form-link-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.auth-form-link-single {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.auth-form-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; /* Reduced from 18px */
+    color: #0F172B;
+}
+
+.auth-form-link-button {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; /* Reduced from 18px */
+    color: #1E46A4;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.auth-form-link-button:hover {
+    text-decoration: underline;
+    color: #1a3d8f;
+}
+
+/* Future placeholders */
+.auth-form-placeholder {
+    text-align: center;
+    color: #0F172B;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    padding: 40px 20px;
+}
+
+/* Register Form Specific Styles */
+
+/* Ensure all submit buttons in register form use deep blue */
+.auth-form-container .auth-form-submit {
+    background-color: #1E46A4 !important;
+    color: #FFFFFF !important;
+}
+
+.auth-form-container .auth-form-submit:hover:not(:disabled) {
+    background-color: #1a3d8f !important;
+}
+
+.auth-form-container .auth-form-submit:disabled {
+    background-color: #93c5fd !important;
+    color: #FFFFFF !important;
+}
+
+/* Section Headers */
+.auth-form-section-header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Reduced from 4px */
+    margin-bottom: 12px; /* Reduced from 16px */
+}
+
+.auth-form-section-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px; /* Reduced from 20px */
+    font-weight: 700;
+    color: #0F172B;
+    margin: 0;
+    text-align: left;
+}
+
+/* Select Dropdown */
+.auth-form-select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%230F172B' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+    padding-right: 40px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.auth-form-select:focus {
+    outline: none;
+    border-color: #1E46A4;
+    box-shadow: 0 0 0 2px rgba(30, 70, 164, 0.1);
+}
+
+/* Checkbox Field */
+.auth-form-checkbox-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.auth-form-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-form-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #D9D9D9;
+    border-radius: 4px;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    position: relative;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.auth-form-checkbox:checked {
+    background-color: #1E46A4;
+    border-color: #1E46A4;
+}
+
+.auth-form-checkbox:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.auth-form-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(30, 70, 164, 0.1);
+}
+
+.auth-form-checkbox-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #0F172B;
+    cursor: pointer;
+    flex: 1;
+}
+
+.auth-form-checkbox-description {
+    margin-left: 28px;
+}
+
+/* Button Group */
+.auth-form-button-group {
+    display: flex;
+    gap: 12px; /* Reduced from 16px */
+    width: 100%;
+}
+
+.auth-form-back-button {
+    flex: 1;
+    background-color: #FFFFFF;
+    color: #1E46A4;
+    border: 2px solid #1E46A4;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px; /* Reduced from 18px */
+    padding: 12px; /* Reduced from 14px */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-form-back-button:hover {
+    background-color: #f8fafc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 70, 164, 0.1);
+}
+
+.auth-form-button-group .auth-form-submit {
+    flex: 1;
+    background-color: #1E46A4 !important;
+    color: #FFFFFF !important;
+    border: none !important;
+}
+
+.auth-form-button-group .auth-form-submit:hover:not(:disabled) {
+    background-color: #1a3d8f !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(30, 70, 164, 0.2);
+}
+
+.auth-form-button-group .auth-form-submit:disabled {
+    background-color: #93c5fd !important;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .auth-form-container {
+        width: 90%;
+        max-width: 340px; /* Reduced from 356px */
+        padding: 24px 20px; /* Reduced from 32px 24px */
+    }
+    
+    .auth-form-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .auth-form {
+        gap: 14px; /* Further reduced for mobile */
+    }
+}

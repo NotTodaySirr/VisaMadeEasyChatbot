@@ -8,9 +8,27 @@
   box-sizing: border-box;
 }
 
+html {
+  background-color: #EDF2FB; /* Light blue background */
+  height: 100%;
+  overflow: hidden; /* Remove scrollbar */
+}
+
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   color: #1f2937;
-  background-color: #f9fafb;
+  background-color: #EDF2FB; /* Light blue background to match login page */
+  height: 100vh; /* Fixed viewport height */
+  overflow: hidden; /* Remove scrollbar */
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  background-color: #EDF2FB; /* Light blue background for React root */
+  height: 100vh; /* Fixed viewport height */
+  overflow: hidden; /* Remove scrollbar */
+  display: flex;
+  flex-direction: column;
 }
