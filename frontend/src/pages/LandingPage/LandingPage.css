@@ -1,0 +1,279 @@
+/* Landing Page Styles */
+.landing-page {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    background-color: #EDF2FB;
+}
+
+/* Section Common Styles */
+.landing-page section {
+    width: 100%;
+    padding: 72px 20px;
+    box-sizing: border-box;
+}
+
+.section-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.21;
+    color: #0F172B;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* Features Section */
+.features-section {
+    background-color: #EDF2FB;
+}
+
+.features-container {
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+.features-grid {
+    display: flex;
+    justify-content: center;
+    gap: 104px;
+    flex-wrap: wrap;
+}
+
+/* About Section */
+.about-section {
+    background-color: #EDF2FB;
+}
+
+.about-container {
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+.about-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.about-intro {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+    text-align: left;
+    margin: 0;
+}
+
+/* Team Section */
+.team-section {
+    background-color: #EDF2FB;
+}
+
+.team-container {
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+.team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 23px;
+    justify-content: center;
+}
+
+/* FAQ Section */
+.faq-section {
+    background-color: #EDF2FB;
+}
+
+.faq-container {
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+.faq-content {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Tech Partners Section */
+.tech-partners-section {
+    background-color: #EDF2FB;
+}
+
+.tech-partners-container {
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+.tech-partners-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 61px;
+    flex-wrap: wrap;
+}
+
+/* Footer */
+.landing-footer {
+    background-color: #E2EAFC;
+    padding: 32px 100px;
+}
+
+.footer-container {
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    gap: 190px;
+    margin-bottom: 41px;
+}
+
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 260px;
+}
+
+.footer-logo {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+}
+
+.footer-tagline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+    text-align: center;
+    margin: 0;
+}
+
+.footer-links,
+.footer-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 260px;
+}
+
+.footer-links h4,
+.footer-contact h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+}
+
+.footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.footer-links li,
+.footer-contact p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+    cursor: pointer;
+}
+
+.footer-links li:hover {
+    color: #1E46A4;
+}
+
+.footer-copyright {
+    text-align: center;
+}
+
+.footer-copyright p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .landing-page section {
+        padding: 40px 15px;
+    }
+    
+    .section-title {
+        font-size: 24px;
+        margin-bottom: 30px;
+    }
+    
+    .features-grid {
+        flex-direction: column;
+        gap: 40px;
+    }
+    
+    .team-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .tech-partners-grid {
+        justify-content: center;
+        gap: 30px;
+    }
+    
+    .landing-footer {
+        padding: 24px 20px;
+    }
+    
+    .footer-content {
+        flex-direction: column;
+        gap: 30px;
+        text-align: center;
+    }
+    
+    .footer-brand,
+    .footer-links,
+    .footer-contact {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .landing-page section {
+        padding: 30px 10px;
+    }
+    
+    .section-title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .features-grid {
+        gap: 30px;
+    }
+    
+    .tech-partners-grid {
+        gap: 20px;
+    }
+}

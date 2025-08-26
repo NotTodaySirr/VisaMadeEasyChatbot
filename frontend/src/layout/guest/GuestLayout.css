@@ -2,7 +2,7 @@
 .guest-layout {
     display: flex;
     flex-direction: column;
-    min-height: 80vh;
+    min-height: 100vh;
     background-color: #EDF2FB;
 }
 
@@ -10,22 +10,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     margin: 0 auto;
 }
 
-/* Responsive design for mobile devices */
-@media (max-width: 768px) {
-    .guest-main-container {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .guest-main-container {
-        padding: 10px;
-    }
-}

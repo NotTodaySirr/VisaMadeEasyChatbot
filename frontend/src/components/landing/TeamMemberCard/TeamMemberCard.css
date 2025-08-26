@@ -1,0 +1,141 @@
+/* Team Member Card Styles */
+.team-member-card {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    padding: 16px;
+    background-color: #CCDBFD;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 400px;
+    box-sizing: border-box;
+}
+
+.team-member-photo {
+    flex-shrink: 0;
+}
+
+.team-member-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.team-member-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: #0F172B;
+    text-transform: uppercase;
+}
+
+.team-member-info {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+    min-width: 0;
+}
+
+.team-member-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+}
+
+.team-member-role,
+.team-member-linkedin,
+.team-member-location {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+}
+
+.team-member-linkedin a {
+    color: #0F172B;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.team-member-linkedin a:hover {
+    color: #1E46A4;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .team-member-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+        padding: 12px;
+        max-width: 280px;
+    }
+    
+    .team-member-photo {
+        align-self: center;
+    }
+    
+    .team-member-image,
+    .team-member-placeholder {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .team-member-placeholder {
+        font-size: 16px;
+    }
+    
+    .team-member-name {
+        font-size: 18px;
+    }
+    
+    .team-member-role,
+    .team-member-linkedin,
+    .team-member-location {
+        font-size: 14px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .team-member-card {
+        gap: 12px;
+        padding: 10px;
+        max-width: 240px;
+    }
+    
+    .team-member-image,
+    .team-member-placeholder {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .team-member-placeholder {
+        font-size: 14px;
+    }
+    
+    .team-member-name {
+        font-size: 16px;
+    }
+    
+    .team-member-role,
+    .team-member-linkedin,
+    .team-member-location {
+        font-size: 12px;
+    }
+}

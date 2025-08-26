@@ -11,7 +11,6 @@
 html {
   background-color: #EDF2FB; /* Light blue background */
   height: 100%;
-  overflow: hidden; /* Remove scrollbar */
 }
 
 body {
@@ -19,16 +18,14 @@ body {
   line-height: 1.5;
   color: #1f2937;
   background-color: #EDF2FB; /* Light blue background to match login page */
-  height: 100vh; /* Fixed viewport height */
-  overflow: hidden; /* Remove scrollbar */
+  min-height: 100vh; /* Minimum viewport height to allow content to expand */
   margin: 0;
   padding: 0;
 }
 
 #root {
   background-color: #EDF2FB; /* Light blue background for React root */
-  height: 100vh; /* Fixed viewport height */
-  overflow: hidden; /* Remove scrollbar */
+  min-height: 100vh; /* Minimum viewport height to allow content to expand */
   display: flex;
   flex-direction: column;
 }

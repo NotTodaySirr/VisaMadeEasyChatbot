@@ -1,0 +1,101 @@
+/* Tech Partner Card Styles */
+.tech-partner-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100px;
+    padding: 8px;
+}
+
+.tech-logo {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.tech-logo-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 12px;
+}
+
+.tech-logo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: white;
+    border-radius: 12px;
+}
+
+.tech-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+    text-align: center;
+    margin: 0;
+    word-break: break-word;
+}
+
+/* Hover Effects */
+.tech-partner-card {
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+.tech-partner-card:hover {
+    transform: translateY(-2px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tech-partner-card {
+        width: 80px;
+        gap: 3px;
+    }
+    
+    .tech-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .tech-logo-placeholder {
+        font-size: 14px;
+    }
+    
+    .tech-name {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tech-partner-card {
+        width: 70px;
+        gap: 2px;
+    }
+    
+    .tech-logo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .tech-logo-placeholder {
+        font-size: 12px;
+    }
+    
+    .tech-name {
+        font-size: 12px;
+    }
+}
