@@ -9,7 +9,7 @@
 /* Section Common Styles */
 .landing-page section {
     width: 100%;
-    padding: 72px 20px;
+    padding: 40px 20px;
     box-sizing: border-box;
 }
 
@@ -64,6 +64,16 @@
     color: #0F172B;
     text-align: left;
     margin: 0;
+}
+
+/* Introduction Section */
+.introduction-section-wrapper {
+    background-color: #EDF2FB;
+}
+
+.introduction-container {
+    max-width: 940px;
+    margin: 0 auto;
 }
 
 /* Team Section */
@@ -143,12 +153,42 @@
 }
 
 .footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 0;
+}
+
+.footer-logo-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-logo-svg {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+.footer-logo-text {
+    display: inline;
+}
+
+.footer-logo-visamade {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     font-size: 20px;
     line-height: 1.21;
     color: #0F172B;
-    margin: 0;
+}
+
+.footer-logo-easy {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 1.21;
+    color: #1E46A4;
 }
 
 .footer-tagline {
@@ -157,7 +197,7 @@
     font-size: 16px;
     line-height: 1.21;
     color: #0F172B;
-    text-align: center;
+    text-align: left;
     margin: 0;
 }
 
@@ -203,6 +243,25 @@
     color: #1E46A4;
 }
 
+/* Footer Link Buttons */
+.footer-link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s ease;
+}
+
+.footer-link-button:hover {
+    color: #1E46A4;
+}
+
 .footer-copyright {
     text-align: center;
 }
@@ -219,7 +278,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .landing-page section {
-        padding: 40px 15px;
+        padding: 30px 15px;
     }
     
     .section-title {
@@ -261,7 +320,7 @@
 
 @media (max-width: 480px) {
     .landing-page section {
-        padding: 30px 10px;
+        padding: 20px 10px;
     }
     
     .section-title {

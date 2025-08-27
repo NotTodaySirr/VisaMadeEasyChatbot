@@ -2,36 +2,54 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GuestLayout from '../../../layout/guest';
 import AuthForm from '../../../components/auth/AuthForm/AuthForm';
+import { useAuth } from '../../../hooks/auth/useAuth.js';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const { register, registerLoading, error: authError, clearError } = useAuth();
   const [error, setError] = useState(null);
 
   const handleRegister = async (formData) => {
-    setLoading(true);
+    // Clear any previous errors
     setError(null);
+    clearError();
     
     try {
-      // Future: Implement actual register API call
-      console.log('Register attempt with:', formData);
+      // Map the form data to match backend expectations
+      const registrationData = {
+        email: formData.email,
+        username: formData.name, // Map 'name' to 'username' for backend
+        password: formData.password,
+        yearofbirth: parseInt(formData.birthYear), // Convert to number
+        educational_level: mapEducationLevel(formData.educationLevel)
+      };
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Registration attempt with:', registrationData);
       
-      // Future: Handle successful registration
-      // - Create user account
-      // - Send verification email
-      // - Show success message
-      // - Navigate to login or dashboard
-      console.log('Registration successful');
+      const result = await register(registrationData);
+      
+      if (!result.success) {
+        setError(result.message);
+      }
+      // Navigation is handled by the useAuth hook on success
       
     } catch (err) {
       setError('Đăng ký thất bại. Vui lòng kiểm tra lại thông tin.');
       console.error('Registration error:', err);
-    } finally {
-      setLoading(false);
     }
+  };
+
+  // Map frontend education levels to backend expected values
+  const mapEducationLevel = (level) => {
+    const educationMap = {
+      'secondary': 'High School',
+      'high_school': 'High School', 
+      'college': 'Associate Degree',
+      'university': "Bachelor's Degree",
+      'master': "Master's Degree",
+      'phd': 'Doctorate'
+    };
+    return educationMap[level] || 'Other';
   };
 
   return (
@@ -63,8 +81,8 @@ const RegisterPage = () => {
         <AuthForm
           mode="register"
           onSubmit={handleRegister}
-          loading={loading}
-          error={error}
+          loading={registerLoading}
+          error={error || authError}
         />
       </div>
     </GuestLayout>

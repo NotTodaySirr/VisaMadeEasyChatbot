@@ -11,6 +11,7 @@
 html {
   background-color: #EDF2FB; /* Light blue background */
   height: 100%;
+  scroll-behavior: smooth; /* Smooth scrolling for anchor links */
 }
 
 body {

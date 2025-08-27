@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import GuestLayout from '../../layout/guest/GuestLayout';
 import HeroSection from '../../components/landing/HeroSection';
+import IntroductionSection from '../../components/landing/IntroductionSection';
 import FeatureCard from '../../components/landing/FeatureCard/FeatureCard';
 import TeamMemberCard from '../../components/landing/TeamMemberCard/TeamMemberCard';
 import { FAQSection } from '../../components/landing/FAQAccordion/FAQAccordion';
@@ -9,9 +11,20 @@ import { featuresData } from '../../components/landing/data/featuresData';
 import { teamData } from '../../components/landing/data/teamData';
 import { faqData } from '../../components/landing/data/faqData';
 import { techPartnersData } from '../../components/landing/data/techPartnersData';
+import chatbotIcon from '../../assets/chatbot.svg';
 import './LandingPage.css';
 
 const LandingPage = () => {
+    const navigate = useNavigate();
+
+    // Function to scroll to sections with smooth effect
+    const scrollToSection = (sectionId) => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${sectionId}`);
+        }
+    };
     return (
         <GuestLayout pageType="default">
             <div className="landing-page">
@@ -19,7 +32,7 @@ const LandingPage = () => {
                 <HeroSection />
 
                 {/* Features Section */}
-                <section className="features-section">
+                <section id="features" className="features-section">
                     <div className="features-container">
                         <h2 className="section-title">Tính năng nổi bật</h2>
                         <div className="features-grid">
@@ -35,35 +48,15 @@ const LandingPage = () => {
                     </div>
                 </section>
 
-                {/* About Section */}
-                <section className="about-section">
-                    <div className="about-container">
-                        <h2 className="section-title">Giới thiệu</h2>
-                        <div className="about-content">
-                            <p className="about-intro">
-                                VisaMadeEasy được khởi nguồn từ những trải nghiệm thực tế của các bạn trẻ Việt – 
-                                những người từng mày mò trong mê cung thủ tục du học và cũng từng bị trì hoãn giấc mơ vì thiếu thông tin. 
-                                Chúng tôi – một nhóm sinh viên trong và ngoài nước – đã quyết định cùng nhau tạo ra VisaMadeEasy: 
-                                một chatbot đơn giản, miễn phí, luôn sẵn sàng hỗ trợ các bạn khác trên hành trình hội nhập toàn cầu.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                {/* Team Section */}
-                <section className="team-section">
-                    <div className="team-container">
-                        <h2 className="section-title">Đội ngũ của chúng tôi</h2>
-                        <div className="team-grid">
-                            {teamData.map((member) => (
-                                <TeamMemberCard key={member.id} member={member} />
-                            ))}
-                        </div>
+                {/* Introduction Section */}
+                <section id="about" className="introduction-section-wrapper">
+                    <div className="introduction-container">
+                        <IntroductionSection />
                     </div>
                 </section>
 
                 {/* FAQ Section */}
-                <section className="faq-section">
+                <section id="faq" className="faq-section">
                     <div className="faq-container">
                         <h2 className="section-title">Câu hỏi thường gặp</h2>
                         <div className="faq-content">
@@ -75,7 +68,7 @@ const LandingPage = () => {
                 </section>
 
                 {/* Tech Partners Section */}
-                <section className="tech-partners-section">
+                <section id="tech-partners" className="tech-partners-section">
                     <div className="tech-partners-container">
                         <h2 className="section-title">Các phần mềm hỗ trợ</h2>
                         <div className="tech-partners-grid">
@@ -91,21 +84,49 @@ const LandingPage = () => {
                     <div className="footer-container">
                         <div className="footer-content">
                             <div className="footer-brand">
-                                <h3 className="footer-logo">VisaMadeEasy</h3>
+                                <div className="footer-logo">
+                                    <div className="footer-logo-icon">
+                                        <img src={chatbotIcon} alt="Chatbot" className="footer-logo-svg" />
+                                    </div>
+                                    <span className="footer-logo-text">
+                                        <span className="footer-logo-visamade">visamade</span><span className="footer-logo-easy">easy</span>
+                                    </span>
+                                </div>
                                 <p className="footer-tagline">Visa rõ ràng – Du học nhẹ nhàng.</p>
-                            </div>
-                            <div className="footer-links">
-                                <h4>Tổng quan</h4>
-                                <ul>
-                                    <li>Giới thiệu</li>
-                                    <li>Câu hỏi thường gặp</li>
-                                    <li>Các phần mềm hỗ trợ</li>
-                                </ul>
                             </div>
                             <div className="footer-contact">
                                 <h4>Thông tin liên hệ</h4>
                                 <p>Email: ...</p>
                                 <p>Hotline: ... (Mr. Minh - Team lead)</p>
+                            </div>
+                            <div className="footer-links">
+                                <h4>Tổng quan</h4>
+                                <ul>
+                                    <li>
+                                        <button 
+                                            onClick={() => scrollToSection('about')} 
+                                            className="footer-link-button"
+                                        >
+                                            Giới thiệu
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button 
+                                            onClick={() => scrollToSection('faq')} 
+                                            className="footer-link-button"
+                                        >
+                                            Câu hỏi thường gặp
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button 
+                                            onClick={() => scrollToSection('tech-partners')} 
+                                            className="footer-link-button"
+                                        >
+                                            Các phần mềm hỗ trợ
+                                        </button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                         <div className="footer-copyright">

@@ -1,0 +1,228 @@
+/* Introduction Section Styles */
+.introduction-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.section-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+/* Section Titles */
+.section-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+    text-align: left;
+}
+
+.subsection-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.21;
+    color: #0F172B;
+    margin: 0;
+    text-align: left;
+}
+
+/* Introduction Content */
+.intro-content {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.21;
+    color: #0F172B;
+}
+
+.intro-content p {
+    margin: 0;
+}
+
+.intro-content strong {
+    font-weight: 700;
+}
+
+/* Bullet Points */
+.bullet-points {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.bullet-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+}
+
+.bullet-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-top: 0px;
+}
+
+.bullet-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.value-icon {
+    background-color: #FFFFFF;
+    border-radius: 50%;
+    padding: 2px;
+}
+
+.bullet-text {
+    flex: 1;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.4;
+    color: #0F172B;
+    text-align: left;
+    margin: 0;
+}
+
+.bullet-text p {
+    margin: 0;
+    text-align: left;
+    padding: 0;
+}
+
+.bullet-text strong {
+    font-weight: 700;
+}
+
+/* Team Section */
+.team-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 23px;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+}
+
+/* Subsection Spacing */
+.intro-subsection,
+.vision-mission-subsection,
+.core-values-subsection,
+.commitments-subsection,
+.team-subsection {
+    width: 100%;
+}
+
+.vision-mission-subsection,
+.core-values-subsection,
+.commitments-subsection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .introduction-section {
+        gap: 12px;
+    }
+    
+    .section-container {
+        gap: 10px;
+    }
+    
+    .section-title {
+        font-size: 26px;
+    }
+    
+    .subsection-title {
+        font-size: 20px;
+    }
+    
+    .intro-content,
+    .bullet-text {
+        font-size: 14px;
+    }
+    
+    .team-grid {
+        gap: 16px;
+        justify-content: center;
+    }
+    
+    .bullet-point {
+        gap: 2px;
+    }
+    
+    .bullet-icon {
+        width: 26px;
+        height: 26px;
+        margin-top: 0px;
+    }
+    
+    .bullet-icon-img {
+        width: 22px;
+        height: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .introduction-section {
+        gap: 10px;
+    }
+    
+    .section-container {
+        gap: 8px;
+    }
+    
+    .section-title {
+        font-size: 24px;
+    }
+    
+    .subsection-title {
+        font-size: 18px;
+    }
+    
+    .intro-content,
+    .bullet-text {
+        font-size: 13px;
+    }
+    
+    .bullet-points {
+        gap: 8px;
+    }
+    
+    .bullet-point {
+        gap: 2px;
+    }
+    
+    .bullet-icon {
+        width: 24px;
+        height: 24px;
+        margin-top: 0px;
+    }
+    
+    .bullet-icon-img {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .team-grid {
+        gap: 12px;
+        justify-content: center;
+    }
+}

@@ -6,6 +6,11 @@ import chatbotIcon from '../../assets/chatbot.svg';
 const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    
+    // Determine if we're on login or register pages for active state styling
+    const isOnLoginPage = location.pathname === '/auth/login';
+    const isOnRegisterPage = location.pathname === '/auth/register';
+    const isOnLandingPage = location.pathname === '/landing' || location.pathname === '/';
 
     // State for dropdown menu (for future use)
     const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
@@ -108,10 +113,18 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         </Link>
                     </div>
                     <div className="topbar-right">
-                        <Link to="/auth/login" className="topbar-button topbar-button-login">
+                        <Link to="/auth/login" className={`topbar-button ${
+                            isOnLoginPage 
+                                ? 'topbar-button-login-active' 
+                                : 'topbar-button-login'
+                        }`}>
                             Đăng nhập
                         </Link>
-                        <Link to="/auth/register" className="topbar-button topbar-button-register">
+                        <Link to="/auth/register" className={`topbar-button ${
+                            isOnRegisterPage 
+                                ? 'topbar-button-register-active' 
+                                : 'topbar-button-register'
+                        }`}>
                             Đăng ký
                         </Link>
                     </div>
@@ -132,10 +145,18 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         </Link>
                     </div>
                     <div className="topbar-right">
-                        <Link to="/auth/login" className="topbar-button topbar-button-login-alt">
+                        <Link to="/auth/login" className={`topbar-button ${
+                            isOnLoginPage 
+                                ? 'topbar-button-login-alt-active' 
+                                : 'topbar-button-login-alt'
+                        }`}>
                             Đăng nhập
                         </Link>
-                        <Link to="/auth/register" className="topbar-button topbar-button-register-alt">
+                        <Link to="/auth/register" className={`topbar-button ${
+                            isOnRegisterPage 
+                                ? 'topbar-button-register-alt-active' 
+                                : 'topbar-button-register-alt'
+                        }`}>
                             Đăng ký
                         </Link>
                     </div>
@@ -160,10 +181,18 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         </button>
                     </div>
                     <div className="topbar-right">
-                        <Link to="/auth/login" className="topbar-button topbar-button-login">
+                        <Link to="/auth/login" className={`topbar-button ${
+                            isOnLoginPage 
+                                ? 'topbar-button-login-active' 
+                                : 'topbar-button-login'
+                        }`}>
                             Đăng nhập
                         </Link>
-                        <Link to="/auth/register" className="topbar-button topbar-button-register">
+                        <Link to="/auth/register" className={`topbar-button ${
+                            isOnRegisterPage 
+                                ? 'topbar-button-register-active' 
+                                : 'topbar-button-register'
+                        }`}>
                             Đăng ký
                         </Link>
                     </div>

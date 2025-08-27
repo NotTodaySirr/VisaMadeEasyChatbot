@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 40px; /* Increased padding from 12px 36px */
+    padding: 12px 36px; /* Updated to match Figma design */
     font-family: 'Inter', sans-serif;
     box-sizing: border-box;
     width: 100%; /* Changed from 80% */
@@ -14,6 +14,7 @@
     z-index: 1000; /* Ensure it stays on top */
     background-color: #FFFFFF; /* Assuming white background for logged-in state, adjust if needed */
     border-radius: 88px; /* Add rounded corners to match Figma design */
+    line-height: 1; /* Normalize line-height for perfect alignment */
 }
 
 .topbar-left,
@@ -21,6 +22,7 @@
 .topbar-right {
     display: flex;
     align-items: center;
+    line-height: 1; /* Ensure no line-height interference */
 }
 
 .topbar-left {
@@ -34,14 +36,14 @@
 }
 
 .topbar-right {
-    gap: 20px; /* Gap for buttons or user avatar */
+    gap: 30px; /* Updated to match Figma design */
 }
 
 /* Logo Styling */
 .topbar-logo {
     text-decoration: none;
     display: flex;
-    align-items: center;
+    align-items: baseline; /* Changed from center to baseline for proper text alignment */
     gap: 10px; /* Increased gap between icon and text */
 }
 
@@ -58,20 +60,31 @@
 }
 
 .logo-text {
-    display: inline; /* Ensure no spacing between spans */
+    display: flex; /* Changed from inline to inline-flex for better alignment */
+    align-items: center; /* Ensure baseline alignment */
+    margin: 0; /* Remove any default margin */
+    padding: 0; /* Remove any default padding */
 }
 
 .logo-visamade {
     font-weight: 700;
-    font-size: 24px; /* Increased from 20px */
+    font-size: 16px; /* Match navigation links for perfect alignment */
     color: #0F172B; /* As per Figma */
+    line-height: 1; /* Normalize line-height for alignment */
+    margin: 0; /* Remove margin */
+    padding: 0; /* Remove padding */
+    vertical-align: baseline; /* Ensure baseline alignment */
 }
 
 .logo-easy {
     font-weight: 700;
-    font-size: 24px; /* Increased from 20px */
+    font-size: 16px; /* Match navigation links for perfect alignment */
     color: #1E46A4; /* As per Figma */
     text-decoration: underline; /* Add underline to Easy */
+    line-height: 5; /* Normalize line-height for alignment */
+    margin: 0; /* Remove margin */
+    padding: 0; /* Remove padding */
+    vertical-align: baseline; /* Ensure baseline alignment */
 }
 
 .topbar-logo,
@@ -86,14 +99,15 @@
 /* Link Styling */
 .topbar-link {
     text-decoration: none;
-    font-size: 18px; /* Increased from 16px */
+    font-size: 16px; /* Updated to match Figma design */
     color: #0F172B; /* Default link color, can be specific */
-    padding: 10px 14px; /* Increased from 8px 12px */
+    padding: 8px 12px; /* Updated to match Figma design */
     background: none;
     border: none;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
     transition: all 0.3s ease;
+    line-height: 1; /* Normalize line-height for alignment */
 }
 
 .topbar-link:hover {
@@ -109,17 +123,18 @@
 
 /* Button Styling */
 .topbar-button {
-    padding: 10px 24px; /* Increased from 8px 20px */
+    padding: 8px 20px; /* Updated to match Figma design */
     border-radius: 88px; /* As per Figma */
     font-weight: 700;
-    font-size: 18px; /* Increased from 16px */
+    font-size: 16px; /* Updated to match Figma design */
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 2px solid transparent; /* Base for bordered buttons */
+    border: 2px solid #1E46A4; /* Add default border for all buttons */
     transition: all 0.3s ease;
+    line-height: 1; /* Normalize line-height for alignment */
 }
 
 .topbar-button:hover {
@@ -178,14 +193,28 @@
 
 
 .topbar-not-logged-in-default .topbar-button-login {
-    color: #1E46A4; /* Text color */
-    border-color: #1E46A4; /* Border color */
-    background-color: transparent;
+    color: #1E46A4; /* Blue text */
+    border-color: #1E46A4; /* Blue border */
+    background-color: transparent; /* Transparent background */
 }
 
 .topbar-not-logged-in-default .topbar-button-register {
-    color: #FFFFFF; /* Text color */
-    background-color: #1E46A4; /* Background color */
+    color: #1E46A4; /* Blue text - changed to match outlined style */
+    border-color: #1E46A4; /* Blue border */
+    background-color: transparent; /* Transparent background - changed from filled */
+}
+
+/* Active state styles for default landing page */
+.topbar-not-logged-in-default .topbar-button-login-active {
+    color: #FFFFFF; /* White text for active state */
+    background-color: #1E46A4; /* Blue background for active state */
+    border-color: #1E46A4; /* Blue border */
+}
+
+.topbar-not-logged-in-default .topbar-button-register-active {
+    color: #FFFFFF; /* White text for active state */
+    background-color: #1E46A4; /* Blue background for active state */
+    border-color: #1E46A4; /* Blue border */
 }
 
 /* Not Logged In - Started (e.g., after clicking "Bắt đầu" but before login/register actions) */
@@ -197,13 +226,27 @@
     color: #0F172B;
 }
 .topbar-not-logged-in-started .topbar-button-login-alt { /* "Đăng nhập" button */
-    color: #FFFFFF;
-    background-color: #1E46A4;
+    color: #1E46A4; /* Blue text - changed to outlined style by default */
+    border-color: #1E46A4; /* Blue border */
+    background-color: transparent; /* Transparent background - changed from filled */
 }
 .topbar-not-logged-in-started .topbar-button-register-alt { /* "Đăng ký" button */
-    color: #1E46A4;
-    border-color: #1E46A4;
-    background-color: transparent;
+    color: #1E46A4; /* Blue text */
+    border-color: #1E46A4; /* Blue border */
+    background-color: transparent; /* Transparent background - changed to match outlined style */
+}
+
+/* Active state styles for started page */
+.topbar-not-logged-in-started .topbar-button-login-alt-active { /* Active "Đăng nhập" button */
+    color: #FFFFFF; /* White text */
+    background-color: #1E46A4; /* Blue background */
+    border-color: #1E46A4; /* Blue border */
+}
+
+.topbar-not-logged-in-started .topbar-button-register-alt-active { /* Active "Đăng ký" button */
+    color: #FFFFFF; /* White text */
+    background-color: #1E46A4; /* Blue background */
+    border-color: #1E46A4; /* Blue border */
 }
 
 
@@ -226,6 +269,19 @@
     color: #1E46A4;
     border-color: #1E46A4;
     background-color: transparent;
+}
+
+/* Active state styles for in-chat page */
+.topbar-not-logged-in-chat .topbar-button-login-active {
+    color: #FFFFFF; /* White text for active state */
+    background-color: #1E46A4; /* Blue background for active state */
+    border-color: #1E46A4; /* Blue border */
+}
+
+.topbar-not-logged-in-chat .topbar-button-register-active {
+    color: #FFFFFF; /* White text for active state */
+    background-color: #1E46A4; /* Blue background for active state */
+    border-color: #1E46A4; /* Blue border */
 }
 
 
@@ -276,7 +332,7 @@
 /* Responsive adjustments if needed */
 @media (max-width: 768px) {
     .topbar {
-        padding: 10px 15px;
+        padding: 8px 15px;
     }
     .topbar-center {
         display: none; /* Hide center links on small screens, or use a hamburger menu */
@@ -286,9 +342,17 @@
     }
     .topbar-right {
         justify-content: flex-end;
+        gap: 15px;
     }
     .logo-visamade, .logo-easy {
-        font-size: 18px;
+        font-size: 16px;
+        vertical-align: baseline;
+        margin: 0;
+        padding: 0;
+    }
+    .topbar-button {
+        padding: 6px 16px;
+        font-size: 14px;
     }
 }
 
@@ -314,7 +378,7 @@ html {
 
 /* Scroll padding for section navigation */
 section[id] {
-    scroll-margin-top: 100px; /* Adjust for the height of the topbar */
+    scroll-margin-top: 80px; /* Reduced to account for smaller header */
 }
 
 /* Add space for TopBar when scrolling up/down */
@@ -338,7 +402,7 @@ body {
 
 /* Adjust scroll margins to account for fixed topbar */
 section[id] {
-    scroll-margin-top: 100px; /* Tăng lề trên khi scroll để có thêm không gian */
+    scroll-margin-top: 80px; /* Reduced to account for smaller header */
 }
 
 /* Custom scrollbar for nice UX */
@@ -359,7 +423,6 @@ section[id] {
     background: #0F172B;
 }
 
-/* TopBar More Options Dropdown - matching sidebar styling */
 .topbar-more-options-container {
     position: relative;
     display: inline-block;

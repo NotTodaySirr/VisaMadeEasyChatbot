@@ -164,8 +164,7 @@ const AuthForm = ({
             type="button"
             className="auth-form-link-button"
             onClick={() => {
-              // Future: Continue as guest
-              console.log('Continue as guest');
+              navigate('/chat/guest');
             }}
           >
             Tiếp tục với vai trò khách
