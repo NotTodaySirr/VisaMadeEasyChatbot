@@ -12,8 +12,8 @@ const MainChatPage = () => {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '60px 16px',
-        minHeight: 'calc(100vh - 120px)',
+        padding: '30px 16px',
+        height: '100%',
         textAlign: 'center'
       }}>
         <h1 style={{

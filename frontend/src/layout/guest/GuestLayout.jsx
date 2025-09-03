@@ -4,7 +4,7 @@ import './GuestLayout.css';
 
 const GuestLayout = ({ children, pageType = 'default' }) => {
     return (
-        <div className="guest-layout">
+        <div className="guest-layout flex flex-col">
             <Header isLoggedIn={false} pageType={pageType} />
             <main className="guest-main-container">
                 {children}

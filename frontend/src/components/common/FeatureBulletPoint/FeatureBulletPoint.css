@@ -1,0 +1,99 @@
+.feature-bullet-point {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.feature-bullet-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.checkbox-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.feature-bullet-text {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2102272510528564;
+  text-align: left;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .feature-bullet-point {
+    gap: 10px;
+  }
+  
+  .feature-bullet-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .checkbox-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .feature-bullet-text {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .feature-bullet-point {
+    gap: 8px;
+  }
+  
+  .feature-bullet-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .checkbox-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .feature-bullet-text {
+    font-size: 13px;
+  }
+}
+
+/* Accessibility */
+.feature-bullet-point:focus-within {
+  outline: 2px solid #1E46A4;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Animation for when feature is highlighted */
+.feature-bullet-point-highlighted {
+  animation: highlight-feature 0.5s ease-in-out;
+}
+
+@keyframes highlight-feature {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: rgba(30, 70, 164, 0.1);
+  }
+  100% {
+    background-color: transparent;
+  }
+}

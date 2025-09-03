@@ -1,9 +1,18 @@
 /* Registered Layout Styles */
 .registered-layout {
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    flex-direction: row;
+    height: 100%;
     background-color: #EDF2FB;
+}
+
+.registered-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevents flex items from overflowing */
+    overflow: hidden;
+    max-height: 100%; /* Ensure it doesn't exceed parent height */
 }
 
 .registered-main-container {
@@ -13,12 +22,39 @@
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
-    max-width: 100%;
-    margin: 0 auto;
+    max-height: calc(100% - 60px); /* Subtract approximate header height */
+    overflow-y: auto;
+}
+
+/* Sidebar styling overrides for RegisteredLayout */
+.registered-layout .sidebar-container {
+    min-width: 300px;
+    max-width: 300px;
+    height: 100%;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    z-index: 10;
 }
 
 /* Responsive design for mobile devices */
+@media (max-width: 992px) {
+    .registered-layout .sidebar-container {
+        min-width: 250px;
+        max-width: 250px;
+    }
+}
+
 @media (max-width: 768px) {
+    .registered-layout {
+        flex-direction: column;
+    }
+
+    .registered-layout .sidebar-container {
+        min-width: 100%;
+        max-width: 100%;
+        height: auto;
+        position: relative;
+    }
+
     .registered-main-container {
         padding: 15px;
     }

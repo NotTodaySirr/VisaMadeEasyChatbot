@@ -299,6 +299,14 @@
     border-radius: 50%;
     cursor: pointer;
     object-fit: cover;
+    border: 2px solid #E2EAFC;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.topbar-avatar:hover {
+    transform: scale(1.05);
+    border-color: #1E46A4;
 }
 
 /* Logged In - In Chat */
@@ -381,15 +389,7 @@ section[id] {
     scroll-margin-top: 80px; /* Reduced to account for smaller header */
 }
 
-/* Add space for TopBar when scrolling up/down */
-body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    background-color: #EDF2FB; /* Add light blue background to cover entire screen */
-    min-height: 100vh; /* Ensure body takes full viewport height */
-    /* Remove padding-top since we're using flexbox layout */
-}
+/* Add space for TopBar when scrolling up/down - body styles moved to index.css */
 
 /* Main container adjustment */
 .register-page-container, 

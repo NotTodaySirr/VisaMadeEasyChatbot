@@ -54,37 +54,24 @@ const RegisterPage = () => {
 
   return (
     <GuestLayout pageType="started">
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        padding: '60px 16px 16px 16px', // Added more top padding to move form up
-        minHeight: 'calc(100vh - 120px)', // Account for header height
-        overflow: 'auto'
-      }}>
-        {/* Welcome Message */}
-        <div style={{ marginBottom: '20px' }}>
-          <h1 style={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 'bold',
-            fontSize: '28px',
-            color: '#0F172B',
-            textAlign: 'center',
-            margin: 0
-          }}>
-            Tạo tài khoản
-          </h1>
-        </div>
+        {/* Use the same class-based layout as the LoginPage */}
+        <div className="w-full max-w-md flex flex-col items-center py-8">
 
-        {/* Register Form */}
-        <AuthForm
-          mode="register"
-          onSubmit={handleRegister}
-          loading={registerLoading}
-          error={error || authError}
-        />
-      </div>
+            {/* Welcome Message with Tailwind classes for consistency */}
+            <div className="mb-8">
+                <h1 className="font-bold text-3xl text-center text-slate-900">
+                    Tạo tài khoản
+                </h1>
+            </div>
+
+            {/* Register Form */}
+            <AuthForm
+                mode="register"
+                onSubmit={handleRegister}
+                loading={registerLoading}
+                error={error || authError}
+            />
+        </div>
     </GuestLayout>
   );
 };

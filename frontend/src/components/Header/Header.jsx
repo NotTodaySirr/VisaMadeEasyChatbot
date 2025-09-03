@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 import chatbotIcon from '../../assets/chatbot.svg';
+import defaultAvatar from '/avatars/figma-avatar.svg';
 
 const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     const navigate = useNavigate();
@@ -108,7 +109,7 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         <Link to="/" className="topbar-link">
                             Trang chủ
                         </Link>
-                        <Link to="/chatbot" className="topbar-link">
+                        <Link to="/chat/guest" className="topbar-link">
                             Chatbot
                         </Link>
                     </div>
@@ -140,7 +141,7 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         <Link to="/" className="topbar-link">
                             Trang chủ
                         </Link>
-                        <Link to="/chatbot" className="topbar-link">
+                        <Link to="/chat/guest" className="topbar-link">
                             Chatbot
                         </Link>
                     </div>
@@ -225,7 +226,12 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                             <div className="topbar-icon"></div>
                         </button>
                         {/* Avatar */}
-                        <div className="topbar-avatar" onClick={handleLogout}></div>
+                        <img 
+                            src={user?.avatar || defaultAvatar} 
+                            alt="User Avatar" 
+                            className="topbar-avatar" 
+                            onClick={handleLogout} 
+                        />
                     </div>
                 </>
             );
@@ -238,7 +244,12 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                     </div>
                     <div className="topbar-right">
                         {/* Avatar */}
-                        <div className="topbar-avatar" onClick={handleLogout}></div>
+                        <img 
+                            src={user?.avatar || defaultAvatar} 
+                            alt="User Avatar" 
+                            className="topbar-avatar" 
+                            onClick={handleLogout} 
+                        />
                     </div>
                 </>
             );

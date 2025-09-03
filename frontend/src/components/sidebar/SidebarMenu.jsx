@@ -1,0 +1,287 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './Sidebar.css';
+
+// Icon imports from assets (ESM so Vite bundles correctly)
+import homeIconSVG from '../../assets/sidebar/home-icon.svg';
+import pinIconSVG from '../../assets/sidebar/pin-icon.svg';
+import arrowDropDownIconSVG from '../../assets/sidebar/arrow-dropdown-icon.svg';
+import moreHorizontalIconSVG from '../../assets/ui/more-horizontal.svg';
+import shareIconSVG from '../../assets/ui/share-icon.svg';
+import pencilIconSVG from '../../assets/ui/pencil-icon.svg';
+import trashIconSVG from '../../assets/ui/trash-icon.svg';
+
+const SidebarMenu = ({ isSearching, searchQuery }) => {
+  // Local states
+  const [hoSoOpen, setHoSoOpen] = useState(true);
+  const [doanChatOpen, setDoanChatOpen] = useState(true);
+  const [activeChatOptions, setActiveChatOptions] = useState(null);
+  const [activeChecklistOptions, setActiveChecklistOptions] = useState(null);
+
+  // Mock data for profiles
+  const hoSoItems = [
+    { id: 1, name: 'Du học bằng thạc sĩ Mỹ', link: '/checklist/1', active: false },
+    { id: 2, name: 'Du học bằng cử nhân Canada', link: '/checklist/2', active: false },
+  ];
+
+  // Mock data for chat history groups
+  const chatHistoryGroups = {
+    pinned: [
+      { id: 101, name: 'Giấy tờ tài chính cần thiết', link: '/chat/101', active: false, isPinned: true },
+      { id: 102, name: 'Thông tin đơn xin visa Mỹ', link: '/chat/102', active: false, isPinned: true }
+    ],
+    today: [
+      { id: 201, name: 'Chat hôm nay 1', link: '/chat/201', active: false, isPinned: false },
+      { id: 202, name: 'Chat hôm nay 2', link: '/chat/202', active: false, isPinned: false },
+    ],
+    yesterday: [
+      { id: 301, name: 'Yêu cầu bảng điểm đại học', link: '/chat/301', active: false, isPinned: false }
+    ],
+    previous7Days: [],
+    previous30Days: [],
+    older: []
+  };
+
+  // Mock handlers for actions
+  const handleTogglePin = (chatId, isPinned) => {
+    console.log(`Toggle pin for chat ${chatId}. Current pin status: ${isPinned}`);
+    setActiveChatOptions(null);
+  };
+
+  const handleRenameChat = (chatId) => {
+    console.log(`Rename chat ${chatId}`);
+    setActiveChatOptions(null);
+  };
+
+  const handleDeleteChat = (chatId) => {
+    console.log(`Delete chat ${chatId}`);
+    setActiveChatOptions(null);
+  };
+
+  // Filter items based on search query
+  const filteredHoSoItems = searchQuery 
+    ? hoSoItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : hoSoItems;
+
+  const filteredChatHistoryItems = searchQuery
+    ? Object.values(chatHistoryGroups).flat().filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
+  // Function to render chat groups
+  const renderChatGroup = (title, items, iconSrc = null, groupKey) => {
+    if (!items || items.length === 0) {
+      if (groupKey !== 'pinned' && items.length === 0) return null;
+    }
+
+    return (
+      <div className="sidebar-chat-group">
+        <div className="sidebar-chat-group-header">
+          <span className="sidebar-chat-group-title">{title}</span>
+          {iconSrc && (
+            <div className="sidebar-chat-group-icon">
+              <img src={iconSrc} alt={title} style={{ width: '15px', height: '15px' }} />
+            </div>
+          )}
+        </div>
+        <div className="sidebar-subitems-list">
+          {items.map(item => (
+            <div key={item.id} className="sidebar-subitem-wrapper">
+              <Link
+                to={item.link}
+                className={`sidebar-subitem-tag ${item.active ? 'active' : ''} ${item.isPinned ? 'pinned-chat' : ''}`}
+                title={item.name}
+              >
+                <span className="sidebar-subitem-text">{item.name}</span>
+                <img
+                  src={moreHorizontalIconSVG}
+                  alt="More options"
+                  className="sidebar-more-options-icon"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setActiveChatOptions(activeChatOptions === item.id ? null : item.id);
+                    console.log(`Toggle options for chat ${item.id}`);
+                  }}
+                />
+              </Link>
+              {activeChatOptions === item.id && (
+                <div className="chat-options-dropdown">
+                  <button 
+                    onClick={() => handleTogglePin(item.id, item.isPinned)} 
+                    className="chat-options-item"
+                  >
+                    <img src={pinIconSVG} alt={item.isPinned ? "Unpin" : "Pin"} />
+                    {item.isPinned ? "Bỏ ghim" : "Ghim"}
+                  </button>
+                  <button 
+                    onClick={() => handleRenameChat(item.id)} 
+                    className="chat-options-item"
+                  >
+                    <img src={pencilIconSVG} alt="Rename" />
+                    Đổi tên
+                  </button>
+                  <button 
+                    onClick={() => handleDeleteChat(item.id)} 
+                    className="chat-options-item chat-options-item-delete"
+                  >
+                    <img src={trashIconSVG} alt="Delete" />
+                    Xóa
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const allChatItemsEmpty = Object.values(chatHistoryGroups).every(group => group.length === 0);
+
+  return (
+    <>
+      {/* Menu tag - Home Link */}
+      <Link to="/home" className="sidebar-menu-tag">
+        <div className="sidebar-menu-tag-icon">
+          <img src={homeIconSVG} alt="Home" />
+        </div>
+        <span className="sidebar-menu-tag-text">Trang chủ</span>
+      </Link>
+
+      {searchQuery ? (
+        <div className="sidebar-search-results">
+          <div className="sidebar-section-container ho-so-section">
+            <div className="sidebar-dropdown-header">
+              <span className="sidebar-dropdown-title">Hồ sơ</span>
+            </div>
+            <div className="sidebar-subitems-list">
+              {filteredHoSoItems.map(item => (
+                <Link to={item.link} key={item.id} className="sidebar-subitem-tag">
+                  <span className="sidebar-subitem-text">{item.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+          <div className="sidebar-section-container doan-chat-section">
+            <div className="sidebar-dropdown-header">
+              <span className="sidebar-dropdown-title">Đoạn chat</span>
+            </div>
+            <div className="sidebar-chat-history-container">
+              {renderChatGroup("Kết quả tìm kiếm", filteredChatHistoryItems, null, 'search')}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Hồ sơ Section */}
+          <div className="sidebar-section-container ho-so-section">
+            <div className="sidebar-dropdown-header" onClick={() => {
+              setHoSoOpen(!hoSoOpen);
+              console.log(`Toggled Hồ sơ section: ${!hoSoOpen}`);
+            }}>
+              <span className="sidebar-dropdown-title">Hồ sơ</span>
+              <div className="sidebar-dropdown-icon">
+                <img 
+                  src={arrowDropDownIconSVG} 
+                  alt="Toggle section" 
+                  style={{ 
+                    transform: hoSoOpen ? 'rotate(0deg)' : 'rotate(180deg)', 
+                    transition: 'transform 0.2s',
+                    width: '10px',
+                    height: '10px'
+                  }} 
+                />
+              </div>
+            </div>
+            {hoSoOpen && (
+              <div className="sidebar-subitems-list">
+                {hoSoItems.map(item => (
+                  <div key={item.id} className="sidebar-subitem-wrapper">
+                    <Link 
+                      to={item.link} 
+                      className={`sidebar-subitem-tag ${item.active ? 'active' : ''}`}
+                      title={item.name}
+                      onClick={() => console.log(`Clicked profile ${item.id}: ${item.name}`)}
+                    >
+                      <span className="sidebar-subitem-text">{item.name}</span>
+                      <img
+                        src={moreHorizontalIconSVG}
+                        alt="More options"
+                        className="sidebar-more-options-icon"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setActiveChecklistOptions(activeChecklistOptions === item.id ? null : item.id);
+                          console.log(`Toggle options for profile ${item.id}`);
+                        }}
+                      />
+                    </Link>
+                    {activeChecklistOptions === item.id && (
+                      <div className="chat-options-dropdown">
+                        <button className="chat-options-item" onClick={() => console.log(`Share profile ${item.id}`)}>
+                          <img src={shareIconSVG} alt="Share" />
+                          Chia sẻ
+                        </button>
+                        <button className="chat-options-item" onClick={() => console.log(`Rename profile ${item.id}`)}>
+                          <img src={pencilIconSVG} alt="Rename" />
+                          Đổi tên
+                        </button>
+                        <button 
+                          className="chat-options-item chat-options-item-delete"
+                          onClick={() => console.log(`Delete profile ${item.id}`)}
+                        >
+                          <img src={trashIconSVG} alt="Delete" />
+                          Xóa
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Đoạn chat Section */}
+          <div className="sidebar-section-container doan-chat-section">
+            <div className="sidebar-dropdown-header" onClick={() => {
+              setDoanChatOpen(!doanChatOpen);
+              console.log(`Toggled Đoạn chat section: ${!doanChatOpen}`);
+            }}>
+              <span className="sidebar-dropdown-title">Đoạn chat</span>
+              <div className="sidebar-dropdown-icon">
+                <img 
+                  src={arrowDropDownIconSVG} 
+                  alt="Toggle section" 
+                  style={{ 
+                    transform: doanChatOpen ? 'rotate(0deg)' : 'rotate(180deg)', 
+                    transition: 'transform 0.2s',
+                    width: '10px',
+                    height: '10px'
+                  }} 
+                />
+              </div>
+            </div>
+            {doanChatOpen && (
+              <div className="sidebar-chat-history-container">
+                {renderChatGroup("Đã ghim", chatHistoryGroups.pinned, pinIconSVG, 'pinned')}
+                {renderChatGroup("Hôm nay", chatHistoryGroups.today, null, 'today')}
+                {renderChatGroup("Hôm qua", chatHistoryGroups.yesterday, null, 'yesterday')}
+                {renderChatGroup("7 ngày trước đó", chatHistoryGroups.previous7Days, null, 'previous7Days')}
+                {renderChatGroup("30 ngày trước đó", chatHistoryGroups.previous30Days, null, 'previous30Days')}
+                {renderChatGroup("Cũ hơn", chatHistoryGroups.older, null, 'older')}
+                
+                {allChatItemsEmpty && !chatHistoryGroups.pinned.length && (
+                  <p className="sidebar-no-items-text" style={{padding: '10px 20px'}}>
+                    Không có lịch sử chat nào.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </>
+  );
+};
+
+export default SidebarMenu;

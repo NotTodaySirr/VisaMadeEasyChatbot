@@ -1,0 +1,185 @@
+.login-benefits-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 32px;
+  border: 2px solid #7C8FBE;
+  border-radius: 52px;
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+/* Header section with icon and title */
+.login-benefits-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.login-benefits-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.unlock-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.login-benefits-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 1.2102272510528564;
+  color: #0F172B;
+  margin: 0;
+  text-align: left;
+  flex: 1;
+}
+
+/* Features section */
+.login-benefits-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Action section with login button */
+.login-benefits-action {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.login-benefits-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  background-color: #1E46A4;
+  color: #FFFFFF;
+  text-decoration: none;
+  border-radius: 88px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2102272510528564;
+  text-align: center;
+  min-width: 156px;
+  box-sizing: border-box;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.login-benefits-button:hover {
+  background-color: #1a3d8f;
+  text-decoration: none;
+  color: #FFFFFF;
+}
+
+.login-benefits-button:active {
+  transform: translateY(1px);
+}
+
+.login-benefits-button:focus {
+  outline: 2px solid #1E46A4;
+  outline-offset: 2px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .login-benefits-section {
+    padding: 24px;
+    gap: 16px;
+    border-radius: 40px;
+  }
+  
+  .login-benefits-header {
+    gap: 12px;
+  }
+  
+  .login-benefits-title {
+    font-size: 20px;
+  }
+  
+  .unlock-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .login-benefits-features {
+    gap: 10px;
+  }
+  
+  .login-benefits-button {
+    padding: 10px 24px;
+    font-size: 14px;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-benefits-section {
+    padding: 20px;
+    gap: 14px;
+    border-radius: 32px;
+  }
+  
+  .login-benefits-header {
+    gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .login-benefits-title {
+    font-size: 18px;
+    text-align: center;
+    width: 100%;
+  }
+  
+  .unlock-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .login-benefits-features {
+    gap: 8px;
+  }
+  
+  .login-benefits-button {
+    padding: 8px 20px;
+    font-size: 13px;
+    min-width: 120px;
+  }
+}
+
+/* Accessibility */
+.login-benefits-section:focus-within {
+  outline: 2px solid #1E46A4;
+  outline-offset: 2px;
+}
+
+/* Animation for when section appears */
+.login-benefits-section-animated {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

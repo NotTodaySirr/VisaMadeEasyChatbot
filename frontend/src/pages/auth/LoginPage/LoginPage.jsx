@@ -33,25 +33,10 @@ const LoginPage = () => {
 
   return (
     <GuestLayout pageType="started">
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        padding: '60px 16px 24px 16px', // Added more top padding to move form up
-        minHeight: 'calc(100vh - 120px)', // Account for header height
-        overflow: 'hidden'
-      }}>
+        <div className="w-full max-w-md flex flex-col items-center">
         {/* Welcome Message */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{
-            fontFamily: 'Inter, sans-serif',
-            fontWeight: 'bold',
-            fontSize: '32px',
-            color: '#0F172B',
-            textAlign: 'center',
-            margin: 0
-          }}>
+        <div className="mb-8">
+        <h1 className="font-bold text-3xl text-center text-[#0F172B]">
             Chào mừng trở lại
           </h1>
         </div>

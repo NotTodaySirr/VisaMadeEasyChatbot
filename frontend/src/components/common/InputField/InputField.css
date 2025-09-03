@@ -1,0 +1,206 @@
+.input-field-container {
+  width: 100%;
+  max-width: 760px;
+}
+
+.input-field-wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  background-color: #EDF2FB;
+  border: 2px solid #7C8FBE;
+  border-radius: 32px;
+  padding: 24px;
+  transition: border-color 0.2s ease;
+  gap: 16px;
+}
+
+.input-field-content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 60px; /* Minimum height to ensure button space */
+}
+
+.input-field-wrapper:focus-within {
+  border-color: #1E46A4;
+  outline: none;
+}
+
+.input-field {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #0F172B;
+  padding: 0;
+  margin: 0;
+  min-height: 24px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  transition: height 0.2s ease;
+  margin-bottom: 40px; /* Create exclusive space for button */
+  max-height: calc(1.5em * 5 - 10px); /* Limit height to prevent reaching button area */
+  width: 100%;
+}
+
+.input-field::placeholder {
+  color: #0F172B;
+  opacity: 0.7;
+}
+
+.input-field:disabled {
+  color: #7C8FBE;
+  cursor: not-allowed;
+}
+
+.input-field:disabled::placeholder {
+  color: #7C8FBE;
+  opacity: 0.5;
+}
+
+.input-field-icon-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.input-field-icon-button:hover:not(:disabled) {
+  background-color: rgba(30, 70, 164, 0.1);
+}
+
+.input-field-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.input-field-icon {
+  width: 24px;
+  height: 24px;
+  color: #0F172B;
+  transition: color 0.2s ease;
+}
+
+.input-field-icon-button:hover:not(:disabled) .input-field-icon {
+  color: #1E46A4;
+}
+
+.input-field-icon-button:disabled .input-field-icon {
+  color: #7C8FBE;
+}
+
+.input-field-more-button {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  z-index: 20;
+  pointer-events: auto;
+}
+
+.input-field-more-button:hover:not(:disabled) {
+  background-color: rgba(30, 70, 164, 0.1);
+  transform: scale(1.1);
+}
+
+.input-field-more-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.input-field-more-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  transition: filter 0.2s ease;
+}
+
+.input-field-more-button:hover:not(:disabled) .input-field-more-icon {
+  filter: brightness(0) saturate(100%) invert(20%) sepia(89%) saturate(1654%) hue-rotate(213deg) brightness(94%) contrast(91%);
+}
+
+.input-field-more-button:disabled .input-field-more-icon {
+  filter: brightness(0) saturate(100%) invert(60%) sepia(16%) saturate(456%) hue-rotate(197deg) brightness(96%) contrast(87%);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .input-field-wrapper {
+    padding: 20px;
+    gap: 12px;
+  }
+  
+  .input-field-content {
+    min-height: 50px;
+  }
+  
+  .input-field {
+    font-size: 14px;
+    min-height: 20px;
+    margin-bottom: 36px;
+    max-height: calc(1.4em * 5 - 8px);
+  }
+  
+  .input-field-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .input-field-more-button {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .input-field-more-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .input-field-wrapper {
+    padding: 16px;
+    gap: 10px;
+  }
+  
+  .input-field-content {
+    min-height: 45px;
+  }
+  
+  .input-field {
+    min-height: 18px;
+    margin-bottom: 32px;
+    max-height: calc(1.3em * 5 - 6px);
+  }
+  
+  .input-field-more-button {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .input-field-more-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
