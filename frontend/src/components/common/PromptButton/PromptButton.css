@@ -3,10 +3,10 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 8px;
+  padding: 8px 16px;
   background-color: transparent;
   border: 2px solid #7C8FBE;
-  border-radius: 8px;
+  border-radius: 36px;
   font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 400;

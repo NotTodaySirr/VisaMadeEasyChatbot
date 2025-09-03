@@ -1,88 +1,88 @@
 import React from 'react';
 import RegisteredLayout from '../../../layout/registered';
-import { useAuth } from '../../../hooks/auth/useAuth.js';
+import InputField from '../../../components/common/InputField/InputField';
+import PromptButton from '../../../components/common/PromptButton/PromptButton';
+import CardsGrid from '../../../components/layout/CardsGrid/CardsGrid';
+import MyTasksCard from '../../../components/cards/MyTasksCard/MyTasksCard';
+import PinnedChatsCard from '../../../components/cards/PinnedChatsCard/PinnedChatsCard';
 
 const MainChatPage = () => {
-  const { user, logout } = useAuth();
+  
+
+  const handleSend = (text) => {
+    if (!text) return;
+    // TODO: integrate with chat send action
+    console.log('Send message:', text);
+  };
+
+  const prompts = [
+    'Tra cứu',
+    'Kiểm tra tiến độ',
+    'Cập nhật thông tin',
+    'Tóm tắt văn bản'
+  ];
+
+  const mockTasks = {
+    stats: { pending: 3, overdue: 1, done: 2 },
+    items: [
+      { id: 't1', title: 'Hộ chiếu', dueLabel: 'Ngày mai', checked: false },
+      { id: 't2', title: 'Bảng điểm đại học', dueLabel: '14/4', checked: false },
+      { id: 't3', title: 'Bằng tốt nghiệp đại học', dueLabel: '14/4', checked: true },
+      { id: 't4', title: 'Ảnh thẻ', dueLabel: '14/4', checked: true },
+      { id: 't5', title: 'Xác nhận lương', dueLabel: '16/4', checked: false },
+      { id: 't6', title: 'Lý lịch tư pháp số 2', dueLabel: '20/4', checked: false }
+    ]
+  };
+
+  const mockPinned = [
+    { id: 'c1', title: 'Giấy tờ tài chính cần thiết', timeLabel: 'Hôm qua' },
+    { id: 'c2', title: 'Thông tin đơn xin visa Mỹ', timeLabel: '10/4/2025' },
+    { id: 'c3', title: 'Yêu cầu bảng điểm đại học', timeLabel: '7 ngày trước đó' },
+    { id: 'c4', title: 'Cách nộp visa du học Mỹ', timeLabel: '30 ngày trước đó' }
+  ];
 
   return (
     <RegisteredLayout>
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '30px 16px',
-        height: '100%',
-        textAlign: 'center'
+        height: '100%'
       }}>
-        <h1 style={{
-          fontFamily: 'Inter, sans-serif',
-          fontWeight: 'bold',
-          fontSize: '32px',
-          color: '#0F172B',
-          marginBottom: '16px'
-        }}>
-          Welcome, {user?.username || 'User'}!
-        </h1>
-        
-        <p style={{
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '18px',
-          color: '#64748b',
-          marginBottom: '32px',
-          maxWidth: '600px'
-        }}>
-          This is your personalized chat interface. Here you can access all premium features,
-          save your chat history, and get personalized visa assistance.
-        </p>
-
         <div style={{
-          padding: '20px',
-          backgroundColor: '#f0f9ff',
-          border: '1px solid #0ea5e9',
-          borderRadius: '8px',
-          maxWidth: '500px',
-          marginBottom: '32px'
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '16px',
+          paddingTop: '16px'
         }}>
-          <p style={{
+          <h1 style={{
             fontFamily: 'Inter, sans-serif',
-            fontSize: '16px',
-            color: '#0369a1',
-            margin: '0'
+            fontWeight: '700',
+            fontSize: '30px',
+            color: '#0F172B',
+            margin: 0,
+            textAlign: 'center'
           }}>
-            🎉 Full chatbot interface with premium features will be implemented here
-          </p>
+            Mình có thể giúp gì cho bạn?
+          </h1>
+          <div style={{ width: '760px', maxWidth: '100%' }}>
+            <InputField onSubmit={handleSend} placeholder="Hỏi mình về hồ sơ du học nè" />
+          </div>
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '20px',
+            justifyContent: 'center'
+          }}>
+            {prompts.map((text) => (
+              <PromptButton key={text} text={text} onClick={handleSend} />
+            ))}
+          </div>
         </div>
-
-        <div style={{
-          padding: '16px',
-          backgroundColor: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: '6px',
-          marginBottom: '32px'
-        }}>
-          <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>User Info:</h3>
-          <p style={{ margin: '4px 0', color: '#6b7280' }}>Email: {user?.email}</p>
-          <p style={{ margin: '4px 0', color: '#6b7280' }}>Username: {user?.username}</p>
-          <p style={{ margin: '4px 0', color: '#6b7280' }}>Education: {user?.educational_level}</p>
-        </div>
-
-        <button
-          onClick={() => logout()}
-          style={{
-            padding: '12px 24px',
-            backgroundColor: '#ef4444',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}
-        >
-          Logout
-        </button>
+        <CardsGrid>
+          <MyTasksCard tasks={mockTasks.items} stats={mockTasks.stats} />
+          <PinnedChatsCard chats={mockPinned} />
+        </CardsGrid>
       </div>
     </RegisteredLayout>
   );

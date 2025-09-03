@@ -1,0 +1,10 @@
+.cards-grid {
+  width: 100%;
+  max-width: min(92%, 76rem);
+  margin: clamp(1rem, 3vw, 2rem) auto 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: clamp(1rem, 2vw, 2.5625rem); /* up to ~41px */
+}
+
+
