@@ -1,20 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatWindow } from '../../../components/chat';
 import { InputField } from '../../../components/common';
 import './ChatPage.css';
 
-const ChatPage = ({ 
+const ChatPage = forwardRef(({ 
   initialMessage = '',
   className = "",
-  layout = 'guest' // 'guest' | 'registered'
-}) => {
+  layout = 'guest', // 'guest' | 'registered'
+  scrollRef = null
+}, ref) => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const didInitRef = useRef(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Handle initial message
   useEffect(() => {
-    if (initialMessage.trim()) {
+    if (!didInitRef.current && initialMessage.trim()) {
+      didInitRef.current = true;
       handleSendMessage(initialMessage);
+      if (location && location.state && location.state.initialMessage) {
+        navigate('.', { replace: true, state: {} });
+      }
     }
   }, [initialMessage]);
 
@@ -58,6 +67,11 @@ const ChatPage = ({
     }
   };
 
+  // Expose send method for external input (registered layout)
+  useImperativeHandle(ref, () => ({
+    sendMessage: (text) => handleSendMessage(text)
+  }));
+
   return (
     <div className={`chat-page ${layout}-chat ${className}`}>
       <div className="chat-page-container">
@@ -65,19 +79,22 @@ const ChatPage = ({
         <ChatWindow 
           messages={messages}
           isLoading={isLoading}
+          externalScrollContainerRef={scrollRef}
         />
         
-        {/* Input Field */}
-        <div className="chat-input-container">
-          <InputField 
-            onSubmit={handleSendMessage}
-            placeholder="Hỏi mình về hồ sơ du học nè"
-            disabled={isLoading}
-          />
-        </div>
+        {/* Input Field (hidden when using registered overlay) */}
+        {layout !== 'registered' && (
+          <div className="chat-input-container">
+            <InputField 
+              onSubmit={handleSendMessage}
+              placeholder="Hỏi mình về hồ sơ du học nè"
+              disabled={isLoading}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
-};
+});
 
 export default ChatPage;

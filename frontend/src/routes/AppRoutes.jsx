@@ -8,6 +8,7 @@ import RegisterPage from '../pages/auth/RegisterPage/RegisterPage';
 import GuestChatPage from '../pages/chat/GuestChatPage/GuestChatPage';
 import MainChatPage from '../pages/chat/MainChatPage/MainChatPage';
 import TestPage from '../pages/TestPage/TestPage';
+import RegisteredChatPage from '../pages/chat/RegisteredChatPage/RegisteredChatPage';
 
 const AppRoutes = () => {
   const navigate = useNavigate();
@@ -40,6 +41,12 @@ const AppRoutes = () => {
           //   <MainChatPage />
           // </ProtectedRoute>
           <MainChatPage/>
+        } />
+        <Route path="/chat/in" element={
+          // <ProtectedRoute>
+          //   <RegisteredChatPage />
+          // </ProtectedRoute>
+          <RegisteredChatPage/>
         } />
         
         {/* Future protected routes */}

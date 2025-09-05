@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import RegisteredLayout from '../../../layout/registered';
 import InputField from '../../../components/common/InputField/InputField';
 import PromptButton from '../../../components/common/PromptButton/PromptButton';
@@ -7,12 +8,11 @@ import MyTasksCard from '../../../components/cards/MyTasksCard/MyTasksCard';
 import PinnedChatsCard from '../../../components/cards/PinnedChatsCard/PinnedChatsCard';
 
 const MainChatPage = () => {
-  
+  const navigate = useNavigate();
 
   const handleSend = (text) => {
     if (!text) return;
-    // TODO: integrate with chat send action
-    console.log('Send message:', text);
+    navigate('/chat/in', { state: { initialMessage: text } });
   };
 
   const prompts = [

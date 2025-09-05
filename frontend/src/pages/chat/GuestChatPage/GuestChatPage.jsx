@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import GuestLayout from '../../../layout/guest';
 import ChatGreeting from '../../../components/common/ChatGreeting/ChatGreeting';
@@ -12,6 +12,7 @@ const GuestChatPage = () => {
     const navigate = useNavigate();
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const scrollRef = useRef(null);
 
     const promptButtons = [ "Tra cứu", "Kiểm tra tiến độ", "Cập nhật thông tin", "Tóm tắt văn bản" ];
 
@@ -52,37 +53,42 @@ const GuestChatPage = () => {
         />
     );
 
+    const renderInputField = () => (
+        <div className="w-full max-w-[760px] p-4">
+            <ChatInput />
+        </div>
+    );
+
+    if (messages.length === 0) {
+        // STATE 1: Initial Greeting View (no messages) - Normal layout
+        return (
+            <GuestLayout pageType="started">
+                <div className="flex flex-col items-center w-full max-w-4xl mx-auto py-8 px-4">
+                    <ChatGreeting greeting="Mình có thể giúp gì cho bạn?" />
+                    <div className="w-full max-w-[760px] mt-10">
+                        <ChatInput />
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-4 w-full max-w-[760px] mt-10">
+                        {promptButtons.map((text, index) => (
+                            <PromptButton key={index} text={text} onClick={handlePromptClick} />
+                        ))}
+                    </div>
+                    <div className="w-full max-w-[760px] mt-16 md:mt-20">
+                        <LoginBenefitsSection onLoginClick={() => navigate('/auth/login')} />
+                    </div>
+                </div>
+            </GuestLayout>
+        );
+    }
+
+    // STATE 2: Active Chat View (messages exist) - In-chat layout
     return (
-        <GuestLayout pageType="started">
-            <div className="flex flex-col items-center w-full h-full max-w-4xl mx-auto py-8 px-4 bg-red-500">
-                {messages.length === 0 ? (
-                    // STATE 1: Initial Greeting View (no messages)
-                    <>
-                        <ChatGreeting greeting="Mình có thể giúp gì cho bạn?" />
-                        <div className="w-full max-w-[760px] mt-10">
-                            <ChatInput />
-                        </div>
-                        <div className="flex flex-wrap justify-center gap-4 w-full max-w-[760px] mt-10">
-                            {promptButtons.map((text, index) => (
-                                <PromptButton key={index} text={text} onClick={handlePromptClick} />
-                            ))}
-                        </div>
-                        <div className="w-full max-w-[760px] mt-16 md:mt-20">
-                            <LoginBenefitsSection onLoginClick={() => navigate('/auth/login')} />
-                        </div>
-                    </>
-                ) : (
-                    // STATE 2: Active Chat View (messages exist)
-                    <>
-                        <div className="w-full max-w-[900px] flex-1 mb-4 overflow-y-auto">
-                            <ChatWindow messages={messages} isLoading={isLoading} />
-                        </div>
-                        <div className="w-full max-w-[760px] mt-auto">
-                            <ChatInput />
-                        </div>
-                    </>
-                )}
-            </div>
+        <GuestLayout
+            pageType="in-chat"
+            inputField={renderInputField()}
+            scrollRef={scrollRef}
+        >
+            <ChatWindow messages={messages} isLoading={isLoading} externalScrollContainerRef={scrollRef} />
         </GuestLayout>
     );
 };

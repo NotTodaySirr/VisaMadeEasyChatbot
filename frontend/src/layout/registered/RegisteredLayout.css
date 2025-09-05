@@ -15,6 +15,39 @@
     max-height: 100%; /* Ensure it doesn't exceed parent height */
 }
 
+/* In-chat layering */
+.registered-inchat {
+    position: relative;
+}
+
+.registered-inchat-main {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+}
+
+.registered-inchat-bg {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+}
+
+.registered-inchat-input {
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+    z-index: 2;
+    pointer-events: none; /* allow background scroll except on actual input */
+}
+
+.registered-inchat-input > * {
+    pointer-events: auto;
+}
+
 .registered-main-container {
     flex: 1;
     display: flex;
@@ -22,8 +55,8 @@
     padding: 20px;
     box-sizing: border-box;
     width: 100%;
-    max-height: calc(100% - 60px); /* Subtract approximate header height */
-    overflow-y: auto;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Sidebar styling overrides for RegisteredLayout */

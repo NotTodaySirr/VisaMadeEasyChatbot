@@ -5,26 +5,42 @@ import './ChatWindow.css';
 const ChatWindow = ({ 
   messages = [], 
   isLoading = false,
-  className = "" 
+  className = "",
+  externalScrollContainerRef = null
 }) => {
   const chatWindowRef = useRef(null);
   const shouldScrollRef = useRef(true);
 
+  // Listen to external scroll container if provided to track user position
+  useEffect(() => {
+    const target = (externalScrollContainerRef && externalScrollContainerRef.current) || null;
+    if (!target) return;
+
+    const onScroll = () => {
+      const isNearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 50;
+      shouldScrollRef.current = isNearBottom;
+    };
+
+    target.addEventListener('scroll', onScroll, { passive: true });
+    return () => target.removeEventListener('scroll', onScroll);
+  }, [externalScrollContainerRef]);
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (shouldScrollRef.current && chatWindowRef.current) {
-      const chatWindow = chatWindowRef.current;
-      chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+    if (!shouldScrollRef.current) return;
+
+    const target = (externalScrollContainerRef && externalScrollContainerRef.current) || chatWindowRef.current;
+    if (!target) return;
+
+    target.scrollTop = target.scrollHeight;
   }, [messages, isLoading]);
 
   // Handle manual scrolling
   const handleScroll = () => {
-    if (chatWindowRef.current) {
-      const chatWindow = chatWindowRef.current;
-      const isNearBottom = chatWindow.scrollHeight - chatWindow.scrollTop - chatWindow.clientHeight < 50;
-      shouldScrollRef.current = isNearBottom;
-    }
+    const target = (externalScrollContainerRef && externalScrollContainerRef.current) || chatWindowRef.current;
+    if (!target) return;
+    const isNearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 50;
+    shouldScrollRef.current = isNearBottom;
   };
 
   const renderEmptyState = () => (
@@ -38,7 +54,7 @@ const ChatWindow = ({
   );
 
   return (
-    <div className={`chat-window ${className}`}>
+    <div className={`chat-window h-full ${className}`}>
       <div 
         className="chat-messages" 
         ref={chatWindowRef}
@@ -47,7 +63,7 @@ const ChatWindow = ({
         {messages.length === 0 && !isLoading ? (
           renderEmptyState()
         ) : (
-          <>
+          <div className="chat-content-container">
             {messages.map((message, index) => (
               <MessageBubble
                 key={message.id || index}
@@ -63,7 +79,7 @@ const ChatWindow = ({
                 isLoading={true}
               />
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

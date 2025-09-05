@@ -34,6 +34,13 @@ const InputField = ({
     }
   }, [value, maxLines]);
 
+  // Refocus textarea when it becomes enabled again
+  useEffect(() => {
+    if (!disabled && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [disabled]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (onSubmit && value.trim()) {
@@ -51,7 +58,7 @@ const InputField = ({
       } else {
         // Submit on Enter without Shift
         e.preventDefault();
-        handleSubmit(e);
+        if (!disabled) handleSubmit(e);
       }
     }
   };
@@ -73,7 +80,6 @@ const InputField = ({
             onChange={(e) => setValue(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
-            disabled={disabled}
             className="input-field"
             rows={1}
             style={{ 
