@@ -6,7 +6,7 @@ import InputField from '../../../components/common/InputField/InputField';
 import PromptButton from '../../../components/common/PromptButton/PromptButton';
 import { LoginBenefitsSection } from '../../../components/common';
 import { ChatWindow } from '../../../components/chat';
-import Sidebar from '../../../components/sidebar/Sidebar';
+// Sidebar not used here
 
 const GuestChatPage = () => {
     const navigate = useNavigate();
@@ -53,6 +53,27 @@ const GuestChatPage = () => {
         />
     );
 
+    // Localized UI subcomponents (kept in-file; no new files)
+    const StartInputRow = () => (
+        <div className="w-full max-w-[760px]">
+            <ChatInput />
+        </div>
+    );
+
+    const PromptButtonsRow = ({ buttons, onClick }) => (
+        <div className="flex flex-wrap justify-center gap-4 w-full max-w-[760px] mt-6 md:mt-8">
+            {buttons.map((text, index) => (
+                <PromptButton key={index} text={text} onClick={onClick} />
+            ))}
+        </div>
+    );
+
+    const LoginPromo = ({ onLoginClick }) => (
+        <div className="w-full max-w-[760px] mt-12 md:mt-16">
+            <LoginBenefitsSection onLoginClick={onLoginClick} />
+        </div>
+    );
+
     const renderInputField = () => (
         <div className="w-full max-w-[760px] p-4">
             <ChatInput />
@@ -63,19 +84,11 @@ const GuestChatPage = () => {
         // STATE 1: Initial Greeting View (no messages) - Normal layout
         return (
             <GuestLayout pageType="started">
-                <div className="flex flex-col items-center w-full max-w-4xl mx-auto py-8 px-4">
+                <div className="bg-slate-100 flex flex-col items-center w-full py-8 px-4 gap-y-10 md:gap-y-12 flex-1 self-stretch">
                     <ChatGreeting greeting="Mình có thể giúp gì cho bạn?" />
-                    <div className="w-full max-w-[760px] mt-10">
-                        <ChatInput />
-                    </div>
-                    <div className="flex flex-wrap justify-center gap-4 w-full max-w-[760px] mt-10">
-                        {promptButtons.map((text, index) => (
-                            <PromptButton key={index} text={text} onClick={handlePromptClick} />
-                        ))}
-                    </div>
-                    <div className="w-full max-w-[760px] mt-16 md:mt-20">
-                        <LoginBenefitsSection onLoginClick={() => navigate('/auth/login')} />
-                    </div>
+                    <StartInputRow />
+                    <PromptButtonsRow buttons={promptButtons} onClick={handlePromptClick} />
+                    <LoginPromo onLoginClick={() => navigate('/auth/login')} />
                 </div>
             </GuestLayout>
         );

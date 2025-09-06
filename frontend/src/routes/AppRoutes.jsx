@@ -9,6 +9,7 @@ import GuestChatPage from '../pages/chat/GuestChatPage/GuestChatPage';
 import MainChatPage from '../pages/chat/MainChatPage/MainChatPage';
 import TestPage from '../pages/TestPage/TestPage';
 import RegisteredChatPage from '../pages/chat/RegisteredChatPage/RegisteredChatPage';
+import ChecklistPage from '../pages/checklist/ChecklistPage/ChecklistPage.jsx';
 
 const AppRoutes = () => {
   const navigate = useNavigate();
@@ -48,6 +49,8 @@ const AppRoutes = () => {
           // </ProtectedRoute>
           <RegisteredChatPage/>
         } />
+        {/* Checklist Route */}
+        <Route path="/checklist/:id" element={<ChecklistPage />} />
         
         {/* Future protected routes */}
         {/* <Route path="/profile" element={

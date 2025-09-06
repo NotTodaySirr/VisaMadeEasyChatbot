@@ -2,17 +2,30 @@
 .guest-layout {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    min-height: 100vh;
     background-color: #EDF2FB;
 }
 
 /* Default main container centering */
-.guest-main-container {
-    flex: 1; /* This makes it take up all available space after the header */
+/* .guest-main-container {
+    flex: 1; 
     display: flex;
-    justify-content: center; /* This will center the content vertically */
-    align-items: center;     /* This will center the content horizontally */
+    flex-direction: column;
+    min-height: calc(100vh - var(--guest-header-h));
+    height: calc(100vh - var(--guest-header-h));
+    width: 100%;
+    justify-content: flex-start;
+    align-items: stretch;
+} */
+
+.guest-main-container {
+    flex: 1; /* This tells it to take all remaining space after the header */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: stretch;
 }
+    
 
 :root {
     --guest-header-h: 72px;

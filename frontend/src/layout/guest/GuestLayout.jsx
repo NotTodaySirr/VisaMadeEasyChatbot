@@ -25,7 +25,7 @@ const GuestLayout = ({ children, pageType = 'default', inputField, scrollRef = n
     }
 
     return (
-        <div className="guest-layout flex flex-col">
+        <div className="guest-layout flex flex-col h-full">
             <Header isLoggedIn={false} pageType={pageType} />
             <main className="guest-main-container">
                 {children}

@@ -1,0 +1,221 @@
+.checklist-page-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0; /* allow children to shrink for scrolling */
+  overflow-x: hidden; /* prevent horizontal scrollbar */
+}
+
+.checklist-page-front {
+  z-index: 1;
+}
+
+.checklist-page-back-scroll {
+  position: relative;
+  flex: 1;
+  min-height: 0; /* critical for flex children to scroll */
+  min-width: 0; /* allow flex child to shrink to container width */
+  overflow-y: auto;
+  overflow-x: hidden; /* prevent horizontal scrollbar during resize */
+  padding: 8px 0 24px 0;
+}
+
+/* Header */
+.checklist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.checklist-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.checklist-deadline {
+  font-size: 14px;
+  color: #0F172B;
+  opacity: 0.8;
+}
+
+.checklist-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: #0F172B;
+}
+
+.checklist-section-title {
+  font-size: 20px; /* larger than category, smaller than main title */
+  font-weight: 700;
+  color: #0F172B;
+  margin: 4px 0 8px 0;
+}
+
+.checklist-subrow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.checklist-category-label {
+  font-weight: 700;
+  color: #0F172B;
+}
+
+.checklist-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.checklist-progress-title {
+  font-size: 14px;
+  color: #0F172B;
+  opacity: 0.8;
+}
+
+.checklist-progress-bar {
+  width: 160px;
+  height: 8px;
+  background: #CCDBFD;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.checklist-progress-fill {
+  height: 100%;
+  background: #1E46A4;
+}
+
+.checklist-progress-text {
+  font-size: 14px;
+  color: #0F172B;
+}
+
+.checklist-export-btn {
+  border: 2px solid #1E46A4;
+  color: #1E46A4;
+  background: #FFFFFF;
+  border-radius: 88px;
+  padding: 8px 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Category */
+.checklist-category {
+  margin-bottom: 16px;
+}
+
+.checklist-category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 4px 0;
+  cursor: pointer;
+}
+
+.checklist-category-divider { display: none; }
+
+.checklist-category-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0F172B;
+  margin: 0;
+}
+
+.checklist-arrow-icon {
+  width: 10px;
+  height: 7px;
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.checklist-arrow-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.checklist-arrow-icon.collapsed {
+  transform: rotate(0deg);
+}
+
+.checklist-category-toggle {
+  background: transparent;
+  border: none;
+  color: #1E46A4;
+  cursor: pointer;
+}
+
+.checklist-category-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checklist-category-items.flat {
+  gap: 4px; /* compact vertical spacing */
+}
+
+.checklist-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  cursor: default;
+}
+
+.checklist-item.flat {
+  background: transparent; /* remove cards */
+  padding: 6px 0; /* reduce vertical padding */
+  border-radius: 0;
+  border-bottom: 2px solid rgba(30, 70, 164, 0.28); /* theme-tinted separator */
+}
+
+.checklist-category-items.flat .checklist-item.flat:last-child {
+  border-bottom: none; /* no line after the last item in a category */
+}
+
+.checklist-checkbox {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 999px;
+  border: 2px solid #CCDBFD; /* unchecked outline */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+}
+
+.checklist-checkbox.checked {
+  background: #1E46A4; /* filled circle */
+  border-color: #1E46A4;
+}
+
+.checkmark {
+  color: #FFFFFF;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.checklist-item-title {
+  color: #0F172B;
+  font-weight: 600; /* bolder appearance */
+}
+
+.checklist-item-title.bold { font-weight: 700; }
+
+.checklist-item-date {
+  margin-left: auto; /* push to right */
+  color: #0F172B;
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+
