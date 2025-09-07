@@ -534,3 +534,5 @@ section[id] {
         opacity: 1;
     }
 }
+
+.topbar:not(input):not(textarea){caret-color: transparent;}

@@ -162,12 +162,15 @@
   font-size: 18px;
   font-weight: 700;
   color: #0F172B;
-  border: 1px solid rgba(15, 23, 43, 0.2);
-  border-radius: 8px;
-  padding: 6px 8px;
+  border: 1px solid #CCDBFD;
+  border-radius: 10px;
+  padding: 6px 10px;
   width: 100%;
+  background: #FFFFFF;
   outline: none;
 }
+
+.category-rename-input:focus { box-shadow: 0 0 0 3px rgba(30, 70, 164, 0.18); }
 
 .checklist-arrow-icon {
   width: 10px;
@@ -311,3 +314,11 @@
 }
 
 .checklist-fab:hover { filter: brightness(1.05); }
+
+/* Hide text caret on non-input elements across Checklist page */
+.checklist-page-container :not(input):not(textarea) { caret-color: transparent; }
+
+/* Ensure caret is visible in editable fields */
+.checklist-page-container input,
+.checklist-page-container textarea,
+.checklist-page-container [contenteditable="true"] { caret-color: auto; }

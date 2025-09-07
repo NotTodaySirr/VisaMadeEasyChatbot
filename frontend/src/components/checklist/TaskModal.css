@@ -89,7 +89,8 @@
 }
 
 .task-title-row { display: flex; align-items: baseline; gap: 16px; }
-.task-title-input { font-size: 32px; font-weight: 800; color: #0F172B; background: transparent; border: none; outline: none; width: 100%; }
+.task-title-input { font-size: 32px; font-weight: 800; color: #0F172B; background: #FFFFFF; border: 1px solid #CCDBFD; border-radius: 10px; padding: 6px 10px; outline: none; width: 100%; }
+.task-title-input:focus { box-shadow: 0 0 0 3px rgba(30, 70, 164, 0.18); }
 .task-deadline { font-size: 14px; color: #0F172B; opacity: 0.8; }
 .task-deadline-value { cursor: pointer; font-weight: 600; color: #0F172B; }
 
@@ -102,3 +103,11 @@
 .task-desc-input:focus { outline: none; box-shadow: 0 0 0 3px rgba(30, 70, 164, 0.18); }
 
 
+
+/* Hide text caret on non-input elements inside Task Modal */
+.task-modal :not(input):not(textarea) { caret-color: transparent; }
+
+/* Ensure caret is visible in editable fields */
+.task-modal input,
+.task-modal textarea,
+.task-modal [contenteditable="true"] { caret-color: auto; }

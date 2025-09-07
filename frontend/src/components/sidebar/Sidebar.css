@@ -628,3 +628,11 @@
 }
 
 
+
+/* Hide text caret on non-editable elements in Sidebar */
+.sidebar-container :not(input):not(textarea):not([contenteditable="true"]) { caret-color: transparent; }
+
+/* Ensure caret is visible in editable fields */
+.sidebar-container input,
+.sidebar-container textarea,
+.sidebar-container [contenteditable="true"] { caret-color: auto; }

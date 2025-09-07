@@ -61,7 +61,8 @@ const MainChatPage = () => {
             fontSize: '30px',
             color: '#0F172B',
             margin: 0,
-            textAlign: 'center'
+            textAlign: 'center',
+            caretColor: 'transparent'
           }}>
             Mình có thể giúp gì cho bạn?
           </h1>

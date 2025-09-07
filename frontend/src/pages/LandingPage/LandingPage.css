@@ -336,3 +336,6 @@
         gap: 20px;
     }
 }
+
+
+.landing-page :not(input):not(textarea){caret-color: transparent;}

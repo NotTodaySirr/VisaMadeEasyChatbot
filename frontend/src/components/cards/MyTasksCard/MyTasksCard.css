@@ -72,4 +72,4 @@
 .task-due { color: #0F172B; opacity: 0.8; font-size: 0.875rem; }
 .task-chevron { color: #0F172B; opacity: 0.8; font-size: 1.25rem; line-height: 1; }
 
-
+.card:not(input):not(textarea){caret-color: transparent;}
