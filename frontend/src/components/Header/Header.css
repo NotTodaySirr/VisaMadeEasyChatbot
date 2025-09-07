@@ -369,13 +369,7 @@
     top: 10px; /* Match other pages */
 }
 
-/* Add padding to page containers to account for topbar */
-.register-page-container, 
-.login-page-container,
-.home-page-container,
-.landing-page {
-    /* Remove padding-top since we're using flexbox layout now */
-}
+
 
 /* Smooth section scrolling */
 html {

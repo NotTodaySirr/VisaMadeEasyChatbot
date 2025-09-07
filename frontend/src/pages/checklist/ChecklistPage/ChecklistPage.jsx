@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import RegisteredLayout from '../../../layout/registered/RegisteredLayout.jsx';
 import ChecklistHeader from '../../../components/checklist/ChecklistHeader.jsx';
 import ChecklistCategory from '../../../components/checklist/ChecklistCategory.jsx';
@@ -10,6 +10,7 @@ import './ChecklistPage.css';
 
 const ChecklistPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const data = useMemo(() => mockChecklists[id] || null, [id]);
 
   if (!data) {
@@ -126,7 +127,7 @@ const ChecklistPage = () => {
         <div className="checklist-page-back-scroll" ref={scrollRef}>
           <div className="checklist-section-row">
             <div className="checklist-section-title">Danh sách công việc</div>
-            <button className="checklist-view-all" onClick={() => console.log('View all documents')}>
+            <button className="checklist-view-all" onClick={() => navigate('/documents/all')}>
               Tất cả thư mục ▸
             </button>
           </div>

@@ -8,6 +8,7 @@ import RegisterPage from '../pages/auth/RegisterPage/RegisterPage';
 import GuestChatPage from '../pages/chat/GuestChatPage/GuestChatPage';
 import MainChatPage from '../pages/chat/MainChatPage/MainChatPage';
 import TestPage from '../pages/TestPage/TestPage';
+import ViewDocuments from '../pages/documents/ViewDocuments.jsx';
 import RegisteredChatPage from '../pages/chat/RegisteredChatPage/RegisteredChatPage';
 import ChecklistPage from '../pages/checklist/ChecklistPage/ChecklistPage.jsx';
 
@@ -51,6 +52,8 @@ const AppRoutes = () => {
         } />
         {/* Checklist Route */}
         <Route path="/checklist/:id" element={<ChecklistPage />} />
+        {/* Documents Route */}
+        <Route path="/documents/all" element={<ViewDocuments />} />
         
         {/* Future protected routes */}
         {/* <Route path="/profile" element={
