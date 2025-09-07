@@ -1,7 +1,7 @@
 import React from 'react';
 import RegisteredLayout from '../../layout/registered/RegisteredLayout.jsx';
-import ChecklistHeader from '../checklist/ChecklistPage/ChecklistHeader.jsx';
-import ChecklistCategory from '../checklist/ChecklistPage/ChecklistCategory.jsx';
+import ChecklistHeader from '../../components/checklist/ChecklistHeader.jsx';
+import ChecklistCategory from '../../components/checklist/ChecklistCategory.jsx';
 import { mockChecklists } from '../checklist/data/mockChecklists.js';
 import '../checklist/ChecklistPage/ChecklistPage.css';
 

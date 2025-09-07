@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import '../../pages/checklist/ChecklistPage/ChecklistPage.css';
+import '../cards/ContextMenu/ContextMenu.css';
 import Calendar from '../ui/calendar.jsx';
 import '../ui/calendar.css';
 import arrowIcon from '../../assets/sidebar/arrow-dropdown-icon.svg';
@@ -8,7 +9,7 @@ import tickbox from '../../assets/ui/tickbox.svg';
 import pencilIcon from '../../assets/ui/pencil-icon.svg';
 import trashIcon from '../../assets/ui/trash-icon.svg';
 
-const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggleItem, onRenameItem, onDeleteItem, onAddItem, onRenameCategory, onDeleteCategory }) => {
+const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggleItem, onRenameItem, onDeleteItem, onAddItem, onRenameCategory, onDeleteCategory, onOpenItem }) => {
   const [expanded, setExpanded] = useState(true);
   const [openItemId, setOpenItemId] = useState(null);
   const [panelPos, setPanelPos] = useState({ top: 0, left: 0 });
@@ -219,7 +220,7 @@ const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggl
           {items.map(item => {
             const selectedDate = item.completedDate ? new Date(item.completedDate) : null;
             return (
-              <div className="checklist-item flat" key={item.id} onClick={() => onToggleItem && onToggleItem(item.id)} onContextMenu={(e) => openItemMenu(item.id, e)}>
+              <div className="checklist-item flat" key={item.id} onClick={() => onOpenItem ? onOpenItem(item) : (onToggleItem && onToggleItem(item.id))} onContextMenu={(e) => openItemMenu(item.id, e)}>
                 <div
                   className={`checklist-checkbox ${item.status === 'completed' ? 'checked' : 'unchecked'}`}
                   style={{ cursor: 'pointer' }}

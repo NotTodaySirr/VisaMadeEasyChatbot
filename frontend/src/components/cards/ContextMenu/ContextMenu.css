@@ -1,0 +1,46 @@
+.context-menu {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4px; /* reduce padding so hovered item can fill neatly */
+  position: relative;
+  width: 149px;
+  background: #EDF2FB;
+  border: 2px solid #7C8FBE;
+  border-radius: 16px;
+  z-index: 2001;
+  overflow: hidden; /* clip hover background to rounded corners */
+}
+
+.context-card-option {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.context-card-option:hover {
+  background: rgba(30, 70, 164, 0.16);
+}
+
+.context-card-icon { width: 24px; height: 24px; }
+.context-card-text { font-size: 16px; line-height: 19px; color: #0F172B; }
+.context-card-option.danger .context-card-text { color: #E33838; }
+
+/* Generic fallback panel style (used by other popovers if needed) */
+.context-menu-panel {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  padding: 8px;
+  z-index: 2001;
+}
