@@ -11,6 +11,7 @@ const API_ENDPOINTS = {
   
   // Future chat endpoints
   CHAT: {
+    MAIN_CHAT_PAGE: '/chat',
     SEND_MESSAGE: '/chat/send',
     GET_HISTORY: '/chat/history',
     GET_CONVERSATIONS: '/chat/conversations',

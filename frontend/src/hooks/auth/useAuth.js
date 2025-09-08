@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthContext.jsx';
+import API_ENDPOINTS from '../../services/api/endpoints.js';
 import authService from '../../services/auth/authService.js';
 
 /**
@@ -29,7 +30,7 @@ export const useAuth = () => {
   /**
    * Login with navigation
    */
-  const login = useCallback(async (credentials, redirectTo = '/chat') => {
+  const login = useCallback(async (credentials, redirectTo = API_ENDPOINTS.CHAT.MAIN_CHAT_PAGE) => {
     setLoginLoading(true);
     
     try {
@@ -55,7 +56,7 @@ export const useAuth = () => {
   /**
    * Register with navigation
    */
-  const register = useCallback(async (userData, redirectTo = '/chat') => {
+  const register = useCallback(async (userData, redirectTo = API_ENDPOINTS.CHAT.MAIN_CHAT_PAGE) => {
     setRegisterLoading(true);
     
     try {

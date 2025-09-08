@@ -51,3 +51,6 @@ instance/
 
 # Migration files (optional - you can track these)
 # migrations/
+
+#Tests
+.pytest_cache/

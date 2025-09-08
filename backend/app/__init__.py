@@ -3,6 +3,8 @@ from config import config
 from app.core.extensions import init_extensions, db, login_manager, jwt
 from app.db.models.user import User
 from app.db.models.token import TokenBlacklist
+from app.api.register import register_blueprints
+
 
 def create_app(config_name='default'):
     """Create and configure Flask application."""
@@ -40,8 +42,6 @@ def create_app(config_name='default'):
         # Convert string identity back to integer for database lookup
         return db.session.get(User, int(identity))
     
-    # Register blueprints
-    from app.api.auth.routes import auth_bp
-    app.register_blueprint(auth_bp)
+    register_blueprints(app)
     
     return app
