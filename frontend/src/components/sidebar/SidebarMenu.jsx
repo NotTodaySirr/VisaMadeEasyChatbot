@@ -13,7 +13,7 @@ import trashIconSVG from '../../assets/ui/trash-icon.svg';
 
 import checklistsService from '../../services/api/checklistsService.js';
 
-const SidebarMenu = ({ isSearching, searchQuery }) => {
+const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   // Local states
   const [hoSoOpen, setHoSoOpen] = useState(true);
   const [doanChatOpen, setDoanChatOpen] = useState(true);
@@ -25,11 +25,14 @@ const SidebarMenu = ({ isSearching, searchQuery }) => {
   useEffect(() => {
     (async () => {
       try {
+        onLoadingChange?.(true)
         const list = await checklistsService.getChecklists();
         setChecklists(list || []);
       } catch (e) {
         console.error('Failed to fetch checklists', e);
         setChecklists([]);
+      } finally {
+        onLoadingChange?.(false)
       }
     })();
   }, [location.pathname]);

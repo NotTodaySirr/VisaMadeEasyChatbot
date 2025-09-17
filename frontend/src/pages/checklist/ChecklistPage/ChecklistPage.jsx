@@ -26,6 +26,7 @@ const ChecklistPage = () => {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   };
   const refreshChecklist = async () => {
+    const start = performance.now();
     try {
       setLoading(true);
       const data = await checklistsService.getChecklist(Number(id));
@@ -36,6 +37,10 @@ const ChecklistPage = () => {
     } catch (e) {
       setError('Không tải được checklist.');
     } finally {
+      const elapsed = performance.now() - start;
+      if (elapsed < 300) {
+        await new Promise((r) => setTimeout(r, 300 - elapsed));
+      }
       setLoading(false);
     }
   };
@@ -165,6 +170,7 @@ const ChecklistPage = () => {
             deadline={deadline}
             completed={summary.completed}
             total={summary.total}
+            loading={loading}
             onExport={() => console.log('Export PDF')}
             onDeadlineChange={async (d) => {
               const formatted = formatDate(d);
@@ -178,7 +184,34 @@ const ChecklistPage = () => {
           />
         </div>
         <div className="checklist-page-back-scroll" ref={scrollRef}>
-          {loading && (<div style={{ padding: '20px' }}>Đang tải...</div>)}
+          {loading && (
+            <div style={{ padding: 20, display: 'grid', gap: 16 }}>
+              {[0,1,2].map((i) => (
+                <div key={i} style={{ padding: 16, borderRadius: 12, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                    <div style={{ height: 16, width: 160, borderRadius: 8, background: 'transparent' }}>
+                      <div style={{ height: 12, width: 160 }}>
+                        {/* title shimmer */}
+                        <div style={{ height: 12 }}>
+                          <span style={{ display: 'block', height: 12, borderRadius: 6, background: 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%)', backgroundSize: '200% 100%', animation: 'vm_shimmer 1.2s linear infinite' }} />
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ height: 28, width: 80, borderRadius: 8, overflow: 'hidden' }}>
+                      <span style={{ display: 'block', height: 28, borderRadius: 8, background: 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%)', backgroundSize: '200% 100%', animation: 'vm_shimmer 1.2s linear infinite' }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gap: 8 }}>
+                    {[0,1,2].map((j) => (
+                      <div key={j} style={{ height: 40, borderRadius: 10, overflow: 'hidden' }}>
+                        <span style={{ display: 'block', height: 40, borderRadius: 10, background: 'linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 37%,#e5e7eb 63%)', backgroundSize: '200% 100%', animation: 'vm_shimmer 1.2s linear infinite' }} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
           {!loading && error && (<div style={{ padding: '20px', color: 'red' }}>{error}</div>)}
           <div className="checklist-section-row">
             <div className="checklist-section-title">Danh sách công việc</div>

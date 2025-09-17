@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { notify } from '../notify.js';
 
 // Base API configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -61,6 +62,13 @@ apiClient.interceptors.request.use(
 // Response interceptor to handle token refresh
 apiClient.interceptors.response.use(
   (response) => {
+    try {
+      const method = response.config?.method;
+      if (['post', 'patch', 'delete'].includes(method)) {
+        const msg = response.data?.message || 'Operation successful';
+        notify(msg, 'success');
+      }
+    } catch {}
     return response;
   },
   async (error) => {
@@ -110,6 +118,13 @@ apiClient.interceptors.response.use(
       }
     }
 
+    try {
+      const method = error.config?.method;
+      if (['post', 'patch', 'delete'].includes(method)) {
+        const msg = error.response?.data?.error || error.response?.data?.message || 'Operation failed';
+        notify(msg, 'error');
+      }
+    } catch {}
     return Promise.reject(error);
   }
 );
