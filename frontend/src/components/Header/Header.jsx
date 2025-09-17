@@ -62,7 +62,7 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     }, [isMoreOptionsOpen]);
 
     const renderLogo = () => (
-        <Link to={isLoggedIn ? "/home" : "/"} className="topbar-logo">
+        <Link to={isLoggedIn ? "/chat" : "/"} className="topbar-logo">
             <div className="logo-icon">
                 <img src={chatbotIcon} alt="Chatbot" className="logo-svg" />
             </div>
@@ -243,6 +243,9 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         {renderLogo()}
                     </div>
                     <div className="topbar-right">
+                        <Link to="/chat" className="topbar-button topbar-button-login">
+                            Chat now &rarr;
+                        </Link>
                         {/* Avatar */}
                         <img 
                             src={user?.avatar || defaultAvatar} 

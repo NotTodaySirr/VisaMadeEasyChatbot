@@ -40,3 +40,9 @@ class PasswordChangeSchema(Schema):
     current_password = fields.Str(required=True, validate=validate.Length(min=1))
     new_password = fields.Str(required=True, validate=validate.Length(min=8))
     confirm_password = fields.Str(required=True, validate=validate.Length(min=8))
+
+class UserWithFilesSchema(UserProfileSchema):
+    """Extended user schema with file metadata."""
+    file_count = fields.Int(dump_only=True)
+    recent_files = fields.Nested('FileSchema', many=True, dump_only=True)
+    total_storage_used = fields.Int(dump_only=True)

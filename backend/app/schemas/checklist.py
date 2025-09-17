@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields, validate
+from .file import FileSchema
 
 class ItemSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -7,6 +8,8 @@ class ItemSchema(Schema):
     deadline = fields.Date(allow_none=True)
     is_completed = fields.Bool(load_default=False)
     category_id = fields.Int(dump_only=True)
+    file_ids = fields.List(fields.Int(), dump_only=True)
+    uploaded_files = fields.Nested(FileSchema, many=True, dump_only=True)
 
 class CategorySchema(Schema):
     id = fields.Int(dump_only=True)

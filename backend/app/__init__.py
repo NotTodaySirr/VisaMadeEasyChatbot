@@ -1,9 +1,10 @@
-from flask import Flask
+from flask import Flask, jsonify
 from config import config
 from app.core.extensions import init_extensions, db, login_manager, jwt
 from app.db.models.user import User
 from app.db.models.token import TokenBlacklist
 from app.api.register import register_blueprints
+import os
 
 
 def create_app(config_name='default'):
@@ -43,5 +44,26 @@ def create_app(config_name='default'):
         return db.session.get(User, int(identity))
     
     register_blueprints(app)
+    
+    # Add custom error handlers
+    @app.errorhandler(413)
+    def handle_file_too_large(e):
+        return jsonify({'error': 'File size exceeds maximum allowed size'}), 413
+    
+    # Initialize file upload configuration
+    with app.app_context():
+        # Create upload directories if they don't exist
+        upload_folder = app.config.get('UPLOAD_FOLDER', 'uploads')
+        if not os.path.exists(upload_folder):
+            os.makedirs(upload_folder, exist_ok=True)
+        
+        # Create subdirectories
+        for subdir in ['chat', 'checklist', 'profile']:
+            subdir_path = os.path.join(upload_folder, subdir)
+            if not os.path.exists(subdir_path):
+                os.makedirs(subdir_path, exist_ok=True)
+        
+        # Set file size limits
+        app.config['MAX_CONTENT_LENGTH'] = app.config.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024)
     
     return app

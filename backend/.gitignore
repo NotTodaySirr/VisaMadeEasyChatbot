@@ -54,3 +54,6 @@ instance/
 
 #Tests
 .pytest_cache/
+
+#Cursor
+.cursor/

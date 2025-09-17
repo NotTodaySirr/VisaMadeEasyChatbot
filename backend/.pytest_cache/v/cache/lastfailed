@@ -1,1 +1,3 @@
-{}
+{
+  "tests/test_file_security.py::TestFileSecurity::test_concurrent_upload_handling": true
+}

@@ -39,19 +39,9 @@ class Item(db.Model):
     deadline = db.Column(db.Date, nullable=True)
     is_completed = db.Column(db.Boolean, default=False, nullable=False)
 
-    uploaded_files = db.relationship('UploadedFile', backref='item', lazy=True, cascade="all, delete-orphan")
+    # uploaded_files relationship is now defined in file.py
 
     def __repr__(self):
         return f'<Item {self.title}>'
 
-class UploadedFile(db.Model):
-    __tablename__ = 'uploaded_file'
-
-    id = db.Column(db.Integer, primary_key=True)
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
-    file_path = db.Column(db.String(1024), nullable=False)
-    original_filename = db.Column(db.String(255), nullable=False)
-    uploaded_at = db.Column(db.DateTime, server_default=func.now())
-
-    def __repr__(self):
-        return f'<UploadedFile {self.original_filename}>'
+# UploadedFile model moved to file.py for general use

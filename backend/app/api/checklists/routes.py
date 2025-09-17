@@ -2,8 +2,23 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.core.extensions import db
 from app.db.models.checklist import Checklist, Category, Item
+from app.db.models.file import UploadedFile
 from app.schemas.checklist import ChecklistSchema, CategorySchema, ItemSchema
+from app.schemas.file import FileSchema
+from app.middleware.file_validation import validate_file_upload, log_file_operation
+from app.core.file_utils import (
+    secure_filename_custom,
+    get_upload_path,
+    ensure_upload_directory,
+    get_file_size,
+    get_mime_type,
+    check_file_quota
+)
 from marshmallow import ValidationError
+import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 checklists_bp = Blueprint('checklists', __name__, url_prefix='/checklists')
 
@@ -182,3 +197,115 @@ def delete_item(item_id):
     db.session.delete(item)
     db.session.commit()
     return jsonify({"message": "Item deleted successfully"}), 200
+
+# File upload routes for checklist items
+@checklists_bp.route('/items/<int:item_id>/files', methods=['POST'])
+@jwt_required()
+@validate_file_upload('checklist')
+@log_file_operation('checklist_file_upload')
+def upload_item_file(item_id):
+    """
+    Upload a file to a specific checklist item.
+    
+    Expected form data:
+    - file: The file to upload
+    - description: Optional description
+    - tags: Optional tags
+    """
+    try:
+        user_id = get_jwt_identity()
+        
+        # Verify item exists and user has access
+        item = db.session.get(Item, item_id)
+        if not item or not authorize_user_for_checklist(item.category.checklist_id, user_id):
+            return jsonify({"error": "Item not found or unauthorized"}), 404
+        
+        # Get validation data from middleware
+        file_data = request.file_validation
+        file = file_data['file']
+        file_size = file_data['file_size']
+        mime_type = file_data['mime_type']
+        
+        # Get additional form data
+        description = request.form.get('description', '')
+        tags = request.form.get('tags', '')
+        
+        # Check user quota
+        is_within_quota, quota_error = check_file_quota(user_id, file_size)
+        if not is_within_quota:
+            return jsonify({'error': quota_error}), 413
+        
+        # Generate secure filename and path
+        secure_name = secure_filename_custom(file.filename)
+        upload_dir = get_upload_path(user_id, 'checklist', item_id)
+        file_path = os.path.join(upload_dir, secure_name)
+        
+        # Ensure directory exists
+        ensure_upload_directory(file_path)
+        
+        # Save file
+        file.save(file_path)
+        
+        # Verify file was saved correctly
+        if not os.path.exists(file_path) or get_file_size(file_path) != file_size:
+            return jsonify({'error': 'Failed to save file'}), 500
+        
+        # Create database record
+        uploaded_file = UploadedFile(
+            user_id=user_id,
+            file_path=file_path,
+            original_filename=file.filename,
+            file_size=file_size,
+            mime_type=mime_type,
+            description=description,
+            tags=tags,
+            content_type='checklist',
+            item_id=item_id
+        )
+        
+        db.session.add(uploaded_file)
+        db.session.commit()
+        
+        # Return file info with item context
+        file_schema = FileSchema()
+        return jsonify({
+            'message': 'File uploaded successfully to checklist item',
+            'file': file_schema.dump(uploaded_file),
+            'item_id': item_id
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error uploading file to item {item_id}: {str(e)}")
+        return jsonify({'error': 'Error uploading file'}), 500
+
+@checklists_bp.route('/items/<int:item_id>/files', methods=['GET'])
+@jwt_required()
+def get_item_files(item_id):
+    """
+    Get all files for a specific checklist item.
+    """
+    try:
+        user_id = get_jwt_identity()
+        
+        # Verify item exists and user has access
+        item = db.session.get(Item, item_id)
+        if not item or not authorize_user_for_checklist(item.category.checklist_id, user_id):
+            return jsonify({"error": "Item not found or unauthorized"}), 404
+        
+        # Get files for this item
+        files = UploadedFile.query.filter_by(
+            item_id=item_id,
+            user_id=user_id,
+            content_type='checklist'
+        ).all()
+        
+        file_schema = FileSchema()
+        return jsonify({
+            'files': [file_schema.dump(file) for file in files],
+            'item_id': item_id
+        }), 200
+        
+    except Exception as e:
+        logger.error(f"Error getting files for item {item_id}: {str(e)}")
+        return jsonify({'error': 'Error getting files'}), 500
