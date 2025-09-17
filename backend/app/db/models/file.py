@@ -7,21 +7,14 @@ class UploadedFile(db.Model):
     __tablename__ = 'uploaded_file'
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     file_path = db.Column(db.String(1024), nullable=False)
     original_filename = db.Column(db.String(255), nullable=False)
-    file_size = db.Column(db.Integer, nullable=False)
-    mime_type = db.Column(db.String(100), nullable=False)
     uploaded_at = db.Column(db.DateTime, server_default=func.now())
-    description = db.Column(db.Text, nullable=True)
-    tags = db.Column(db.String(200), nullable=True)
-    content_type = db.Column(db.String(50), nullable=False, default='checklist')
-    
-    # Optional foreign key for checklist items (nullable for general files)
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=True)
+
+    # Foreign key for checklist items
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
     
     # Relationships
-    user = db.relationship('User', backref=db.backref('uploaded_files', lazy=True))
     item = db.relationship('Item', backref=db.backref('uploaded_files', lazy=True))
 
     def __repr__(self):

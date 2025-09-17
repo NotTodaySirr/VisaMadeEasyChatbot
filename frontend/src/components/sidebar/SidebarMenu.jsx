@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './Sidebar.css';
 
 // Icon imports from assets (ESM so Vite bundles correctly)
@@ -11,18 +11,35 @@ import shareIconSVG from '../../assets/ui/share-icon.svg';
 import pencilIconSVG from '../../assets/ui/pencil-icon.svg';
 import trashIconSVG from '../../assets/ui/trash-icon.svg';
 
+import checklistsService from '../../services/api/checklistsService.js';
+
 const SidebarMenu = ({ isSearching, searchQuery }) => {
   // Local states
   const [hoSoOpen, setHoSoOpen] = useState(true);
   const [doanChatOpen, setDoanChatOpen] = useState(true);
   const [activeChatOptions, setActiveChatOptions] = useState(null);
   const [activeChecklistOptions, setActiveChecklistOptions] = useState(null);
+  const [checklists, setChecklists] = useState([]);
+  const location = useLocation();
 
-  // Mock data for profiles
-  const hoSoItems = [
-    { id: 1, name: 'Du học bằng thạc sĩ Mỹ', link: '/checklist/1', active: false },
-    { id: 2, name: 'Du học bằng cử nhân Canada', link: '/checklist/2', active: false },
-  ];
+  useEffect(() => {
+    (async () => {
+      try {
+        const list = await checklistsService.getChecklists();
+        setChecklists(list || []);
+      } catch (e) {
+        console.error('Failed to fetch checklists', e);
+        setChecklists([]);
+      }
+    })();
+  }, [location.pathname]);
+
+  const hoSoItems = useMemo(() => (checklists || []).map(c => ({
+    id: c.id,
+    name: c.title,
+    link: `/checklist/${c.id}`,
+    active: false,
+  })), [checklists]);
 
   // Mock data for chat history groups
   const chatHistoryGroups = {

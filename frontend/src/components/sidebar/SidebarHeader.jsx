@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import checklistsService from '../../services/api/checklistsService.js';
 import './Sidebar.css';
 
 // Icon imports from assets (ESM so Vite bundles correctly)
@@ -7,6 +9,7 @@ import searchIconSVG from '../../assets/sidebar/search-icon.svg';
 
 const SidebarHeader = ({ isSearching, setIsSearching, searchQuery, setSearchQuery }) => {
   const [isEditDropdownOpen, setIsEditDropdownOpen] = useState(false);
+  const navigate = useNavigate();
   
   // Mock handlers that will console.log
   const handleNewChat = () => {
@@ -14,9 +17,16 @@ const SidebarHeader = ({ isSearching, setIsSearching, searchQuery, setSearchQuer
     setIsEditDropdownOpen(false);
   };
 
-  const handleNewProfile = () => {
-    console.log('Create new profile clicked');
-    setIsEditDropdownOpen(false);
+  const handleNewProfile = async () => {
+    try {
+      setIsEditDropdownOpen(false);
+      console.log('Creating new checklist...');
+      const created = await checklistsService.createChecklist({ title: 'Hồ sơ mới', overall_deadline: null });
+      console.log('Checklist created:', created);
+      if (created?.id) navigate(`/checklist/${created.id}`);
+    } catch (e) {
+      console.error('Failed to create checklist', e);
+    }
   };
 
   const toggleSearch = () => {

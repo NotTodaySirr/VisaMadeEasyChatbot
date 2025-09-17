@@ -1,20 +1,50 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import '../../pages/checklist/ChecklistPage/ChecklistPage.css';
 import Calendar from '../ui/calendar.jsx';
 import '../ui/calendar.css';
 import ContextMenu from '../cards/ContextMenu/ContextMenu.jsx';
 
-const ChecklistHeader = ({ title, deadline, completed, total, onExport, onDeadlineChange }) => {
+const ChecklistHeader = ({ title, deadline, completed, total, onExport, onDeadlineChange, onRenameTitle }) => {
   const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
   const [month, setMonth] = useState(() => (deadline ? new Date(deadline) : new Date()));
   const selectedDate = deadline ? new Date(deadline) : null;
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(title || '');
+  const inputRef = useRef(null);
+
+  useEffect(() => { setDraftTitle(title || ''); }, [title]);
+  useEffect(() => { if (isEditing && inputRef.current) inputRef.current.focus(); }, [isEditing]);
+
+  const commitTitle = () => {
+    const next = (draftTitle || '').trim();
+    if (next && next !== title) onRenameTitle?.(next);
+    setIsEditing(false);
+  };
 
   return (
     <div className="checklist-header">
       <div className="checklist-header-left">
         <div className="checklist-title-row">
-          <h1 className="checklist-title">{title}</h1>
+          {isEditing ? (
+            <input
+              ref={inputRef}
+              className="checklist-title"
+              value={draftTitle}
+              onChange={(e) => setDraftTitle(e.target.value)}
+              onBlur={commitTitle}
+              onKeyDown={(e) => { if (e.key === 'Enter') commitTitle(); if (e.key === 'Escape') { setDraftTitle(title || ''); setIsEditing(false); } }}
+            />
+          ) : (
+            <h1
+              className="checklist-title"
+              onDoubleClick={() => setIsEditing(true)}
+              title="Double-click to rename"
+              style={{ cursor: 'text' }}
+            >
+              {title}
+            </h1>
+          )}
         </div>
         <div className="checklist-deadline under-title">
           <strong>Hạn nộp:</strong>{' '}

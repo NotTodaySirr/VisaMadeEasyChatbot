@@ -9,6 +9,17 @@ const API_ENDPOINTS = {
     ME: '/auth/me',
   },
   
+  // Checklists and related resources
+  CHECKLISTS: {
+    ROOT: '/checklists',
+    BY_ID: (id) => `/checklists/${id}`,
+    CATEGORIES: (checklistId) => `/checklists/${checklistId}/categories`,
+    CATEGORY_BY_ID: (categoryId) => `/checklists/categories/${categoryId}`,
+    ITEMS_IN_CATEGORY: (categoryId) => `/checklists/categories/${categoryId}/items`,
+    ITEM_BY_ID: (itemId) => `/checklists/items/${itemId}`,
+    ITEM_FILES: (itemId) => `/checklists/items/${itemId}/files`,
+  },
+  
   // Future chat endpoints
   CHAT: {
     MAIN_CHAT_PAGE: '/chat',

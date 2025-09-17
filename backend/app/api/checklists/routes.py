@@ -40,6 +40,20 @@ def authorize_user_for_checklist(checklist_id, user_id):
 @checklists_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_checklist():
+    """
+    Create a new checklist for the authenticated user.
+
+    Request (application/json):
+    {
+      "title": "My Visa Checklist",
+      "overall_deadline": "2025-12-31"  # optional, ISO date
+    }
+
+    Responses:
+    - 201: {"id": 1, "title": "My Visa Checklist", "overall_deadline": "2025-12-31", ...}
+    - 400: {"error": "No input data provided"}
+    - 422: {"field": ["validation error message"]}
+    """
     user_id = get_jwt_identity()
     json_data = request.get_json()
     if not json_data:
@@ -57,6 +71,11 @@ def create_checklist():
 @checklists_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_checklists():
+    """
+    List all checklists owned by the authenticated user.
+
+    Response 200: [{"id": 1, "title": "...", "overall_deadline": null, ...}, ...]
+    """
     user_id = get_jwt_identity()
     checklists = Checklist.query.filter_by(user_id=user_id).all()
     return jsonify(checklists_schema.dump(checklists))
@@ -64,6 +83,16 @@ def get_checklists():
 @checklists_bp.route('/<int:checklist_id>', methods=['GET'])
 @jwt_required()
 def get_checklist(checklist_id):
+    """
+    Get a single checklist by id.
+
+    Path params:
+      checklist_id: integer
+
+    Responses:
+    - 200: Checklist object
+    - 404: {"error": "Checklist not found or unauthorized"}
+    """
     user_id = get_jwt_identity()
     checklist = authorize_user_for_checklist(checklist_id, user_id)
     if not checklist:
@@ -73,6 +102,17 @@ def get_checklist(checklist_id):
 @checklists_bp.route('/<int:checklist_id>', methods=['PATCH'])
 @jwt_required()
 def update_checklist(checklist_id):
+    """
+    Update fields of a checklist.
+
+    Request (application/json): any subset of
+    {"title": "New Title", "overall_deadline": "2025-12-31"}
+
+    Responses:
+    - 200: Updated checklist
+    - 404: {"error": "Checklist not found or unauthorized"}
+    - 422: Validation errors
+    """
     user_id = get_jwt_identity()
     checklist = authorize_user_for_checklist(checklist_id, user_id)
     if not checklist:
@@ -92,6 +132,13 @@ def update_checklist(checklist_id):
 @checklists_bp.route('/<int:checklist_id>', methods=['DELETE'])
 @jwt_required()
 def delete_checklist(checklist_id):
+    """
+    Delete a checklist by id.
+
+    Responses:
+    - 200: {"message": "Checklist deleted successfully"}
+    - 404: {"error": "Checklist not found or unauthorized"}
+    """
     user_id = get_jwt_identity()
     checklist = authorize_user_for_checklist(checklist_id, user_id)
     if not checklist:
@@ -104,6 +151,12 @@ def delete_checklist(checklist_id):
 @checklists_bp.route('/<int:checklist_id>/categories', methods=['POST'])
 @jwt_required()
 def create_category(checklist_id):
+    """
+    Create a category under a checklist.
+
+    Request: {"title": "Documents"}
+    Responses: 201 category, 404 if checklist not found/unauthorized, 422 validation errors
+    """
     user_id = get_jwt_identity()
     if not authorize_user_for_checklist(checklist_id, user_id):
         return jsonify({"error": "Checklist not found or unauthorized"}), 404
@@ -122,6 +175,9 @@ def create_category(checklist_id):
 @checklists_bp.route('/<int:checklist_id>/categories', methods=['GET'])
 @jwt_required()
 def get_categories(checklist_id):
+    """
+    List categories for a checklist.
+    """
     user_id = get_jwt_identity()
     checklist = authorize_user_for_checklist(checklist_id, user_id)
     if not checklist:
@@ -131,6 +187,11 @@ def get_categories(checklist_id):
 @checklists_bp.route('/categories/<int:category_id>', methods=['PATCH'])
 @jwt_required()
 def update_category(category_id):
+    """
+    Update a category.
+
+    Request: {"title": "New Title"}
+    """
     user_id = get_jwt_identity()
     category = db.session.get(Category, category_id)
     if not category or not authorize_user_for_checklist(category.checklist_id, user_id):
@@ -146,10 +207,35 @@ def update_category(category_id):
     db.session.commit()
     return jsonify(category_schema.dump(category))
 
+@checklists_bp.route('/categories/<int:category_id>', methods=['DELETE'])
+@jwt_required()
+def delete_category(category_id):
+    """
+    Delete a category by id.
+
+    Responses:
+    - 200: {"message": "Category deleted successfully"}
+    - 404: {"error": "Category not found or unauthorized"}
+    """
+    user_id = get_jwt_identity()
+    category = db.session.get(Category, category_id)
+    if not category or not authorize_user_for_checklist(category.checklist_id, user_id):
+        return jsonify({"error": "Category not found or unauthorized"}), 404
+
+    db.session.delete(category)
+    db.session.commit()
+    return jsonify({"message": "Category deleted successfully"}), 200
+
 # Item routes
 @checklists_bp.route('/categories/<int:category_id>/items', methods=['POST'])
 @jwt_required()
 def create_item(category_id):
+    """
+    Create an item under a category.
+
+    Request: conforms to ItemSchema
+    Response 201: item
+    """
     user_id = get_jwt_identity()
     category = db.session.get(Category, category_id)
     if not category or not authorize_user_for_checklist(category.checklist_id, user_id):
@@ -164,11 +250,15 @@ def create_item(category_id):
     new_item = Item(category_id=category_id, **data)
     db.session.add(new_item)
     db.session.commit()
-    return jsonify(item_schema.dump(new_item)), 201
+    return jsonify(item_schema.dump(new_item, exclude=('uploaded_files',))), 201
 
 @checklists_bp.route('/items/<int:item_id>', methods=['PATCH'])
 @jwt_required()
 def update_item(item_id):
+    """
+    Update an item by id.
+    Request: partial ItemSchema fields
+    """
     user_id = get_jwt_identity()
     item = db.session.get(Item, item_id)
     if not item or not authorize_user_for_checklist(item.category.checklist_id, user_id):
@@ -189,6 +279,9 @@ def update_item(item_id):
 @checklists_bp.route('/items/<int:item_id>', methods=['DELETE'])
 @jwt_required()
 def delete_item(item_id):
+    """
+    Delete an item by id.
+    """
     user_id = get_jwt_identity()
     item = db.session.get(Item, item_id)
     if not item or not authorize_user_for_checklist(item.category.checklist_id, user_id):
@@ -211,6 +304,12 @@ def upload_item_file(item_id):
     - file: The file to upload
     - description: Optional description
     - tags: Optional tags
+    
+    Responses:
+    - 201: {"message": "File uploaded successfully to checklist item", "file": FileSchema, "item_id": X}
+    - 404: {"error": "Item not found or unauthorized"}
+    - 413: {"error": "<quota exceeded>"}
+    - 500: {"error": "Error uploading file"}
     """
     try:
         user_id = get_jwt_identity()
@@ -250,16 +349,10 @@ def upload_item_file(item_id):
         if not os.path.exists(file_path) or get_file_size(file_path) != file_size:
             return jsonify({'error': 'Failed to save file'}), 500
         
-        # Create database record
+        # Create database record bound to this item
         uploaded_file = UploadedFile(
-            user_id=user_id,
             file_path=file_path,
             original_filename=file.filename,
-            file_size=file_size,
-            mime_type=mime_type,
-            description=description,
-            tags=tags,
-            content_type='checklist',
             item_id=item_id
         )
         
@@ -284,6 +377,10 @@ def upload_item_file(item_id):
 def get_item_files(item_id):
     """
     Get all files for a specific checklist item.
+    
+    Responses:
+    - 200: {"files": [FileSchema...], "item_id": X}
+    - 404: {"error": "Item not found or unauthorized"}
     """
     try:
         user_id = get_jwt_identity()
@@ -294,11 +391,7 @@ def get_item_files(item_id):
             return jsonify({"error": "Item not found or unauthorized"}), 404
         
         # Get files for this item
-        files = UploadedFile.query.filter_by(
-            item_id=item_id,
-            user_id=user_id,
-            content_type='checklist'
-        ).all()
+        files = UploadedFile.query.filter_by(item_id=item_id).all()
         
         file_schema = FileSchema()
         return jsonify({

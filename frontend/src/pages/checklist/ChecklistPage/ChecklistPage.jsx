@@ -5,25 +5,17 @@ import ChecklistHeader from '../../../components/checklist/ChecklistHeader.jsx';
 import ChecklistCategory from '../../../components/checklist/ChecklistCategory.jsx';
 import TaskModal from '../../../components/checklist/TaskModal.jsx';
 import TaskModalContent from '../../../components/checklist/TaskModalContent.jsx';
-import { mockChecklists } from '../data/mockChecklists.js';
+import checklistsService from '../../../services/api/checklistsService.js';
 import './ChecklistPage.css';
 
 const ChecklistPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const data = useMemo(() => mockChecklists[id] || null, [id]);
-
-  if (!data) {
-    return (
-      <RegisteredLayout pageType="default">
-        <div style={{ padding: '20px' }}>Không tìm thấy checklist.</div>
-      </RegisteredLayout>
-    );
-  }
-
-  const { title } = data;
-  const [deadline, setDeadline] = useState(data.deadline || null);
-  const [categories, setCategories] = useState(data.categories);
+  const [title, setTitle] = useState('');
+  const [deadline, setDeadline] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [openTask, setOpenTask] = useState(null);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -33,14 +25,34 @@ const ChecklistPage = () => {
     const pad = n => (n < 10 ? `0${n}` : `${n}`);
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   };
-  const genId = () => Math.random().toString(36).slice(2, 8);
+  const refreshChecklist = async () => {
+    try {
+      setLoading(true);
+      const data = await checklistsService.getChecklist(Number(id));
+      setTitle(data.title);
+      setDeadline(data.deadline || null);
+      setCategories(data.categories || []);
+      setError('');
+    } catch (e) {
+      setError('Không tải được checklist.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleItemDateChange = (itemId, date) => {
+  useEffect(() => {
+    if (!id) return;
+    refreshChecklist();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
+  const handleItemDateChange = async (itemId, date) => {
     const formatted = formatDate(date);
     setCategories(prev => prev.map(cat => ({
       ...cat,
       items: cat.items.map(it => it.id === itemId ? { ...it, completedDate: formatted } : it)
     })));
+    try { await checklistsService.updateItem(itemId, { deadline: formatted }); } catch {}
   };
 
   useEffect(() => {
@@ -55,53 +67,86 @@ const ChecklistPage = () => {
     return () => cancelAnimationFrame(id);
   }, [showAddCategory]);
 
-  const handleToggleItem = (itemId) => {
+  const handleToggleItem = async (itemId) => {
+    let nextCompleted = false;
     setCategories(prev => prev.map(cat => ({
       ...cat,
-      items: cat.items.map(it => it.id === itemId ? { ...it, status: it.status === 'completed' ? 'pending' : 'completed' } : it)
+      items: cat.items.map(it => {
+        if (it.id !== itemId) return it;
+        nextCompleted = it.status !== 'completed';
+        return { ...it, status: nextCompleted ? 'completed' : 'pending' };
+      })
     })));
+    try { await checklistsService.updateItem(itemId, { is_completed: nextCompleted }); } catch {}
   };
 
-  const handleRenameItem = (itemId, newLabel) => {
+  const handleRenameItem = async (itemId, newLabel) => {
     setCategories(prev => prev.map(cat => ({
       ...cat,
       items: cat.items.map(it => it.id === itemId ? { ...it, label: newLabel } : it)
     })));
+    try { await checklistsService.updateItem(itemId, { title: newLabel }); } catch {}
   };
 
-  const handleDeleteItem = (itemId) => {
-    setCategories(prev => prev.map(cat => ({
-      ...cat,
-      items: cat.items.filter(it => it.id !== itemId)
-    })));
+  const handleDeleteItem = async (itemId) => {
+    const prev = categories;
+    setCategories(prev => prev.map(cat => ({ ...cat, items: cat.items.filter(it => it.id !== itemId) })));
+    try { await checklistsService.deleteItem(itemId); } catch { setCategories(prev); }
   };
 
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!newCategoryName.trim()) return;
-    const id = genId();
-    setCategories(prev => [...prev, { id, title: newCategoryName.trim(), items: [] }]);
+    const optimistic = { id: `tmp-${Date.now()}`, title: newCategoryName.trim(), items: [] };
+    setCategories(prev => [...prev, optimistic]);
     setNewCategoryName('');
     setShowAddCategory(false);
+    try {
+      const created = await checklistsService.createCategory(Number(id), { title: optimistic.title });
+      setCategories(prev => prev.map(c => (c.id === optimistic.id ? created : c)));
+    } catch {
+      setCategories(prev => prev.filter(c => c.id !== optimistic.id));
+    }
   };
 
-  const handleAddItem = (categoryId, payload) => {
-    const id = genId();
-    const newItem = {
-      id,
+  const handleAddItem = async (categoryId, payload) => {
+    const optimistic = {
+      id: `tmp-${Date.now()}`,
       label: payload.label || 'Mục mới',
       status: 'pending',
       required: false,
       completedDate: payload.date || undefined,
-      file: payload.file || null
+      uploaded_files: [],
     };
-    setCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, items: [...cat.items, newItem] } : cat));
+    setCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, items: [...cat.items, optimistic] } : cat));
+    try {
+      const created = await checklistsService.createItem(Number(categoryId), {
+        title: optimistic.label,
+        deadline: payload.date || undefined,
+      });
+      setCategories(prev => prev.map(cat => cat.id === categoryId ? {
+        ...cat,
+        items: cat.items.map(it => it.id === optimistic.id ? created : it)
+      } : cat));
+      if (payload.file) {
+        await checklistsService.uploadItemFile(created.id, payload.file);
+        const files = await checklistsService.listItemFiles(created.id);
+        setCategories(prev => prev.map(cat => ({
+          ...cat,
+          items: cat.items.map(it => it.id === created.id ? { ...it, uploaded_files: files } : it)
+        })));
+      }
+    } catch {
+      setCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, items: cat.items.filter(i => i.id !== optimistic.id) } : cat));
+    }
   };
 
-  const handleRenameCategory = (categoryId, newTitle) => {
+  const handleRenameCategory = async (categoryId, newTitle) => {
     setCategories(prev => prev.map(cat => cat.id === categoryId ? { ...cat, title: newTitle } : cat));
+    try { await checklistsService.updateCategory(Number(categoryId), { title: newTitle }); } catch {}
   };
 
   const handleDeleteCategory = (categoryId) => {
+    // Backend has no DELETE category endpoint; remove locally only for now.
     setCategories(prev => prev.filter(cat => cat.id !== categoryId));
   };
 
@@ -121,16 +166,38 @@ const ChecklistPage = () => {
             completed={summary.completed}
             total={summary.total}
             onExport={() => console.log('Export PDF')}
-            onDeadlineChange={(d) => setDeadline(formatDate(d))}
+            onDeadlineChange={async (d) => {
+              const formatted = formatDate(d);
+              setDeadline(formatted);
+              try { await checklistsService.updateChecklist(Number(id), { overall_deadline: formatted }); } catch {}
+            }}
+            onRenameTitle={async (nextTitle) => {
+              setTitle(nextTitle);
+              try { await checklistsService.updateChecklist(Number(id), { title: nextTitle }); } catch {}
+            }}
           />
         </div>
         <div className="checklist-page-back-scroll" ref={scrollRef}>
+          {loading && (<div style={{ padding: '20px' }}>Đang tải...</div>)}
+          {!loading && error && (<div style={{ padding: '20px', color: 'red' }}>{error}</div>)}
           <div className="checklist-section-row">
             <div className="checklist-section-title">Danh sách công việc</div>
             <button className="checklist-view-all" onClick={() => navigate('/documents/all')}>
               Tất cả thư mục ▸
             </button>
           </div>
+
+          {/* Empty-state icon */}
+          {!loading && !error && categories.length === 0 && !showAddCategory && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+              <img
+                src={new URL('../../../assets/ui/more.svg', import.meta.url).toString()}
+                alt="Thêm danh mục"
+                style={{ width: 80, height: 80, cursor: 'pointer', opacity: 0.8 }}
+                onClick={() => setShowAddCategory(true)}
+              />
+            </div>
+          )}
 
           {showAddCategory && (
             <div className="add-card" ref={addCardRef}>
@@ -184,11 +251,29 @@ const ChecklistPage = () => {
                 setOpenTask(null);
               }}
               onUpload={(file) => {
-                setCategories(prev => prev.map(cat => ({ ...cat, items: cat.items.map(it => it.id === openTask.id ? { ...it, file } : it) })));
+                (async () => {
+                  try {
+                    await checklistsService.uploadItemFile(openTask.id, file);
+                    const files = await checklistsService.listItemFiles(openTask.id);
+                    setCategories(prev => prev.map(cat => ({
+                      ...cat,
+                      items: cat.items.map(it => it.id === openTask.id ? { ...it, uploaded_files: files } : it)
+                    })));
+                  } catch {}
+                })();
               }}
               onUpdate={(delta) => {
                 setOpenTask(t => ({ ...(t || {}), ...delta }));
                 setCategories(prev => prev.map(cat => ({ ...cat, items: cat.items.map(it => it.id === openTask.id ? { ...it, ...delta } : it) })));
+                (async () => {
+                  const payload = {};
+                  if (delta.label) payload.title = delta.label;
+                  if (delta.status) payload.is_completed = delta.status === 'completed';
+                  if (delta.completedDate) payload.deadline = delta.completedDate;
+                  if (Object.keys(payload).length) {
+                    try { await checklistsService.updateItem(openTask.id, payload); } catch {}
+                  }
+                })();
               }}
             />
           )}
