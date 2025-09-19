@@ -4,6 +4,8 @@ from app.core.extensions import db
 from app.db.models.checklist import Checklist, Category, Item
 from app.db.models.file import UploadedFile
 from app.schemas.checklist import ChecklistSchema, CategorySchema, ItemSchema
+from sqlalchemy.orm import joinedload, subqueryload
+from sqlalchemy.sql import func
 from app.schemas.file import FileSchema
 from app.middleware.file_validation import validate_file_upload, log_file_operation
 from app.core.file_utils import (
@@ -97,9 +99,26 @@ def get_checklist(checklist_id):
     - 404: {"error": "Checklist not found or unauthorized"}
     """
     user_id = get_jwt_identity()
-    checklist = authorize_user_for_checklist(checklist_id, user_id)
+    include = (request.args.get('include') or '').lower()
+
+    if 'files' in include:
+        # Eager-load categories -> items -> uploaded_files to prevent DB N+1
+        checklist = (
+            db.session.query(Checklist)
+            .options(
+                subqueryload(Checklist.categories)
+                .subqueryload(Category.items)
+                .subqueryload(Item.uploaded_files)
+            )
+            .filter(Checklist.id == checklist_id, Checklist.user_id == user_id)
+            .first()
+        )
+    else:
+        checklist = authorize_user_for_checklist(checklist_id, user_id)
+
     if not checklist:
         return jsonify({"error": "Checklist not found or unauthorized"}), 404
+
     return jsonify(checklist_schema.dump(checklist))
 
 @checklists_bp.route('/<int:checklist_id>', methods=['PATCH'])
@@ -357,7 +376,10 @@ def upload_item_file(item_id):
         uploaded_file = UploadedFile(
             file_path=file_path,
             original_filename=file.filename,
-            item_id=item_id
+            file_size=file_size,
+            mime_type=mime_type,
+            item_id=item_id,
+            uploaded_at=func.now()
         )
         
         db.session.add(uploaded_file)

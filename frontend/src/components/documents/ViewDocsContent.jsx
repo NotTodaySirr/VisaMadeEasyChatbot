@@ -13,9 +13,9 @@ export const RowFolder = ({ label, onOpen, triggerMenu }) => (
       <img src={folderIcon} alt="Folder" width={18} height={18} />
       {label}
     </div>
-    <div className="docs-row-filemeta">
-      {triggerMenu}
-    </div>
+    <div className="docs-cell-date" />
+    <div className="docs-cell-size" />
+    <div className="docs-cell-actions">{triggerMenu}</div>
   </div>
 );
 
@@ -25,11 +25,9 @@ export const RowFile = ({ label, date, size, triggerMenu }) => (
       <img src={textDocumentIcon} alt="File" width={18} height={18} />
       {label}
     </div>
-    <div className="docs-row-filemeta">
-      <span>{date}</span>
-      <span>{size}</span>
-      {triggerMenu}
-    </div>
+    <div className="docs-cell-date">{date}</div>
+    <div className="docs-cell-size">{size}</div>
+    <div className="docs-cell-actions">{triggerMenu}</div>
   </div>
 );
 
@@ -82,10 +80,9 @@ const ViewDocsContent = ({ items = [], onOpenFolder, onRenameItem, onDeleteItem 
       <div className="docs-content-header">
         <div className="docs-content-header-row">
           <div className="docs-content-name">Tên</div>
-          <div className="docs-content-meta">
-            <span>Ngày đăng tải</span>
-            <span>Kích cỡ</span>
-          </div>
+          <div className="docs-content-date">Ngày đăng tải</div>
+          <div className="docs-content-size">Kích cỡ</div>
+          <div className="docs-content-actions" />
         </div>
       </div>
 

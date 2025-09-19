@@ -13,10 +13,10 @@
 }
 
 .docs-content-header-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 120px 80px 28px;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  column-gap: 16px;
   padding: 14px 12px 14px 0;
   border-bottom: 2px solid rgba(124,143,190,0.6);
 }
@@ -27,20 +27,20 @@
   color: rgba(0,0,0,0.8);
 }
 
-.docs-content-meta {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(0,0,0,0.8);
-}
+.docs-content-date,
+.docs-content-size,
+.docs-content-actions { font-size: 16px; font-weight: 600; color: rgba(0,0,0,0.8); }
+.docs-content-size { text-align: right; }
+
+/* Align header columns with row columns */
+.docs-content-meta span:first-child { min-width: 96px; }
+.docs-content-meta span:nth-child(2) { min-width: 64px; }
 
 .docs-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 120px 80px 28px;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
+  column-gap: 16px;
   padding: 12px 12px 12px 0;
   border-bottom: 1px solid rgba(124,143,190,0.4);
 }
@@ -51,15 +51,23 @@
   gap: 8px;
 }
 
-.docs-row-filemeta {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  font-size: 14px;
+.docs-cell-date { font-size: 14px; color: rgba(15,23,43,0.8); }
+.docs-cell-size { font-size: 14px; color: rgba(15,23,43,0.8); text-align: right; }
+.docs-cell-actions { display: flex; justify-content: center; }
+
+/* Responsive column widths */
+@media (max-width: 900px) {
+  .docs-content-header-row,
+  .docs-row { grid-template-columns: 1fr 96px 64px 28px; }
 }
 
-.docs-row-filemeta span:first-child { min-width: 96px; color: rgba(15,23,43,0.8); }
-.docs-row-filemeta span:nth-child(2) { min-width: 64px; color: rgba(15,23,43,0.8); }
+/* Hide size column on narrow screens */
+@media (max-width: 720px) {
+  .docs-content-header-row,
+  .docs-row { grid-template-columns: 1fr 100px 0px 28px; }
+  .docs-content-size,
+  .docs-cell-size { display: none; }
+}
 
 .docs-iconbtn { padding: 4px; border-radius: 4px; background: transparent; border: none; cursor: pointer; }
 

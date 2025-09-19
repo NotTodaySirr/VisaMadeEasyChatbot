@@ -1,40 +1,24 @@
 import RegisteredLayout from '../../layout/registered';
 import ViewDocsHeader from '../../components/documents/ViewDocsHeader';
 import ViewDocsContent from '../../components/documents/ViewDocsContent';
-import React, { useMemo, useState } from 'react';
-
-const MOCK_FS = {
-  title: 'Du học bằng thạc sĩ Mỹ',
-  root: [
-    { id: 'f1', kind: 'folder', name: 'Giấy tờ tuỳ thân', children: [
-      { id: 'd1-1', kind: 'file', name: 'Hộ chiếu.pdf', date: '12/4/2025', size: '120 KB' },
-      { id: 'd1-2', kind: 'file', name: 'Ảnh thẻ.jpg', date: '10/4/2025', size: '320 KB' },
-      { id: 'd1-3', kind: 'file', name: 'CMND.pdf', date: '09/4/2025', size: '220 KB' }
-    ]},
-    { id: 'f2', kind: 'folder', name: 'Giấy tờ học tập', children: [
-      { id: 'd2-1', kind: 'file', name: 'Bảng điểm đại học.pdf', date: '11/4/2025', size: '1.2 MB' },
-      { id: 'd2-2', kind: 'file', name: 'Bằng tốt nghiệp.pdf', date: '08/4/2025', size: '800 KB' },
-      { id: 'd2-3', kind: 'file', name: 'Thư giới thiệu.docx', date: '07/4/2025', size: '50 KB' }
-    ]},
-    { id: 'f3', kind: 'folder', name: 'Giấy tờ tài chính', children: [
-      { id: 'd3-1', kind: 'file', name: 'Sao kê ngân hàng.pdf', date: '12/4/2025', size: '3.5 MB' },
-      { id: 'd3-2', kind: 'file', name: 'Xác nhận lương.pdf', date: '10/4/2025', size: '240 KB' },
-      { id: 'd3-3', kind: 'file', name: 'Tài sản đảm bảo.pdf', date: '06/4/2025', size: '2.1 MB' }
-    ]},
-    { id: 'd4', kind: 'file', name: 'Đơn đăng kí làm visa (DS-160)', date: '12/4/2025', size: '7 KB' },
-    { id: 'd5', kind: 'file', name: 'Đơn I-20', date: '12/4/2025', size: '16 KB' },
-    { id: 'd6', kind: 'file', name: 'Checklist chuẩn bị.docx', date: '05/4/2025', size: '24 KB' }
-  ]
-};
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import useDocuments from '../../hooks/documents/useDocuments.js';
+import Skeleton from '../../components/ui/skeleton';
 
 export default function ViewDocuments() {
-  const [stack, setStack] = useState([{ id: 'root', name: 'Tất cả tài liệu', items: MOCK_FS.root }]);
+  const [search] = useSearchParams();
+  const checklistId = search.get('checklistId');
+  const { title, root, loading, error, renameItem, deleteItem } = useDocuments(checklistId);
+
+  const [stack, setStack] = useState([{ id: 'root', name: 'Tất cả tài liệu', items: [] }]);
+  useEffect(() => {
+    setStack([{ id: 'root', name: 'Tất cả tài liệu', items: root || [] }]);
+  }, [root]);
   const current = stack[stack.length - 1];
 
-  const title = MOCK_FS.title;
-
   const breadcrumbs = useMemo(() => {
-    const parts = [{ id: 'root', label: MOCK_FS.title }];
+    const parts = [{ id: 'root', label: title || 'Tài liệu' }];
     for (let i = 1; i < stack.length; i++) {
       parts.push({ id: stack[i].id, label: stack[i].name });
     }
@@ -55,6 +39,13 @@ export default function ViewDocuments() {
   };
 
   const handleRename = (id, newName) => {
+    // find itemId from current view
+    const file = (current.items || []).find((it) => it.id === id);
+    const itemId = file?.itemId;
+    if (itemId) {
+      renameItem(id, itemId, newName);
+    }
+    // local optimistic update for the current pane
     setStack((prev) => {
       const next = [...prev];
       const items = next[next.length - 1].items.map((it) => it.id === id ? { ...it, name: newName } : it);
@@ -64,6 +55,11 @@ export default function ViewDocuments() {
   };
 
   const handleDelete = (id) => {
+    const file = (current.items || []).find((it) => it.id === id);
+    const itemId = file?.itemId;
+    if (itemId) {
+      deleteItem(id, itemId);
+    }
     setStack((prev) => {
       const next = [...prev];
       const items = next[next.length - 1].items.filter((it) => it.id !== id);
@@ -75,13 +71,24 @@ export default function ViewDocuments() {
   return (
     <RegisteredLayout>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: '24px 32px', minHeight: 0, height: '100%' }}>
-        <ViewDocsHeader title={title} breadcrumbs={breadcrumbs} onBreadcrumbClick={handleCrumbClick} />
-        <ViewDocsContent
-          items={current.items}
-          onOpenFolder={handleOpenFolder}
-          onRenameItem={handleRename}
-          onDeleteItem={handleDelete}
-        />
+        <ViewDocsHeader title={title || 'Tài liệu'} breadcrumbs={breadcrumbs} onBreadcrumbClick={handleCrumbClick} />
+        {loading ? (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
+            <Skeleton style={{ height: 140 }} />
+            <Skeleton style={{ height: 140 }} />
+            <Skeleton style={{ height: 140 }} />
+            <Skeleton style={{ height: 140 }} />
+            <Skeleton style={{ height: 140 }} />
+            <Skeleton style={{ height: 140 }} />
+          </div>
+        ) : (
+          <ViewDocsContent
+            items={current.items}
+            onOpenFolder={handleOpenFolder}
+            onRenameItem={handleRename}
+            onDeleteItem={handleDelete}
+          />
+        )}
       </div>
     </RegisteredLayout>
   );

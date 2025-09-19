@@ -57,3 +57,6 @@ instance/
 
 #Cursor
 .cursor/
+
+#File upload
+uploads/

@@ -1,6 +1,24 @@
 import { apiClient } from '../api/apiClient.js';
 import API_ENDPOINTS from '../api/endpoints.js';
 
+// Normalize date display once at the service layer for UI consumption
+const formatUploadDate = (value) => {
+  if (!value) return '';
+  try {
+    const d = new Date(value);
+    // Return ISO string for consistent parsing in frontend
+    return d.toISOString();
+  } catch {
+    return '';
+  }
+};
+
+const mapFileToUi = (file) => ({
+  ...file,
+  // provide friendly date while keeping original timestamp fields intact
+  uploaded_date: formatUploadDate(file.uploaded_at || file.created_at),
+});
+
 const mapItemToUi = (item) => ({
   id: item.id,
   label: item.title,
@@ -8,7 +26,9 @@ const mapItemToUi = (item) => ({
   required: false,
   completedDate: item.deadline || null,
   description: item.description || '',
-  uploaded_files: item.uploaded_files || [],
+  uploaded_files: Array.isArray(item.uploaded_files)
+    ? item.uploaded_files.map(mapFileToUi)
+    : [],
 });
 
 const mapCategoryToUi = (cat) => ({
@@ -40,6 +60,14 @@ const checklistsService = {
   async getChecklist(checklistId) {
     const { data } = await apiClient.get(API_ENDPOINTS.CHECKLISTS.BY_ID(checklistId));
     return mapChecklistToUi(data);
+  },
+
+  async getChecklistDeep(checklistId, { include = 'files' } = {}) {
+    const url = `${API_ENDPOINTS.CHECKLISTS.BY_ID(checklistId)}?include=${encodeURIComponent(include)}`;
+    const { data } = await apiClient.get(url);
+    // The deep shape includes items.uploaded_files; map accordingly
+    const mapped = mapChecklistToUi(data);
+    return mapped;
   },
 
   async updateChecklist(checklistId, payload) {
