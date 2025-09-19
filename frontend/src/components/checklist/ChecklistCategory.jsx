@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom';
 import '../../pages/checklist/ChecklistPage/ChecklistPage.css';
 import '../cards/ContextMenu/ContextMenu.css';
 import Calendar from '../ui/calendar.jsx';
+import { FileCard } from '../ui';
 import '../ui/calendar.css';
+import './TaskModal.css';
 import arrowIcon from '../../assets/sidebar/arrow-dropdown-icon.svg';
 import tickbox from '../../assets/ui/tickbox.svg';
 import pencilIcon from '../../assets/ui/pencil-icon.svg';
@@ -18,7 +20,9 @@ const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggl
   const [showAddItem, setShowAddItem] = useState(false);
   const [newItemLabel, setNewItemLabel] = useState('');
   const [newItemDate, setNewItemDate] = useState('');
-  const [newItemFile, setNewItemFile] = useState(null);
+  const [newItemFiles, setNewItemFiles] = useState([]);
+  const [showNewItemCalendar, setShowNewItemCalendar] = useState(false);
+  const [newItemCalendarMonth, setNewItemCalendarMonth] = useState(() => new Date());
   const [contextOpen, setContextOpen] = useState(false);
   const [contextPos, setContextPos] = useState({ top: 0, left: 0 });
   const [renaming, setRenaming] = useState(false);
@@ -83,6 +87,20 @@ const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggl
     return () => cancelAnimationFrame(id);
   }, [renaming]);
 
+  useEffect(() => {
+    if (!showNewItemCalendar) return;
+    const onDown = (e) => {
+      if (e.target.closest('.calendar-panel')) return;
+      setShowNewItemCalendar(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('touchstart', onDown);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('touchstart', onDown);
+    };
+  }, [showNewItemCalendar]);
+
   const openFor = (item, evt) => {
     const r = evt.currentTarget.getBoundingClientRect();
     const desiredLeft = r.right + 8;
@@ -101,6 +119,19 @@ const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggl
   const openItemMenu = (itemId, evt) => {
     evt.preventDefault();
     setItemContext({ open: true, itemId, top: evt.clientY, left: evt.clientX });
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      setNewItemFiles(prev => [...prev, ...files]);
+    }
+    // Reset the input so the same file can be selected again
+    e.target.value = '';
+  };
+
+  const handleRemoveFile = (index) => {
+    setNewItemFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -196,22 +227,86 @@ const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggl
             onChange={(e) => setNewItemLabel(e.target.value)}
           />
           <div className="add-card-row">
-            <input type="date" className="add-card-input" value={newItemDate} onChange={(e) => setNewItemDate(e.target.value)} />
-            <input type="file" className="add-card-file" onChange={(e) => setNewItemFile(e.target.files && e.target.files[0] ? e.target.files[0] : null)} />
+            <div style={{ position: 'relative' }}>
+              <button
+                className="add-card-input"
+                style={{ textAlign: 'left', cursor: 'pointer' }}
+                onClick={() => setShowNewItemCalendar(!showNewItemCalendar)}
+              >
+                {newItemDate || 'Chọn ngày'}
+              </button>
+              {showNewItemCalendar && createPortal(
+                <div
+                  className="calendar-panel"
+                  style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1000 }}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
+                >
+                  <Calendar
+                    month={newItemCalendarMonth}
+                    onMonthChange={setNewItemCalendarMonth}
+                    value={newItemDate ? new Date(newItemDate) : null}
+                    onChange={(d) => {
+                      const pad = n => (n < 10 ? `0${n}` : `${n}`);
+                      const formatted = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+                      setNewItemDate(formatted);
+                      setNewItemCalendarMonth(new Date(d.getFullYear(), d.getMonth(), 1));
+                      setShowNewItemCalendar(false);
+                    }}
+                  />
+                </div>,
+                document.body
+              )}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 0 }}>
+              <input
+                id={`new-item-file-input-${categoryId}`}
+                type="file"
+                multiple
+                style={{ display: 'none' }}
+                onChange={handleFileSelect}
+              />
+              <button
+                className="task-upload-btn"
+                onClick={() => {
+                  const el = document.getElementById(`new-item-file-input-${categoryId}`);
+                  if (el) el.click();
+                }}
+              >
+                Tải lên
+              </button>
+              {newItemFiles.length > 0 && (
+                <div className="new-item-files-container">
+                  <div className="new-item-files-scroll">
+                    {newItemFiles.map((file, index) => (
+                      <FileCard
+                        key={`${file.name}-${index}`}
+                        file={file}
+                        onRemove={() => handleRemoveFile(index)}
+                        variant="tag"
+                        className="new-item-file-card"
+                        index={index}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="add-card-actions">
             <button
               className="checklist-add-btn"
               onClick={() => {
                 if (!newItemLabel.trim()) return;
-                onAddItem && onAddItem(categoryId, { label: newItemLabel.trim(), date: newItemDate || undefined, file: newItemFile || null });
+                onAddItem && onAddItem(categoryId, { label: newItemLabel.trim(), date: newItemDate || undefined, files: newItemFiles });
                 setNewItemLabel('');
                 setNewItemDate('');
-                setNewItemFile(null);
+                setNewItemFiles([]);
                 setShowAddItem(false);
+                setShowNewItemCalendar(false);
               }}
             >Lưu</button>
-            <button className="checklist-cancel-btn" onClick={() => { setShowAddItem(false); setNewItemLabel(''); setNewItemDate(''); setNewItemFile(null); }}>Hủy</button>
+            <button className="checklist-cancel-btn" onClick={() => { setShowAddItem(false); setNewItemLabel(''); setNewItemDate(''); setNewItemFiles([]); setShowNewItemCalendar(false); }}>Hủy</button>
           </div>
         </div>
       )}

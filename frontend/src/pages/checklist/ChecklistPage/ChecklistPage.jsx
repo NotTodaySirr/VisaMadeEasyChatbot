@@ -132,8 +132,13 @@ const ChecklistPage = () => {
         ...cat,
         items: cat.items.map(it => it.id === optimistic.id ? created : it)
       } : cat));
-      if (payload.file) {
-        await checklistsService.uploadItemFile(created.id, payload.file);
+      
+      // Upload multiple files if provided
+      if (payload.files && payload.files.length > 0) {
+        const uploadPromises = payload.files.map(file => 
+          checklistsService.uploadItemFile(created.id, file)
+        );
+        await Promise.all(uploadPromises);
         const files = await checklistsService.listItemFiles(created.id);
         setCategories(prev => prev.map(cat => ({
           ...cat,

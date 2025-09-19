@@ -288,10 +288,51 @@
   gap: 8px;
 }
 
-.add-card-row { display: flex; gap: 8px; align-items: center; }
+.add-card-row { display: flex; gap: 8px; align-items: flex-start; }
 .add-card-input { border: 1px solid #CCDBFD; border-radius: 8px; padding: 8px 10px; width: 100%; }
 .add-card-file { border: 1px dashed #CCDBFD; border-radius: 8px; padding: 6px; }
 .add-card-actions { display: flex; gap: 8px; }
+
+/* New item files display */
+.new-item-files-container {
+  width: 100%;
+  max-width: 200px;
+  min-width: 0;
+}
+
+.new-item-files-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #CCDBFD transparent;
+}
+
+.new-item-files-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+
+.new-item-files-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.new-item-files-scroll::-webkit-scrollbar-thumb {
+  background: #CCDBFD;
+  border-radius: 2px;
+}
+
+.new-item-files-scroll::-webkit-scrollbar-thumb:hover {
+  background: #7C8FBE;
+}
+
+.new-item-file-card {
+  flex-shrink: 0;
+  min-width: 120px;
+  max-width: 150px;
+}
 
 /* Floating Action Button */
 .checklist-fab {
