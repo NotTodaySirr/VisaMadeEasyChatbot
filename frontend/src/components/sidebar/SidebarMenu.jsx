@@ -159,7 +159,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   const allChatItemsEmpty = Object.values(chatHistoryGroups).every(group => group.length === 0);
 
   return (
-    <>
+    <div className="sidebar-menu-content">
       {/* Menu tag - Home Link */}
       <Link to="/home" className="sidebar-menu-tag">
         <div className="sidebar-menu-tag-icon">
@@ -300,7 +300,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 };
 
