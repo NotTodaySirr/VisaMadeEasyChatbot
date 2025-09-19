@@ -5,7 +5,7 @@ import ChecklistHeader from '../../../components/checklist/ChecklistHeader.jsx';
 import ChecklistCategory from '../../../components/checklist/ChecklistCategory.jsx';
 import TaskModal from '../../../components/checklist/TaskModal.jsx';
 import TaskModalContent from '../../../components/checklist/TaskModalContent.jsx';
-import checklistsService from '../../../services/api/checklistsService.js';
+import checklistsService from '../../../services/checklist/checklistsService.js';
 import './ChecklistPage.css';
 
 const ChecklistPage = () => {
@@ -303,6 +303,7 @@ const ChecklistPage = () => {
                   if (delta.label) payload.title = delta.label;
                   if (delta.status) payload.is_completed = delta.status === 'completed';
                   if (delta.completedDate) payload.deadline = delta.completedDate;
+                  if (typeof delta.description === 'string') payload.description = delta.description;
                   if (Object.keys(payload).length) {
                     try { await checklistsService.updateItem(openTask.id, payload); } catch {}
                   }

@@ -1,5 +1,5 @@
-import { apiClient } from './apiClient.js';
-import API_ENDPOINTS from './endpoints.js';
+import { apiClient } from '../api/apiClient.js';
+import API_ENDPOINTS from '../api/endpoints.js';
 
 const mapItemToUi = (item) => ({
   id: item.id,
@@ -7,6 +7,7 @@ const mapItemToUi = (item) => ({
   status: item.is_completed ? 'completed' : 'pending',
   required: false,
   completedDate: item.deadline || null,
+  description: item.description || '',
   uploaded_files: item.uploaded_files || [],
 });
 
@@ -67,6 +68,10 @@ const checklistsService = {
   async updateItem(itemId, partial) {
     const { data } = await apiClient.patch(API_ENDPOINTS.CHECKLISTS.ITEM_BY_ID(itemId), partial);
     return mapItemToUi(data);
+  },
+
+  async updateItemDescription(itemId, description) {
+    return this.updateItem(itemId, { description });
   },
 
   async deleteItem(itemId) {

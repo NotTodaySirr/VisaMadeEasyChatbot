@@ -19,6 +19,14 @@ const API_ENDPOINTS = {
     ITEM_BY_ID: (itemId) => `/checklists/items/${itemId}`,
     ITEM_FILES: (itemId) => `/checklists/items/${itemId}/files`,
   },
+
+  // Normalized item routes (same targets as CHECKLISTS.* above)
+  ITEMS: {
+    ROOT: '/checklists/items',
+    BY_ID: (itemId) => `/checklists/items/${itemId}`,
+    FILES: (itemId) => `/checklists/items/${itemId}/files`,
+    IN_CATEGORY: (categoryId) => `/checklists/categories/${categoryId}/items`,
+  },
   
   // Future chat endpoints
   CHAT: {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import checklistsService from '../../services/api/checklistsService.js';
+import checklistsService from '../../services/checklist/checklistsService.js';
 import './Sidebar.css';
 
 // Icon imports from assets (ESM so Vite bundles correctly)

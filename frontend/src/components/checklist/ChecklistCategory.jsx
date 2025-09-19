@@ -242,7 +242,13 @@ const ChecklistCategory = ({ categoryId, title, items, onItemDateChange, onToggl
                   {item.completedDate || 'Chọn ngày'}
                 </div>
                 {openItemId === item.id && createPortal(
-                  <div ref={panelRef} className="calendar-panel" style={{ position: 'fixed', top: `${panelPos.top}px`, left: `${panelPos.left}px` }}>
+                  <div
+                    ref={panelRef}
+                    className="calendar-panel"
+                    style={{ position: 'fixed', top: `${panelPos.top}px`, left: `${panelPos.left}px` }}
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >
                     <Calendar
                       month={month}
                       onMonthChange={setMonth}

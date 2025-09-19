@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Calendar from '../ui/calendar.jsx';
+import { FileCard } from '../ui';
 import '../ui/calendar.css';
 import '../cards/ContextMenu/ContextMenu.css';
 import './TaskModal.css';
@@ -10,16 +11,17 @@ import pencilIcon from '../../assets/ui/pencil-icon.svg';
 import trashIcon from '../../assets/ui/trash-icon.svg';
 
 const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
-  const [title, setTitle] = useState(task.label || 'hộ chiếu');
+  const [draftTitle, setDraftTitle] = useState(task.label || 'hộ chiếu');
   const [completed, setCompleted] = useState(task.status === 'completed');
-  const [deadline, setDeadline] = useState(task.completedDate || '');
-  const [description, setDescription] = useState(task.description || '');
-  const [month, setMonth] = useState(() => (deadline ? new Date(deadline) : new Date()));
+  const [draftDeadline, setDraftDeadline] = useState(task.completedDate || '');
+  const [draftDescription, setDraftDescription] = useState(task.description || '');
+  const [month, setMonth] = useState(() => (task.completedDate ? new Date(task.completedDate) : new Date()));
 
-  useEffect(() => { setTitle(task.label || 'hộ chiếu'); }, [task.label]);
+  // Sync drafts when task prop changes
+  useEffect(() => { setDraftTitle(task.label || 'hộ chiếu'); }, [task.label]);
   useEffect(() => { setCompleted(task.status === 'completed'); }, [task.status]);
-  useEffect(() => { setDeadline(task.completedDate || ''); setMonth(() => (task.completedDate ? new Date(task.completedDate) : new Date())); }, [task.completedDate]);
-  useEffect(() => { setDescription(task.description || ''); }, [task.description]);
+  useEffect(() => { setDraftDeadline(task.completedDate || ''); setMonth(() => (task.completedDate ? new Date(task.completedDate) : new Date())); }, [task.completedDate]);
+  useEffect(() => { setDraftDescription(task.description || ''); }, [task.description]);
 
   const descRef = useRef(null);
   const autoResize = (el) => {
@@ -28,9 +30,12 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
     el.style.height = `${el.scrollHeight}px`;
   };
   useEffect(() => { autoResize(descRef.current); }, []);
-  useEffect(() => { autoResize(descRef.current); }, [description]);
+  useEffect(() => { autoResize(descRef.current); }, [draftDescription]);
 
-  const handleTitleBlur = () => { onUpdate && onUpdate({ label: title }); };
+  // Save/Cancel handlers
+  const handleSaveTitle = () => { if (!onUpdate) return; onUpdate({ label: draftTitle }); };
+  const handleCancelTitle = () => { setDraftTitle(task.label || 'hộ chiếu'); };
+
   const handleToggleCompleted = () => {
     const next = !completed;
     setCompleted(next);
@@ -39,11 +44,105 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
   const handleDeadlineChange = (d) => {
     const pad = (n) => (n < 10 ? `0${n}` : `${n}`);
     const formatted = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    setDeadline(formatted);
+    setDraftDeadline(formatted);
     setMonth(new Date(d.getFullYear(), d.getMonth(), 1));
-    onUpdate && onUpdate({ completedDate: formatted });
   };
-  const handleDescriptionBlur = () => { onUpdate && onUpdate({ description }); };
+  const handleSaveDeadline = () => { if (!onUpdate) return; onUpdate({ completedDate: draftDeadline }); };
+  const handleCancelDeadline = () => { setDraftDeadline(task.completedDate || ''); setMonth(() => (task.completedDate ? new Date(task.completedDate) : new Date())); };
+
+  const handleSaveDescription = () => { if (!onUpdate) return; onUpdate({ description: draftDescription }); };
+  const handleCancelDescription = () => { setDraftDescription(task.description || ''); };
+
+  // Dirty flags
+  const isTitleDirty = (draftTitle || '') !== (task.label || 'hộ chiếu');
+  const isDeadlineDirty = (draftDeadline || '') !== (task.completedDate || '');
+  const isDescriptionDirty = (draftDescription || '') !== (task.description || '');
+
+  // Convert backend file object to File-like object for FileCard
+  const convertToFileObject = (backendFile) => {
+    // Extract file extension and determine MIME type
+    const extension = backendFile.original_filename.split('.').pop().toLowerCase();
+    const mimeTypes = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'pdf': 'application/pdf',
+      'doc': 'application/msword',
+      'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'txt': 'text/plain',
+    };
+    
+    return {
+      id: backendFile.id,
+      name: backendFile.original_filename,
+      type: mimeTypes[extension] || 'application/octet-stream',
+      size: 0, // Backend doesn't store file size, so we'll use 0
+      lastModified: backendFile.uploaded_at ? new Date(backendFile.uploaded_at).getTime() : Date.now(),
+      // Store backend file data for API calls
+      backendFile: backendFile,
+    };
+  };
+
+  const handleRemoveFile = async (fileIndex) => {
+    if (!task.uploaded_files || !task.uploaded_files[fileIndex]) return;
+    
+    const fileToRemove = task.uploaded_files[fileIndex];
+    const updatedFiles = task.uploaded_files.filter((_, index) => index !== fileIndex);
+    
+    // Update the task with removed file
+    onUpdate && onUpdate({ uploaded_files: updatedFiles });
+    
+    // TODO: Add backend call to delete file when endpoint is available
+    // try {
+    //   await checklistsService.deleteItemFile(task.id, fileToRemove.id);
+    // } catch (error) {
+    //   console.error('Failed to delete file:', error);
+    //   // Revert the change if backend call fails
+    //   onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
+    // }
+  };
+
+  const handleRenameFile = async (fileIndex, newName) => {
+    if (!task.uploaded_files || !task.uploaded_files[fileIndex]) return;
+    
+    const updatedFiles = task.uploaded_files.map((file, index) => 
+      index === fileIndex 
+        ? { ...file, original_filename: newName }
+        : file
+    );
+    
+    // Update the task with renamed file
+    onUpdate && onUpdate({ uploaded_files: updatedFiles });
+    
+    // TODO: Add backend call to rename file when endpoint is available
+    // try {
+    //   await checklistsService.renameItemFile(task.id, task.uploaded_files[fileIndex].id, newName);
+    // } catch (error) {
+    //   console.error('Failed to rename file:', error);
+    //   // Revert the change if backend call fails
+    //   onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
+    // }
+  };
+
+  const handleDeleteFile = async (fileIndex) => {
+    if (!task.uploaded_files || !task.uploaded_files[fileIndex]) return;
+    
+    const fileToDelete = task.uploaded_files[fileIndex];
+    const updatedFiles = task.uploaded_files.filter((_, index) => index !== fileIndex);
+    
+    // Update the task with deleted file
+    onUpdate && onUpdate({ uploaded_files: updatedFiles });
+    
+    // TODO: Add backend call to delete file when endpoint is available
+    // try {
+    //   await checklistsService.deleteItemFile(task.id, fileToDelete.id);
+    // } catch (error) {
+    //   console.error('Failed to delete file:', error);
+    //   // Revert the change if backend call fails
+    //   onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
+    // }
+  };
 
   return (
     <div className="task-modal-content">
@@ -96,23 +195,28 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
         <input
           id="task-modal-title"
           className="task-title-input"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onBlur={handleTitleBlur}
+          value={draftTitle}
+          onChange={(e) => setDraftTitle(e.target.value)}
         />
+        {isTitleDirty && (
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+            <button className="checklist-add-btn" onClick={handleSaveTitle}>Lưu</button>
+            <button className="checklist-cancel-btn" onClick={handleCancelTitle}>Hủy</button>
+          </div>
+        )}
       </div>
 
       <div className="task-deadline under-title">
         <strong>Hạn:</strong>{' '}
         <ContextMenu
           panelClassName="calendar-panel"
-          trigger={<span className="task-deadline-value" style={{ cursor: 'pointer' }}>{deadline || 'Chọn ngày'}</span>}
+          trigger={<span className="task-deadline-value" style={{ cursor: 'pointer' }}>{draftDeadline || 'Chọn ngày'}</span>}
         >
           {(closeMenu) => (
             <Calendar
               month={month}
               onMonthChange={setMonth}
-              value={deadline ? new Date(deadline) : null}
+              value={draftDeadline ? new Date(draftDeadline) : null}
               onChange={(d) => {
                 handleDeadlineChange(d);
                 closeMenu();
@@ -120,6 +224,12 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
             />
           )}
         </ContextMenu>
+        {isDeadlineDirty && (
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+            <button className="checklist-add-btn" onClick={handleSaveDeadline}>Lưu</button>
+            <button className="checklist-cancel-btn" onClick={handleCancelDeadline}>Hủy</button>
+          </div>
+        )}
       </div>
 
       <div className="task-desc">
@@ -128,11 +238,39 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
           ref={descRef}
           className="task-desc-input"
           rows={6}
-          value={description}
-          onChange={(e) => { setDescription(e.target.value); autoResize(e.target); }}
-          onBlur={handleDescriptionBlur}
+          value={draftDescription}
+          onChange={(e) => { setDraftDescription(e.target.value); autoResize(e.target); }}
         />
+        {isDescriptionDirty && (
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
+            <button className="checklist-add-btn" onClick={handleSaveDescription}>Lưu</button>
+            <button className="checklist-cancel-btn" onClick={handleCancelDescription}>Hủy</button>
+          </div>
+        )}
       </div>
+
+      {/* File attachments section */}
+      {task.uploaded_files && task.uploaded_files.length > 0 && (
+        <div className="task-files">
+          <div className="task-files-title">Tệp đính kèm</div>
+          <div className="task-files-list">
+            {task.uploaded_files.map((backendFile, index) => {
+              const fileObject = convertToFileObject(backendFile);
+              return (
+                <FileCard
+                  key={`${backendFile.id}-${index}`}
+                  file={fileObject}
+                  onRemove={() => handleRemoveFile(index)}
+                  onRename={(newName) => handleRenameFile(index, newName)}
+                  onDelete={() => handleDeleteFile(index)}
+                  variant="preview"
+                  className="task-file-card"
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

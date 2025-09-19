@@ -11,7 +11,7 @@ import shareIconSVG from '../../assets/ui/share-icon.svg';
 import pencilIconSVG from '../../assets/ui/pencil-icon.svg';
 import trashIconSVG from '../../assets/ui/trash-icon.svg';
 
-import checklistsService from '../../services/api/checklistsService.js';
+import checklistsService from '../../services/checklist/checklistsService.js';
 
 const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   // Local states
