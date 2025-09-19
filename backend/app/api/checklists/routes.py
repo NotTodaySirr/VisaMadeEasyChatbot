@@ -12,8 +12,11 @@ from app.core.file_utils import (
     ensure_upload_directory,
     get_file_size,
     get_mime_type,
-    check_file_quota
+    check_file_quota,
+    delete_file as fs_delete_file,
+    rename_file as fs_rename_file,
 )
+from werkzeug.utils import secure_filename
 from marshmallow import ValidationError
 import os
 import logging
@@ -250,7 +253,8 @@ def create_item(category_id):
     new_item = Item(category_id=category_id, **data)
     db.session.add(new_item)
     db.session.commit()
-    return jsonify(item_schema.dump(new_item, exclude=('uploaded_files',))), 201
+    # Marshmallow v3 does not accept 'exclude' in dump(); instantiate schema with exclude instead
+    return jsonify(ItemSchema(exclude=('uploaded_files',)).dump(new_item)), 201
 
 @checklists_bp.route('/items/<int:item_id>', methods=['PATCH'])
 @jwt_required()
@@ -402,3 +406,92 @@ def get_item_files(item_id):
     except Exception as e:
         logger.error(f"Error getting files for item {item_id}: {str(e)}")
         return jsonify({'error': 'Error getting files'}), 500
+
+
+@checklists_bp.route('/items/<int:item_id>/files/<int:file_id>', methods=['DELETE'])
+@jwt_required()
+def delete_item_file(item_id, file_id):
+    """
+    Delete a specific file attached to an item.
+
+    Responses:
+    - 200: {"message": "File deleted"}
+    - 404: {"error": "Item or file not found or unauthorized"}
+    """
+    user_id = get_jwt_identity()
+    item = db.session.get(Item, item_id)
+    if not item or not authorize_user_for_checklist(item.category.checklist_id, user_id):
+        return jsonify({"error": "Item not found or unauthorized"}), 404
+
+    uploaded_file = UploadedFile.query.filter_by(id=file_id, item_id=item_id).first()
+    if not uploaded_file:
+        return jsonify({"error": "File not found"}), 404
+
+    # Try filesystem delete, but proceed with DB deletion even if file is missing
+    try:
+        fs_delete_file(uploaded_file.file_path)
+    except Exception as e:
+        logger.warning(f"Failed to delete file from disk for file_id={file_id}: {str(e)}")
+
+    db.session.delete(uploaded_file)
+    db.session.commit()
+    return jsonify({"message": "File deleted"}), 200
+
+
+@checklists_bp.route('/items/<int:item_id>/files/<int:file_id>', methods=['PATCH'])
+@jwt_required()
+def rename_item_file(item_id, file_id):
+    """
+    Rename a specific file attached to an item.
+
+    Request JSON: { "original_filename": "new-name.ext" }
+    """
+    user_id = get_jwt_identity()
+    item = db.session.get(Item, item_id)
+    if not item or not authorize_user_for_checklist(item.category.checklist_id, user_id):
+        return jsonify({"error": "Item not found or unauthorized"}), 404
+
+    uploaded_file = UploadedFile.query.filter_by(id=file_id, item_id=item_id).first()
+    if not uploaded_file:
+        return jsonify({"error": "File not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    new_name = (data.get('original_filename') or '').strip()
+    if not new_name:
+        return jsonify({"error": "original_filename is required"}), 422
+
+    # Compute new secure filename in same item directory
+    old_name, old_ext = os.path.splitext(os.path.basename(uploaded_file.file_path))
+    base_secure = secure_filename(new_name)
+    if not base_secure:
+        return jsonify({"error": "Invalid filename"}), 422
+    new_base, new_ext = os.path.splitext(base_secure)
+    if not new_ext:
+        new_ext = old_ext
+    final_name = f"{new_base}{new_ext}"
+    upload_dir = get_upload_path(user_id, 'checklist', item_id)
+    new_path = os.path.join(upload_dir, final_name)
+
+    # Prevent overwrite
+    if os.path.exists(new_path):
+        return jsonify({"error": "A file with the requested name already exists"}), 409
+
+    # Attempt filesystem rename
+    if not os.path.exists(uploaded_file.file_path):
+        logger.error(f"Source file missing for file_id={file_id}: {uploaded_file.file_path}")
+        return jsonify({"error": "Source file missing"}), 404
+    if not fs_rename_file(uploaded_file.file_path, new_path):
+        logger.error(f"Filesystem rename failed for file_id={file_id} -> {new_path}")
+        return jsonify({"error": "Failed to rename file"}), 500
+
+    # Update DB
+    uploaded_file.file_path = new_path
+    uploaded_file.original_filename = final_name
+    db.session.commit()
+
+    file_schema = FileSchema()
+    return jsonify({
+        'message': 'File renamed',
+        'file': file_schema.dump(uploaded_file),
+        'item_id': item_id
+    }), 200

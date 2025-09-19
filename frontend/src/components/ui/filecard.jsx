@@ -127,13 +127,17 @@ const FileCard = ({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {(onRename || onDelete) && isHovered && (
+          {(onRename || onDelete) && (
             <ContextMenu
               panelClassName="context-menu"
               preferBelow
               offsetY={6}
               trigger={
-                <button className="p-1 rounded transition" aria-haspopup="menu">
+                <button
+                  className="p-1 rounded transition"
+                  aria-haspopup="menu"
+                  style={{ opacity: isHovered ? 1 : 0, pointerEvents: isHovered ? 'auto' : 'none' }}
+                >
                   <img src={MoreIcon} alt="More options" className="w-4 h-4" />
                 </button>
               }

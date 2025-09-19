@@ -12,10 +12,19 @@ class UploadedFile(db.Model):
     uploaded_at = db.Column(db.DateTime, server_default=func.now())
 
     # Foreign key for checklist items
-    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
+    item_id = db.Column(
+        db.Integer,
+        db.ForeignKey('item.id', ondelete='CASCADE'),
+        nullable=False
+    )
     
     # Relationships
-    item = db.relationship('Item', backref=db.backref('uploaded_files', lazy=True))
+    # Ensure uploaded files are deleted when the parent Item is deleted
+    item = db.relationship(
+        'Item',
+        backref=db.backref('uploaded_files', lazy=True, cascade="all, delete-orphan"),
+        passive_deletes=True
+    )
 
     def __repr__(self):
         return f'<UploadedFile {self.original_filename}>'

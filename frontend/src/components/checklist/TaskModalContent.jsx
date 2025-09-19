@@ -93,14 +93,13 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
     // Update the task with removed file
     onUpdate && onUpdate({ uploaded_files: updatedFiles });
     
-    // TODO: Add backend call to delete file when endpoint is available
-    // try {
-    //   await checklistsService.deleteItemFile(task.id, fileToRemove.id);
-    // } catch (error) {
-    //   console.error('Failed to delete file:', error);
-    //   // Revert the change if backend call fails
-    //   onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
-    // }
+    try {
+      const { default: checklistsService } = await import('../../services/checklist/checklistsService.js');
+      await checklistsService.deleteItemFile(task.id, fileToRemove.id);
+    } catch (error) {
+      console.error('Failed to delete file:', error);
+      onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
+    }
   };
 
   const handleRenameFile = async (fileIndex, newName) => {
@@ -115,34 +114,16 @@ const TaskModalContent = ({ task, onClose, onUpdate, onDelete, onUpload }) => {
     // Update the task with renamed file
     onUpdate && onUpdate({ uploaded_files: updatedFiles });
     
-    // TODO: Add backend call to rename file when endpoint is available
-    // try {
-    //   await checklistsService.renameItemFile(task.id, task.uploaded_files[fileIndex].id, newName);
-    // } catch (error) {
-    //   console.error('Failed to rename file:', error);
-    //   // Revert the change if backend call fails
-    //   onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
-    // }
+    try {
+      const { default: checklistsService } = await import('../../services/checklist/checklistsService.js');
+      await checklistsService.renameItemFile(task.id, task.uploaded_files[fileIndex].id, newName);
+    } catch (error) {
+      console.error('Failed to rename file:', error);
+      onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
+    }
   };
 
-  const handleDeleteFile = async (fileIndex) => {
-    if (!task.uploaded_files || !task.uploaded_files[fileIndex]) return;
-    
-    const fileToDelete = task.uploaded_files[fileIndex];
-    const updatedFiles = task.uploaded_files.filter((_, index) => index !== fileIndex);
-    
-    // Update the task with deleted file
-    onUpdate && onUpdate({ uploaded_files: updatedFiles });
-    
-    // TODO: Add backend call to delete file when endpoint is available
-    // try {
-    //   await checklistsService.deleteItemFile(task.id, fileToDelete.id);
-    // } catch (error) {
-    //   console.error('Failed to delete file:', error);
-    //   // Revert the change if backend call fails
-    //   onUpdate && onUpdate({ uploaded_files: task.uploaded_files });
-    // }
-  };
+  const handleDeleteFile = handleRemoveFile;
 
   return (
     <div className="task-modal-content">

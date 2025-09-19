@@ -105,11 +105,12 @@
 /* File attachments section */
 .task-files { display: flex; flex-direction: column; gap: 12px; }
 .task-files-title { font-size: 20px; font-weight: 800; color: #0F172B; }
-.task-files-list { display: flex; flex-direction: column; gap: 8px; }
+.task-files-list { display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 4px; }
 .task-file-card { 
   margin: 0; 
   background: transparent !important;
 }
+.task-file-card:hover { background-color: rgba(30, 70, 164, 0.06) !important; border-radius: 10px; }
 
 
 
@@ -120,3 +121,5 @@
 .task-modal input,
 .task-modal textarea,
 .task-modal [contenteditable="true"] { caret-color: auto; }
+
+

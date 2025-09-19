@@ -285,14 +285,42 @@ const ChecklistPage = () => {
               }}
               onUpload={(file) => {
                 (async () => {
+                  const taskId = openTask.id;
+                  const temp = { id: `tmp-${Date.now()}`, original_filename: file.name };
+                  // Optimistically append temp file
+                  setOpenTask(t => ({ ...(t || {}), uploaded_files: [...(t?.uploaded_files || []), temp] }));
+                  setCategories(prev => prev.map(cat => ({
+                    ...cat,
+                    items: cat.items.map(it => it.id === taskId ? { ...it, uploaded_files: [...(it.uploaded_files || []), temp] } : it)
+                  })));
                   try {
-                    await checklistsService.uploadItemFile(openTask.id, file);
-                    const files = await checklistsService.listItemFiles(openTask.id);
+                    const created = await checklistsService.uploadItemFile(taskId, file);
+                    // Replace temp with created
+                    setOpenTask(t => ({
+                      ...(t || {}),
+                      uploaded_files: (t?.uploaded_files || []).map(f => f.id === temp.id ? created : f)
+                    }));
                     setCategories(prev => prev.map(cat => ({
                       ...cat,
-                      items: cat.items.map(it => it.id === openTask.id ? { ...it, uploaded_files: files } : it)
+                      items: cat.items.map(it => it.id === taskId ? {
+                        ...it,
+                        uploaded_files: (it.uploaded_files || []).map(f => f.id === temp.id ? created : f)
+                      } : it)
                     })));
-                  } catch {}
+                  } catch {
+                    // Rollback temp on failure
+                    setOpenTask(t => ({
+                      ...(t || {}),
+                      uploaded_files: (t?.uploaded_files || []).filter(f => f.id !== temp.id)
+                    }));
+                    setCategories(prev => prev.map(cat => ({
+                      ...cat,
+                      items: cat.items.map(it => it.id === taskId ? {
+                        ...it,
+                        uploaded_files: (it.uploaded_files || []).filter(f => f.id !== temp.id)
+                      } : it)
+                    })));
+                  }
                 })();
               }}
               onUpdate={(delta) => {

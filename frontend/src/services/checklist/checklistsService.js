@@ -94,6 +94,19 @@ const checklistsService = {
     const { data } = await apiClient.get(API_ENDPOINTS.CHECKLISTS.ITEM_FILES(itemId));
     return data.files || [];
   },
+  
+  async deleteItemFile(itemId, fileId) {
+    await apiClient.delete(API_ENDPOINTS.CHECKLISTS.ITEM_FILE_BY_ID(itemId, fileId));
+    return true;
+  },
+  
+  async renameItemFile(itemId, fileId, original_filename) {
+    const { data } = await apiClient.patch(
+      API_ENDPOINTS.CHECKLISTS.ITEM_FILE_BY_ID(itemId, fileId),
+      { original_filename }
+    );
+    return data.file;
+  },
 };
 
 export default checklistsService;

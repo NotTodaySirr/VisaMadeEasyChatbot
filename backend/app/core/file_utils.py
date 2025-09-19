@@ -137,6 +137,28 @@ def delete_file(file_path: str) -> bool:
     except (OSError, PermissionError):
         return False
 
+def rename_file(old_path: str, new_path: str) -> bool:
+    """
+    Safely rename/move a file on the filesystem.
+
+    Args:
+        old_path: Existing file path
+        new_path: Target file path (directories will be created if needed)
+
+    Returns:
+        bool: True if file was renamed successfully
+    """
+    try:
+        if not os.path.exists(old_path):
+            return False
+        ensure_upload_directory(new_path)
+        if os.path.exists(new_path):
+            return False
+        os.rename(old_path, new_path)
+        return True
+    except (OSError, PermissionError):
+        return False
+
 def validate_file_size(file_size: int, content_type: str = 'checklist') -> Tuple[bool, str]:
     """
     Validate file size against limits.
