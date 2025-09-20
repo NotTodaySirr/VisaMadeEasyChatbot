@@ -20,11 +20,37 @@
   margin-bottom: clamp(0.75rem, 1.2vw, 1rem);
 }
 
-.stat { display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.5rem; }
-.stat-label { font-weight: 700; color: #0F172B; border-bottom: 2px solid transparent; }
-.stat:nth-child(1) .stat-label { border-color: #0F172B; }
-.stat:nth-child(2) .stat-label { color: #7C8FBE; border-color: #7C8FBE; }
-.stat:nth-child(3) .stat-label { color: #7C8FBE; border-color: #7C8FBE; }
+.stat { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem; 
+  padding: 0.5rem; 
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+.stat:hover {
+  background-color: rgba(124, 143, 190, 0.1);
+}
+.stat.active {
+  background-color: rgba(124, 143, 190, 0.15);
+}
+.stat-label { 
+  font-weight: 700; 
+  color: #0F172B; 
+  border-bottom: 2px solid transparent; 
+  transition: color 0.15s ease;
+}
+.stat.active .stat-label { 
+  color: #0F172B; 
+  border-color: #0F172B; 
+}
+.stat:not(.active) .stat-label { 
+  color: #7C8FBE; 
+  border-color: #7C8FBE; 
+}
 
 .task-list {
   background: #EDF2FB;
@@ -56,8 +82,17 @@
 .task-checkbox {
   width: 1.25rem; height: 1.25rem; border-radius: 0.375rem;
   border: 2px solid #7C8FBE; background: #fff;
+  transition: all 0.15s ease;
 }
-.task-checkbox.checked { background: #7C8FBE; position: relative; }
+.task-checkbox:hover {
+  border-color: #0F172B;
+  transform: scale(1.05);
+}
+.task-checkbox.checked { 
+  background: #7C8FBE; 
+  position: relative; 
+  border-color: #0F172B;
+}
 .task-checkbox.checked::after {
   content: '';
   position: absolute;
@@ -73,3 +108,18 @@
 .task-chevron { color: #0F172B; opacity: 0.8; font-size: 1.25rem; line-height: 1; }
 
 .card:not(input):not(textarea){caret-color: transparent;}
+
+.task-error, .task-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: #7C8FBE;
+  font-style: italic;
+  text-align: center;
+}
+
+.task-error p {
+  margin: 0;
+  color: #dc2626;
+}

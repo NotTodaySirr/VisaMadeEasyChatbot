@@ -6,6 +6,7 @@ from app.db.models.file import UploadedFile
 from app.schemas.checklist import ChecklistSchema, CategorySchema, ItemSchema
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.sql import func
+from sqlalchemy import or_
 from app.schemas.file import FileSchema
 from app.middleware.file_validation import validate_file_upload, log_file_operation
 from app.core.file_utils import (
@@ -22,6 +23,7 @@ from werkzeug.utils import secure_filename
 from marshmallow import ValidationError
 import os
 import logging
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -517,3 +519,105 @@ def rename_item_file(item_id, file_id):
         'file': file_schema.dump(uploaded_file),
         'item_id': item_id
     }), 200
+
+
+@checklists_bp.route('/tasks-summary', methods=['GET'])
+@jwt_required()
+def get_tasks_summary():
+    """
+    Get tasks summary filtered by status with pagination.
+    
+    Query params:
+    - status: 'pending' | 'done' | 'overdue' (default: 'pending')
+    - page: int (default: 1)
+    - per_page: int (default: 20, max: 100)
+    
+    Returns minimal task data for performance.
+    
+    Response:
+    {
+        "tasks": [
+            {
+                "id": 1,
+                "title": "Task title",
+                "checklist_id": 1,
+                "category_id": 1,
+                "deadline": "2025-01-15",
+                "is_completed": false
+            }
+        ],
+        "pagination": {
+            "page": 1,
+            "per_page": 20,
+            "total": 50,
+            "pages": 3,
+            "has_next": true,
+            "has_prev": false
+        }
+    }
+    """
+    user_id = get_jwt_identity()
+    status = request.args.get('status', 'pending')
+    page = max(int(request.args.get('page', 1)), 1)  # Ensure page is at least 1
+    per_page = min(int(request.args.get('per_page', 20)), 100)
+    
+    # Validate status parameter
+    if status not in ['pending', 'done', 'overdue']:
+        return jsonify({"error": "Invalid status. Must be 'pending', 'done', or 'overdue'"}), 400
+    
+    try:
+        # Efficient query with joins and filtering
+        query = db.session.query(Item, Checklist, Category).join(
+            Category, Item.category_id == Category.id
+        ).join(
+            Checklist, Category.checklist_id == Checklist.id
+        ).filter(Checklist.user_id == user_id)
+        
+        # Apply status filtering
+        today = datetime.date.today()
+        if status == 'pending':
+            query = query.filter(
+                Item.is_completed == False,
+                or_(Item.deadline.is_(None), Item.deadline >= today)
+            )
+        elif status == 'done':
+            query = query.filter(Item.is_completed == True)
+        elif status == 'overdue':
+            query = query.filter(
+                Item.is_completed == False,
+                Item.deadline < today
+            )
+        
+        # Order by deadline (nulls last) and then by id for consistency
+        query = query.order_by(Item.deadline.asc().nullslast(), Item.id.asc())
+        
+        # Pagination
+        paginated = query.paginate(page=page, per_page=per_page, error_out=False)
+        
+        # Return minimal data
+        tasks = []
+        for item, checklist, category in paginated.items:
+            tasks.append({
+                'id': item.id,
+                'title': item.title,
+                'checklist_id': checklist.id,
+                'category_id': category.id,
+                'deadline': item.deadline.isoformat() if item.deadline else None,
+                'is_completed': item.is_completed
+            })
+        
+        return jsonify({
+            'tasks': tasks,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total': paginated.total,
+                'pages': paginated.pages,
+                'has_next': paginated.has_next,
+                'has_prev': paginated.has_prev
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error fetching tasks summary: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500

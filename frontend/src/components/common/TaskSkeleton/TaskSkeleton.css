@@ -1,0 +1,38 @@
+.task-skeleton-container {
+  background: #EDF2FB;
+  border: 2px solid #7C8FBE;
+  border-radius: 1rem;
+  padding: clamp(0.5rem, 1vw, 1rem);
+  max-height: clamp(16rem, 40vh, 24rem);
+  overflow: auto;
+}
+
+.task-skeleton-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.task-skeleton-item + .task-skeleton-item {
+  border-top: 2px solid rgba(124, 143, 190, 0.5);
+}
+
+.task-skeleton-checkbox {
+  /* Skeleton styles are handled by the Skeleton component */
+}
+
+.task-skeleton-title {
+  /* Skeleton styles are handled by the Skeleton component */
+}
+
+.task-skeleton-due {
+  /* Skeleton styles are handled by the Skeleton component */
+}
+
+.task-skeleton-chevron {
+  /* Skeleton styles are handled by the Skeleton component */
+}

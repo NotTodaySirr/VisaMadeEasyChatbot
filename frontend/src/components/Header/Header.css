@@ -176,6 +176,13 @@
     transition: all 0.3s ease;
 }
 
+/* Styles for img icons (when using img tags) */
+img.topbar-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
 /* Specific TopBar States */
 
 /* Not Logged In - Default (e.g., Landing Page) */

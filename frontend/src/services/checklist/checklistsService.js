@@ -135,6 +135,13 @@ const checklistsService = {
     );
     return data.file;
   },
+
+  async getTasksSummary(status = 'pending', page = 1, perPage = 20) {
+    const { data } = await apiClient.get(API_ENDPOINTS.CHECKLISTS.TASKS_SUMMARY, {
+      params: { status, page, per_page: perPage }
+    });
+    return data;
+  },
 };
 
 export default checklistsService;

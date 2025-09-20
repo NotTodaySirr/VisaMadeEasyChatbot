@@ -3,6 +3,11 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Header.css';
 import chatbotIcon from '../../assets/chatbot.svg';
 import defaultAvatar from '/avatars/figma-avatar.svg';
+import shareIcon from '../../assets/ui/share-icon.svg';
+import moreVerticalIcon from '../../assets/ui/more-vertical.svg';
+import pencilIcon from '../../assets/ui/pencil-icon.svg';
+import trashIcon from '../../assets/ui/trash-icon.svg';
+import ContextMenu from '../cards/ContextMenu/ContextMenu';
 
 const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     const navigate = useNavigate();
@@ -217,14 +222,31 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                     </div>
                     <div className="topbar-right">
                         <button className="topbar-button topbar-button-share">
-                            {/* Share Icon placeholder */}
-                            <div className="topbar-icon"></div>
+                            <img src={shareIcon} alt="Share" className="topbar-icon" />
                             Chia sẻ
                         </button>
-                        {/* More options button placeholder */}
-                        <button className="topbar-icon-button">
-                            <div className="topbar-icon"></div>
-                        </button>
+                        {/* More options button with context menu */}
+                        <ContextMenu
+                            trigger={
+                                <button className="topbar-icon-button">
+                                    <img src={moreVerticalIcon} alt="More options" className="topbar-icon" />
+                                </button>
+                            }
+                            panelClassName="context-menu"
+                        >
+                            <div className="context-card-option" onClick={() => console.log('Export chat')}>
+                                <img src={shareIcon} alt="Export" className="context-card-icon" />
+                                <span className="context-card-text">Xuất chat</span>
+                            </div>
+                            <div className="context-card-option" onClick={() => console.log('Settings')}>
+                                <img src={pencilIcon} alt="Settings" className="context-card-icon" />
+                                <span className="context-card-text">Cài đặt</span>
+                            </div>
+                            <div className="context-card-option danger" onClick={handleLogout}>
+                                <img src={trashIcon} alt="Logout" className="context-card-icon" />
+                                <span className="context-card-text">Đăng xuất</span>
+                            </div>
+                        </ContextMenu>
                         {/* Avatar */}
                         <img 
                             src={user?.avatar || defaultAvatar} 
@@ -243,9 +265,6 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         {renderLogo()}
                     </div>
                     <div className="topbar-right">
-                        <Link to="/chat" className="topbar-button topbar-button-login">
-                            Chat now &rarr;
-                        </Link>
                         {/* Avatar */}
                         <img 
                             src={user?.avatar || defaultAvatar} 

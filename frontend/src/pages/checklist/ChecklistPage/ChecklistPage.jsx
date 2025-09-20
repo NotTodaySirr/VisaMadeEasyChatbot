@@ -51,6 +51,21 @@ const ChecklistPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
+  // Handle task modal opening from URL parameters
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get('task');
+    if (taskId && categories.length > 0) {
+      // Find and open the specific task modal
+      const task = categories
+        .flatMap(cat => cat.items)
+        .find(item => item.id === parseInt(taskId));
+      if (task) {
+        setOpenTask(task);
+      }
+    }
+  }, [categories]);
+
   const handleItemDateChange = async (itemId, date) => {
     const formatted = formatDate(date);
     setCategories(prev => prev.map(cat => ({

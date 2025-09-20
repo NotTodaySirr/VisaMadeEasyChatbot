@@ -22,17 +22,7 @@ const MainChatPage = () => {
     'Tóm tắt văn bản'
   ];
 
-  const mockTasks = {
-    stats: { pending: 3, overdue: 1, done: 2 },
-    items: [
-      { id: 't1', title: 'Hộ chiếu', dueLabel: 'Ngày mai', checked: false },
-      { id: 't2', title: 'Bảng điểm đại học', dueLabel: '14/4', checked: false },
-      { id: 't3', title: 'Bằng tốt nghiệp đại học', dueLabel: '14/4', checked: true },
-      { id: 't4', title: 'Ảnh thẻ', dueLabel: '14/4', checked: true },
-      { id: 't5', title: 'Xác nhận lương', dueLabel: '16/4', checked: false },
-      { id: 't6', title: 'Lý lịch tư pháp số 2', dueLabel: '20/4', checked: false }
-    ]
-  };
+  // Mock data removed - MyTasksCard now fetches real data
 
   const mockPinned = [
     { id: 'c1', title: 'Giấy tờ tài chính cần thiết', timeLabel: 'Hôm qua' },
@@ -81,7 +71,7 @@ const MainChatPage = () => {
           </div>
         </div>
         <CardsGrid>
-          <MyTasksCard tasks={mockTasks.items} stats={mockTasks.stats} />
+          <MyTasksCard />
           <PinnedChatsCard chats={mockPinned} />
         </CardsGrid>
       </div>

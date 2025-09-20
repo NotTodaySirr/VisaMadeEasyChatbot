@@ -19,6 +19,7 @@ const API_ENDPOINTS = {
     ITEM_BY_ID: (itemId) => `/checklists/items/${itemId}`,
     ITEM_FILES: (itemId) => `/checklists/items/${itemId}/files`,
     ITEM_FILE_BY_ID: (itemId, fileId) => `/checklists/items/${itemId}/files/${fileId}`,
+    TASKS_SUMMARY: '/checklists/tasks-summary',
   },
 
   // Normalized item routes (same targets as CHECKLISTS.* above)

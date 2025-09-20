@@ -161,7 +161,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   return (
     <div className="sidebar-menu-content">
       {/* Menu tag - Home Link */}
-      <Link to="/home" className="sidebar-menu-tag">
+      <Link to="/chat" className="sidebar-menu-tag">
         <div className="sidebar-menu-tag-icon">
           <img src={homeIconSVG} alt="Home" />
         </div>
