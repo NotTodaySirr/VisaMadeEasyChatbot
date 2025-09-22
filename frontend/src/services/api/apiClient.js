@@ -65,7 +65,7 @@ apiClient.interceptors.response.use(
     try {
       const method = response.config?.method;
       if (['post', 'patch', 'delete'].includes(method)) {
-        const msg = response.data?.message || 'Operation successful';
+        const msg = response.data?.message || 'Thao tác thành công!';
         notify(msg, 'success');
       }
     } catch {}
@@ -121,7 +121,7 @@ apiClient.interceptors.response.use(
     try {
       const method = error.config?.method;
       if (['post', 'patch', 'delete'].includes(method)) {
-        const msg = error.response?.data?.error || error.response?.data?.message || 'Operation failed';
+        const msg = error.response?.data?.error || error.response?.data?.message || 'Thao tác thất bại';
         notify(msg, 'error');
       }
     } catch {}

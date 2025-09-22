@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-chat
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+
+  celery-worker:
+    build: ./backend
+    container_name: celery-worker
+    command: celery -A app.services.ai_service worker --loglevel=info
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/0
+
+  celery-beat:
+    build: ./backend
+    container_name: celery-beat
+    command: celery -A app.services.ai_service beat --loglevel=info
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+volumes:
+  redis_data:

@@ -15,6 +15,7 @@ const SidebarHeader = ({ isSearching, setIsSearching, searchQuery, setSearchQuer
   const handleNewChat = () => {
     console.log('Create new chat clicked');
     setIsEditDropdownOpen(false);
+    navigate('/chat/in');
   };
 
   const handleNewProfile = async () => {

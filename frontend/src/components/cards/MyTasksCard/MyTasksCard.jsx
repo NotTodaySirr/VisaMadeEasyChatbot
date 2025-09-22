@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useTasksSummary from '../../../hooks/useTasksSummary';
 import TaskSkeleton from '../../common/TaskSkeleton/TaskSkeleton';
+import chevronRightIcon from '../../../assets/ui/chevron-right.svg';
 import './MyTasksCard.css';
 
 const TaskItem = ({ task, onClick, onToggle }) => {
@@ -20,7 +21,9 @@ const TaskItem = ({ task, onClick, onToggle }) => {
       />
       <div className="task-title">{task.title}</div>
       <div className="task-due">{task.dueLabel}</div>
-      <div className="task-chevron" aria-hidden>›</div>
+      <div className="task-chevron" aria-hidden>
+        <img src={chevronRightIcon} alt="" />
+      </div>
     </div>
   );
 };
