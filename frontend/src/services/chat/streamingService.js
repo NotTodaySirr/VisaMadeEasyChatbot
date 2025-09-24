@@ -27,16 +27,32 @@ export function openStream(streamId, { onChunk, onComplete, onError }) {
           // Expect lines like: "event: chunk" / "data: {...}"
           const lines = raw.split('\n');
           const typeLine = lines.find((l) => l.startsWith('event:')) || '';
-          const dataLine = lines.find((l) => l.startsWith('data:')) || '';
-          const event = typeLine.replace('event:', '').trim();
-          const payload = dataLine.replace('data:', '').trim();
+          const dataLine = lines.filter((l) => l.startsWith('data:')).map(l => l.replace('data:', '').trim()).join('\n');
+          let event = typeLine.replace('event:', '').trim();
+          const payload = dataLine;
           try {
             const parsed = payload ? JSON.parse(payload) : null;
-            if (event === 'chunk' && onChunk) onChunk(parsed);
-            if (event === 'complete' && onComplete) onComplete(parsed);
-            if (event === 'error' && onError) onError(parsed);
+            // Fallbacks: infer event from payload if header missing
+            if (!event) event = (parsed && (parsed.event || parsed.type)) || 'chunk';
+
+            if (event === 'chunk') {
+              // Accept various shapes: {content}, {delta}, {text}
+              const normalized = parsed && (parsed.content || parsed.delta || parsed.text || parsed);
+              onChunk && onChunk(typeof normalized === 'string' ? { content: normalized } : normalized);
+            } else if (event === 'complete') {
+              onComplete && onComplete(parsed);
+            } else if (event === 'error') {
+              onError && onError(parsed);
+            } else {
+              // Treat unknown events as chunks by default
+              const normalized = parsed && (parsed.content || parsed.delta || parsed.text || parsed);
+              onChunk && onChunk(typeof normalized === 'string' ? { content: normalized } : normalized);
+            }
           } catch (e) {
-            // ignore parse errors
+            // If not JSON, treat as plain text token
+            if (payload) {
+              onChunk && onChunk({ content: payload });
+            }
           }
         }
       }

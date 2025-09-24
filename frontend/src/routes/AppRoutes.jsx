@@ -50,6 +50,12 @@ const AppRoutes = () => {
           // </ProtectedRoute>
           <RegisteredChatPage/>
         } />
+        <Route path="/chat/in/:id" element={
+          // <ProtectedRoute>
+          //   <RegisteredChatPage />
+          // </ProtectedRoute>
+          <RegisteredChatPage/>
+        } />
         {/* Checklist Route */}
         <Route path="/checklist/:id" element={<ChecklistPage />} />
         {/* Documents Route */}

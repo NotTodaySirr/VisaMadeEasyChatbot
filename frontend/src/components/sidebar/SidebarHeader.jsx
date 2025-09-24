@@ -13,9 +13,8 @@ const SidebarHeader = ({ isSearching, setIsSearching, searchQuery, setSearchQuer
   
   // Mock handlers that will console.log
   const handleNewChat = () => {
-    console.log('Create new chat clicked');
     setIsEditDropdownOpen(false);
-    navigate('/chat/in');
+    navigate('/chat/in', { state: { newChat: true, ts: Date.now() } });
   };
 
   const handleNewProfile = async () => {

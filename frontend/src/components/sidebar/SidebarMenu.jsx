@@ -25,6 +25,12 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   const navigate = useNavigate();
   const { data: conversations = [], isFetching: isFetchingConvos } = useConversations();
 
+  // Determine active chat id from the current route: /chat/in/:id
+  const activeChatId = useMemo(() => {
+    const match = location.pathname.match(/\/chat\/in\/(\d+)/);
+    return match ? Number(match[1]) : null;
+  }, [location.pathname]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -53,8 +59,9 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
       id: c.id,
       name: c.title || `Cuộc trò chuyện ${c.id}`,
       isPinned: !!c.is_pinned,
+      active: c.id === activeChatId,
     }));
-  }, [conversations]);
+  }, [conversations, activeChatId]);
 
   // Mock handlers for actions
   const handleTogglePin = (chatId, isPinned) => {
@@ -93,12 +100,12 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
           {items.map(item => (
             <div key={item.id} className="sidebar-subitem-wrapper">
               <Link
-                to="/chat/in"
+                to={`/chat/in/${item.id}`}
                 className={`sidebar-subitem-tag ${item.active ? 'active' : ''} ${item.isPinned ? 'pinned-chat' : ''}`}
                 title={item.name}
                 onClick={(e) => {
                   e.preventDefault();
-                  navigate('/chat/in', { state: { conversationId: item.id } });
+                  navigate(`/chat/in/${item.id}`);
                 }}
               >
                 <span className="sidebar-subitem-text">{item.name}</span>
@@ -259,7 +266,6 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
           <div className="sidebar-section-container doan-chat-section">
             <div className="sidebar-dropdown-header" onClick={() => {
               setDoanChatOpen(!doanChatOpen);
-              console.log(`Toggled Đoạn chat section: ${!doanChatOpen}`);
             }}>
               <span className="sidebar-dropdown-title">Đoạn chat</span>
               <div className="sidebar-dropdown-icon">

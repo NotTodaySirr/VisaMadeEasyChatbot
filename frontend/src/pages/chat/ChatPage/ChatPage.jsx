@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { chatService, streamingService as openStream } from '../../../services/chat/index.js';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,8 +12,11 @@ const ChatPage = forwardRef(({
   layout = 'guest', // 'guest' | 'registered'
   scrollRef = null,
   conversationId = null,
+  newChat = false,
 }, ref) => {
   const { messages, append, isLoading, setMessages } = useChat({});
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState(conversationId || null);
   const didInitRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,12 +38,20 @@ const ChatPage = forwardRef(({
             createdAt: m.timestamp,
           }));
         setMessages(normalized);
+        setActiveConversationId(conversationId);
       } catch (e) {
         // ignore
       }
     })();
     return () => { mounted = false; };
   }, [conversationId]);
+
+  // When starting a brand-new chat or switching to no id, clear current messages
+  useEffect(() => {
+    if (!conversationId || newChat) {
+      setMessages([]);
+    }
+  }, [conversationId, newChat, setMessages]);
 
   // Handle initial message
   useEffect(() => {
@@ -54,24 +65,35 @@ const ChatPage = forwardRef(({
   }, [initialMessage]);
 
   const handleSendMessage = async (message) => {
-    if (!message.trim() || isLoading) return;
-    await append({ role: 'user', content: message });
+    if (!message.trim()) return;
+    try {
+      // Best-effort: append to local chat state; ignore transport errors
+      await append({ role: 'user', content: message });
+    } catch {
+      setMessages((prev) => ([
+        ...prev,
+        { id: `${Date.now()}-user`, role: 'user', content: message, createdAt: new Date().toISOString() },
+      ]));
+    }
 
     try {
-      const resp = await chatService.sendMessage({ content: message });
+      const convIdForSend = activeConversationId || conversationId || null;
+      const resp = await chatService.sendMessage({ content: message, conversationId: convIdForSend });
       const { stream_id: streamId, message_id: serverMessageId, conversation_id: convId, title } = resp || {};
 
       // Smart send: if new conversation created, reflect it
       if (convId && !conversationId) {
-        navigate('/chat/in', { state: {} });
+        setActiveConversationId(convId);
+        navigate(`/chat/in/${convId}`, { replace: true, state: {} });
       }
 
       let assistantId = serverMessageId || `${Date.now()}-assistant`;
       let hasInserted = false;
 
+      setIsStreaming(true);
       openStream(streamId, {
         onChunk: (data) => {
-          const text = data?.content || data?.delta || '';
+          const text = data?.content || data?.delta || data?.text || '';
           setMessages((prev) => {
             const idx = prev.findIndex((m) => m.id === assistantId);
             if (idx === -1) {
@@ -87,7 +109,7 @@ const ChatPage = forwardRef(({
           });
         },
         onComplete: () => {
-          // nothing extra for now
+          setIsStreaming(false);
         },
         onError: () => {
           if (!hasInserted) {
@@ -96,6 +118,7 @@ const ChatPage = forwardRef(({
               { id: `${assistantId}-error`, role: 'assistant', content: 'Xin lỗi, luồng phản hồi bị gián đoạn.', createdAt: new Date().toISOString() },
             ]));
           }
+          setIsStreaming(false);
         },
       });
     } catch (e) {
@@ -103,6 +126,7 @@ const ChatPage = forwardRef(({
         ...prev,
         { id: `${Date.now()}-assistant-error`, role: 'assistant', content: 'Xin lỗi, đã có lỗi xảy ra.', createdAt: new Date().toISOString() },
       ]));
+      setIsStreaming(false);
     }
   };
 
@@ -122,7 +146,7 @@ const ChatPage = forwardRef(({
             sender: m.role === 'user' ? 'user' : 'ai',
             timestamp: m.createdAt ? new Date(m.createdAt) : new Date()
           }))}
-          isLoading={isLoading}
+          isLoading={isStreaming}
           externalScrollContainerRef={scrollRef}
         />
         
