@@ -13,6 +13,8 @@ import trashIconSVG from '../../assets/ui/trash-icon.svg';
 
 import checklistsService from '../../services/checklist/checklistsService.js';
 import { useConversations } from '../../hooks/index.js';
+import { chatService } from '../../services/chat/index.js';
+import { useQueryClient } from '@tanstack/react-query';
 
 const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   // Local states
@@ -23,6 +25,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   const [checklists, setChecklists] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { data: conversations = [], isFetching: isFetchingConvos } = useConversations();
 
   // Determine active chat id from the current route: /chat/in/:id
@@ -74,9 +77,18 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
     setActiveChatOptions(null);
   };
 
-  const handleDeleteChat = (chatId) => {
-    console.log(`Delete chat ${chatId}`);
-    setActiveChatOptions(null);
+  const handleDeleteChat = async (chatId) => {
+    try {
+      onLoadingChange?.(true);
+      await chatService.deleteConversation(chatId);
+      await queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] });
+      if (activeChatId === chatId) navigate('/chat');
+    } catch (e) {
+      console.error('Failed to delete conversation', e);
+    } finally {
+      setActiveChatOptions(null);
+      onLoadingChange?.(false);
+    }
   };
 
   // Filter items based on search query

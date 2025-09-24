@@ -7,6 +7,14 @@
   animation: messageAppear 0.3s ease-out;
 }
 
+/* Remove extra gap at the bottom of the conversation */
+.chat-content-container .message-bubble:last-child {
+  margin-bottom: 0;
+}
+.chat-content-container .message-bubble.loading:last-child {
+  margin-bottom: 0;
+}
+
 .message-bubble.user-message {
   justify-content: flex-end;
 }
@@ -43,10 +51,18 @@
 
 .message-text {
   font-size: 1rem; /* 16px as per Figma */
-  line-height: 1.21; /* Matching Figma line-height */
+  line-height: 1.8; /* Increase line spacing inside a bubble */
   margin: 0;
   font-family: Inter, sans-serif;
   font-weight: 400;
+}
+
+/* Spacing between Markdown paragraphs within a single message */
+.message-text p {
+  margin: 0 0 0.9rem 0;
+}
+.message-text p:last-child {
+  margin-bottom: 0;
 }
 
 .message-timestamp {

@@ -19,6 +19,11 @@ const chatService = {
     const res = await apiClient.get(API_ENDPOINTS.CHAT.GET_HISTORY(conversationId));
     return res.data?.messages || [];
   },
+
+  async deleteConversation(conversationId) {
+    const res = await apiClient.delete(API_ENDPOINTS.CHAT.DELETE_CONVERSATION(conversationId));
+    return res.data;
+  },
 };
 
 export default chatService;

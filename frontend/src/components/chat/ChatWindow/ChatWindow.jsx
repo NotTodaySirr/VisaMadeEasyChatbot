@@ -70,15 +70,9 @@ const ChatWindow = ({
                 message={message.content}
                 sender={message.sender}
                 timestamp={message.timestamp}
+                isLoading={!!message.thinking}
               />
             ))}
-            {isLoading && (
-              <MessageBubble
-                message=""
-                sender="ai"
-                isLoading={true}
-              />
-            )}
           </div>
         )}
       </div>

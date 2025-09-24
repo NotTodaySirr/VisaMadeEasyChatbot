@@ -11,9 +11,6 @@
 .chat-messages {
   flex: 1;
   min-height: 0; /* Ensures proper sizing in flex parent */
-  padding: 2rem 0;
-  padding-bottom: calc(2rem + var(--input-lift));
-  /* Remove overflow here; parent main handles the scrollbar */
   scroll-behavior: smooth;
   display: flex;
   flex-direction: column;

@@ -4,6 +4,7 @@ import { chatService, streamingService as openStream } from '../../../services/c
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatWindow } from '../../../components/chat';
 import { InputField } from '../../../components/common';
+import Spinner from '../../../components/ui/Spinner.jsx';
 import './ChatPage.css';
 
 const ChatPage = forwardRef(({ 
@@ -16,6 +17,7 @@ const ChatPage = forwardRef(({
 }, ref) => {
   const { messages, append, isLoading, setMessages } = useChat({});
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isFetchingHistory, setIsFetchingHistory] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState(conversationId || null);
   const didInitRef = useRef(false);
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ const ChatPage = forwardRef(({
     (async () => {
       if (!conversationId) return;
       try {
+        setIsFetchingHistory(true);
         const history = await chatService.getHistory(conversationId);
         if (!mounted) return;
         const normalized = (history || [])
@@ -41,6 +44,8 @@ const ChatPage = forwardRef(({
         setActiveConversationId(conversationId);
       } catch (e) {
         // ignore
+      } finally {
+        if (mounted) setIsFetchingHistory(false);
       }
     })();
     return () => { mounted = false; };
@@ -88,23 +93,23 @@ const ChatPage = forwardRef(({
       }
 
       let assistantId = serverMessageId || `${Date.now()}-assistant`;
-      let hasInserted = false;
+      let firstTokenReceived = false;
 
       setIsStreaming(true);
+      // Insert thinking placeholder immediately where assistant response will appear
+      setMessages((prev) => ([
+        ...prev,
+        { id: assistantId, role: 'assistant', content: '', createdAt: new Date().toISOString(), thinking: true },
+      ]));
       openStream(streamId, {
         onChunk: (data) => {
           const text = data?.content || data?.delta || data?.text || '';
           setMessages((prev) => {
             const idx = prev.findIndex((m) => m.id === assistantId);
-            if (idx === -1) {
-              hasInserted = true;
-              return [
-                ...prev,
-                { id: assistantId, role: 'assistant', content: text, createdAt: new Date().toISOString() },
-              ];
-            }
+            if (idx === -1) return prev; // safety
             const copy = [...prev];
-            copy[idx] = { ...copy[idx], content: (copy[idx].content || '') + text };
+            copy[idx] = { ...copy[idx], content: (copy[idx].content || '') + text, thinking: false };
+            firstTokenReceived = true;
             return copy;
           });
         },
@@ -112,12 +117,17 @@ const ChatPage = forwardRef(({
           setIsStreaming(false);
         },
         onError: () => {
-          if (!hasInserted) {
-            setMessages((prev) => ([
-              ...prev,
-              { id: `${assistantId}-error`, role: 'assistant', content: 'Xin lỗi, luồng phản hồi bị gián đoạn.', createdAt: new Date().toISOString() },
-            ]));
-          }
+          // Replace thinking with error if nothing streamed
+          setMessages((prev) => {
+            const idx = prev.findIndex((m) => m.id === assistantId);
+            if (idx === -1) return prev;
+            const copy = [...prev];
+            const hadAnyContent = !!copy[idx].content;
+            if (!firstTokenReceived && !hadAnyContent) {
+              copy[idx] = { ...copy[idx], content: 'Xin lỗi, luồng phản hồi bị gián đoạn.', thinking: false };
+            }
+            return copy;
+          });
           setIsStreaming(false);
         },
       });
@@ -137,18 +147,29 @@ const ChatPage = forwardRef(({
 
   return (
     <div className={`chat-page ${layout}-chat ${className}`}>
-      <div className="chat-page-container">
+      <div className="chat-page-container" style={{ position: 'relative' }}>
+        {isFetchingHistory && (
+          <div style={{
+            position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'transparent', zIndex: 2
+          }}>
+            <Spinner size={36} />
+          </div>
+        )}
         {/* Chat Window */}
+        <div style={{ visibility: isFetchingHistory ? 'hidden' : 'visible' }}>
         <ChatWindow 
           messages={messages.map((m) => ({
             id: m.id,
             content: m.content,
             sender: m.role === 'user' ? 'user' : 'ai',
-            timestamp: m.createdAt ? new Date(m.createdAt) : new Date()
+            timestamp: m.createdAt ? new Date(m.createdAt) : new Date(),
+            thinking: !!m.thinking
           }))}
-          isLoading={isStreaming}
+          isLoading={false}
           externalScrollContainerRef={scrollRef}
         />
+        </div>
         
         {/* Input Field (hidden when using registered overlay) */}
         {layout !== 'registered' && (

@@ -191,6 +191,26 @@ def create_conversation():
         return jsonify({'error': str(e)}), 500
 
 
+@chat_bp.route('/conversations/<int:conversation_id>', methods=['DELETE'])
+@jwt_required()
+def delete_conversation(conversation_id):
+    """Delete a conversation and all of its messages (cascade)."""
+    user_id = get_jwt_identity()
+
+    try:
+        conversation = Conversation.query.filter_by(id=conversation_id, user_id=user_id).first()
+        if not conversation:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        db.session.delete(conversation)
+        db.session.commit()
+
+        return jsonify({'message': 'Conversation deleted', 'id': conversation_id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @chat_bp.route('/stream/<stream_id>', methods=['GET'])
 @jwt_required()
 def stream_ai_response_route(stream_id):

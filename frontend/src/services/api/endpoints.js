@@ -37,7 +37,7 @@ const API_ENDPOINTS = {
     GET_HISTORY: (id) => `/chat/history/${id}`,
     GET_CONVERSATIONS: '/chat/conversations',
     CREATE_CONVERSATION: '/chat/conversations',
-    DELETE_CONVERSATION: '/chat/conversations',
+    DELETE_CONVERSATION: (id) => `/chat/conversations/${id}`,
     STREAM: (sid) => `/chat/stream/${sid}`,
   },
   
