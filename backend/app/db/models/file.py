@@ -13,6 +13,13 @@ class UploadedFile(db.Model):
     mime_type = db.Column(db.String(100), nullable=True)
     uploaded_at = db.Column(db.DateTime, server_default=func.now())
 
+    # File owner (reserve for future chat/doc features)
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False
+    )
+
     # Foreign key for checklist items
     item_id = db.Column(
         db.Integer,
@@ -27,6 +34,7 @@ class UploadedFile(db.Model):
         backref=db.backref('uploaded_files', lazy=True, cascade="all, delete-orphan"),
         passive_deletes=True
     )
+    user = db.relationship('User', backref=db.backref('uploaded_files', lazy=True))
 
     def __repr__(self):
         return f'<UploadedFile {self.original_filename}>'
@@ -40,5 +48,6 @@ class UploadedFile(db.Model):
             'file_size': self.file_size,
             'mime_type': self.mime_type,
             'uploaded_at': self.uploaded_at.isoformat() if self.uploaded_at else None,
-            'item_id': self.item_id
+            'item_id': self.item_id,
+            'user_id': self.user_id,
         }

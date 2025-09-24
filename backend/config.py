@@ -38,6 +38,21 @@ class Config:
         'max_size': 10 * 1024 * 1024,  # 10MB for chat files
         'allowed_types': ['images', 'documents', 'spreadsheets', 'presentations']
     }
+    
+    # Redis Configuration
+    REDIS_URL = os.environ.get('REDIS_URL') or 'redis://localhost:6379/0'
+    
+    # Celery Configuration
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL') or 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND') or 'redis://localhost:6379/0'
+    
+    # AI Configuration
+    GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
+    AI_MODEL = os.environ.get('AI_MODEL') or 'gemini-1.5-flash'
+    
+    # Stream Configuration
+    STREAM_TIMEOUT = 300  # 5 minutes
+    STREAM_HEALTH_TTL = 60  # 1 minute
 
 class DevelopmentConfig(Config):
     """Development configuration."""

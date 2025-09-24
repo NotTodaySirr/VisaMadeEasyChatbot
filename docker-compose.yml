@@ -11,9 +11,11 @@ services:
       - redis_data:/data
 
   celery-worker:
+    env_file:
+      - ./backend/.env
     build: ./backend
     container_name: celery-worker
-    command: celery -A app.services.ai_service worker --loglevel=info
+    command: celery -A app.core.celery worker --loglevel=info
     volumes:
       - ./backend:/app
     depends_on:
@@ -22,11 +24,15 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
+      - FLASK_CONFIG=development
+      - DEV_DATABASE_URL=postgresql://postgres:1234@host.docker.internal:5432/visamadeeasy_dev
 
   celery-beat:
+    env_file:
+      - ./backend/.env
     build: ./backend
     container_name: celery-beat
-    command: celery -A app.services.ai_service beat --loglevel=info
+    command: celery -A app.core.celery beat --loglevel=info
     volumes:
       - ./backend:/app
     depends_on:
@@ -34,6 +40,8 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - REDIS_URL=redis://redis:6379/0
+      - FLASK_CONFIG=development
 
 volumes:
   redis_data:

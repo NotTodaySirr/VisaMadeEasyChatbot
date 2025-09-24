@@ -25,3 +25,6 @@ python-dotenv==1.0.0
 SQLAlchemy==2.0.43
 typing_extensions==4.15.0
 Werkzeug==2.3.7
+celery==5.3.4
+redis==5.0.1
+google-genai==0.8.0
