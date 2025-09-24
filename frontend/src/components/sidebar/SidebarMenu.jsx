@@ -89,14 +89,6 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
 
     return (
       <div className="sidebar-chat-group">
-        <div className="sidebar-chat-group-header">
-          <span className="sidebar-chat-group-title">{title}</span>
-          {iconSrc && (
-            <div className="sidebar-chat-group-icon">
-              <img src={iconSrc} alt={title} style={{ width: '15px', height: '15px' }} />
-            </div>
-          )}
-        </div>
         <div className="sidebar-subitems-list">
           {items.map(item => (
             <div key={item.id} className="sidebar-subitem-wrapper">
@@ -285,7 +277,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
             </div>
             {doanChatOpen && (
               <div className="sidebar-chat-history-container">
-                {renderChatGroup("Đoạn chat", chatItems, null)}
+              {renderChatGroup(null, chatItems, null)}
                 {allChatItemsEmpty && (
                   <p className="sidebar-no-items-text" style={{padding: '10px 20px'}}>
                     Không có lịch sử chat nào.

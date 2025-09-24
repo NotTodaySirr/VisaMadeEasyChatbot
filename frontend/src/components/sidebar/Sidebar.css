@@ -158,7 +158,7 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 0px;
-  gap: 20px; /* Restoring gap between "Đoạn chat" header and chat groups container */
+  gap: 8px; /* Tighten space between dropdown header and list */
   width: 260px;
   /* height: 409px; */ /* Auto height */
   flex: none;
