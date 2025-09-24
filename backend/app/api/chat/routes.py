@@ -8,6 +8,7 @@ from app.tasks.ai import process_message_stream_task
 from app.core.stream_manager import StreamManager
 from app.api.chat.sse import stream_ai_response
 from app.core.title_generator import generate_title
+from sqlalchemy import func
 
 import redis
 import uuid
@@ -128,7 +129,10 @@ def get_conversation_history(conversation_id):
             'conversation': {
                 'id': conversation.id,
                 'title': conversation.title,
-                'created_at': conversation.created_at.isoformat()
+                'created_at': conversation.created_at.isoformat(),
+                'updated_at': conversation.updated_at.isoformat() if conversation.updated_at else None,
+                'pinned': getattr(conversation, 'pinned', False),
+                'pinned_at': conversation.pinned_at.isoformat() if getattr(conversation, 'pinned_at', None) else None
             },
             'messages': [msg.to_dict() for msg in messages]
         })
@@ -146,7 +150,11 @@ def get_user_conversations():
     try:
         conversations = Conversation.query.filter_by(
             user_id=user_id
-        ).order_by(Conversation.updated_at.desc()).all()
+        ).order_by(
+            Conversation.pinned.desc(),
+            Conversation.pinned_at.desc(),
+            Conversation.updated_at.desc()
+        ).all()
         
         return jsonify({
             'conversations': [{
@@ -154,6 +162,8 @@ def get_user_conversations():
                 'title': conv.title,
                 'created_at': conv.created_at.isoformat(),
                 'updated_at': conv.updated_at.isoformat(),
+                'pinned': getattr(conv, 'pinned', False),
+                'pinned_at': conv.pinned_at.isoformat() if getattr(conv, 'pinned_at', None) else None,
                 'message_count': len(conv.messages)
             } for conv in conversations]
         })
@@ -213,6 +223,36 @@ def rename_conversation(conversation_id):
         return jsonify({
             'id': conversation.id,
             'title': conversation.title
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@chat_bp.route('/conversations/<int:conversation_id>/pin', methods=['PATCH'])
+@jwt_required()
+def pin_conversation(conversation_id):
+    """Pin or unpin a conversation. Body: { "pinned": true|false }"""
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+
+    if 'pinned' not in data:
+        return jsonify({'error': 'pinned required'}), 400
+
+    try:
+        conversation = Conversation.query.filter_by(id=conversation_id, user_id=user_id).first()
+        if not conversation:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        is_pinned = bool(data['pinned'])
+        conversation.pinned = is_pinned
+        conversation.pinned_at = func.now() if is_pinned else None
+        db.session.commit()
+
+        return jsonify({
+            'id': conversation.id,
+            'pinned': conversation.pinned,
+            'pinned_at': conversation.pinned_at.isoformat() if conversation.pinned_at else None
         })
     except Exception as e:
         db.session.rollback()

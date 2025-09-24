@@ -29,6 +29,11 @@ const chatService = {
     const res = await apiClient.delete(API_ENDPOINTS.CHAT.DELETE_CONVERSATION(conversationId));
     return res.data;
   },
+
+  async togglePin(conversationId, pinned) {
+    const res = await apiClient.patch(API_ENDPOINTS.CHAT.PIN_CONVERSATION(conversationId), { pinned });
+    return res.data;
+  },
 };
 
 export default chatService;

@@ -20,6 +20,8 @@ class ConversationSchema(Schema):
     title = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     created_at = fields.DateTime(dump_only=True)
     updated_at = fields.DateTime(dump_only=True)
+    pinned = fields.Bool(dump_only=False, missing=False)
+    pinned_at = fields.DateTime(allow_none=True, dump_only=True)
 
 
 class SendMessageSchema(Schema):

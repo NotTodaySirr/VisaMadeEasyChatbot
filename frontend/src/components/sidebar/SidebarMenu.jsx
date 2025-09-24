@@ -63,15 +63,48 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
     return (conversations || []).map((c) => ({
       id: c.id,
       name: c.title || `Cuộc trò chuyện ${c.id}`,
-      isPinned: !!c.is_pinned,
+      isPinned: !!(c.pinned ?? c.is_pinned),
+      updatedAt: c.updated_at ? new Date(c.updated_at) : null,
       active: c.id === activeChatId,
     }));
   }, [conversations, activeChatId]);
 
+  const pinnedChats = useMemo(() => chatItems.filter(i => i.isPinned), [chatItems]);
+  const otherChats = useMemo(() => chatItems.filter(i => !i.isPinned), [chatItems]);
+
+  const recencyGroups = useMemo(() => {
+    const groups = new Map();
+    const now = new Date();
+    const titleFor = (d) => {
+      if (!d) return 'Older';
+      const diffMs = now - d;
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      if (days === 1) return 'Yesterday';
+      if (days <= 7) return '7 days earlier';
+      if (days <= 30) return '30 days earlier';
+      return 'Older';
+    };
+    for (const item of otherChats) {
+      const title = titleFor(item.updatedAt);
+      if (!groups.has(title)) groups.set(title, []);
+      groups.get(title).push(item);
+    }
+    const order = ['Yesterday', '7 days earlier', '30 days earlier', 'Older'];
+    return order.filter(t => groups.has(t)).map(t => ({ title: t, items: groups.get(t) }));
+  }, [otherChats]);
+
   // Mock handlers for actions
-  const handleTogglePin = (chatId, isPinned) => {
-    console.log(`Toggle pin for chat ${chatId}. Current pin status: ${isPinned}`);
-    setActiveChatOptions(null);
+  const handleTogglePin = async (chatId, isPinned) => {
+    try {
+      onLoadingChange?.(true);
+      await chatService.togglePin(chatId, !isPinned);
+      await queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] });
+    } catch (e) {
+      console.error('Failed to toggle pin', e);
+    } finally {
+      setActiveChatOptions(null);
+      onLoadingChange?.(false);
+    }
   };
 
   const handleRenameChat = (chatId) => {
@@ -164,6 +197,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
                 ) : (
                   <span className="sidebar-subitem-text">{item.name}</span>
                 )}
+                {/* pin icon removed per request */}
                 <img
                   src={moreHorizontalIconSVG}
                   alt="More options"
@@ -338,7 +372,27 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
             </div>
             {doanChatOpen && (
               <div className="sidebar-chat-history-container">
-              {renderChatGroup(null, chatItems, null)}
+                {pinnedChats.length > 0 && (
+                  <div className="sidebar-chat-group">
+                    <div className="sidebar-chat-group-header">
+                      <span className="sidebar-chat-group-title">Pinned</span>
+                      <div className="sidebar-chat-group-icon"><img src={pinIconSVG} alt="Pinned" /></div>
+                    </div>
+                    <div className="sidebar-subitems-list">
+                      {renderChatGroup(null, pinnedChats, null)}
+                    </div>
+                  </div>
+                )}
+                {recencyGroups.map((g) => (
+                  <div key={g.title} className="sidebar-chat-group">
+                    <div className="sidebar-chat-group-header">
+                      <span className="sidebar-chat-group-title">{g.title}</span>
+                    </div>
+                    <div className="sidebar-subitems-list">
+                      {renderChatGroup(null, g.items, null)}
+                    </div>
+                  </div>
+                ))}
                 {allChatItemsEmpty && (
                   <p className="sidebar-no-items-text" style={{padding: '10px 20px'}}>
                     Không có lịch sử chat nào.

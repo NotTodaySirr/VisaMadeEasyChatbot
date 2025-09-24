@@ -12,6 +12,8 @@ class Conversation(db.Model):
     title = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, server_default=func.now())
     updated_at = db.Column(db.DateTime, server_default=func.now(), onupdate=func.now())
+    pinned = db.Column(db.Boolean, nullable=False, server_default='false')
+    pinned_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     user = db.relationship('User', backref=db.backref('conversations', lazy=True))
