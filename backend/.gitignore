@@ -60,3 +60,6 @@ instance/
 
 #File upload
 uploads/
+
+# Celery Beat schedule files
+celerybeat-schedule*
