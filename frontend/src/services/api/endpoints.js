@@ -34,10 +34,11 @@ const API_ENDPOINTS = {
   CHAT: {
     MAIN_CHAT_PAGE: '/chat',
     SEND_MESSAGE: '/chat/send',
-    GET_HISTORY: '/chat/history',
+    GET_HISTORY: (id) => `/chat/history/${id}`,
     GET_CONVERSATIONS: '/chat/conversations',
     CREATE_CONVERSATION: '/chat/conversations',
     DELETE_CONVERSATION: '/chat/conversations',
+    STREAM: (sid) => `/chat/stream/${sid}`,
   },
   
   // User management endpoints

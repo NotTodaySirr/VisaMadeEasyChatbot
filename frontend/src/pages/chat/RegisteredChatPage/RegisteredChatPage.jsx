@@ -7,6 +7,7 @@ import { InputField } from '../../../components/common';
 const RegisteredChatPage = () => {
   const location = useLocation();
   const initialMessage = (location && location.state && location.state.initialMessage) || '';
+  const conversationId = (location && location.state && location.state.conversationId) || null;
   const chatRef = useRef(null);
   const scrollRef = useRef(null);
 
@@ -29,7 +30,7 @@ const RegisteredChatPage = () => {
     >
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div className="w-full max-w-[900px] mx-auto" style={{ width: '100%' }}>
-          <ChatPage ref={chatRef} initialMessage={initialMessage} layout="registered" className="registered" scrollRef={scrollRef} />
+          <ChatPage ref={chatRef} initialMessage={initialMessage} layout="registered" className="registered" scrollRef={scrollRef} conversationId={conversationId} />
         </div>
       </div>
     </RegisteredLayout>

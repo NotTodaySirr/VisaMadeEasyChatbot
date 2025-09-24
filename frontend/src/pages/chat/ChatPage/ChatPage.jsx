@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useChat } from '@ai-sdk/react';
+import { chatService, streamingService as openStream } from '../../../services/chat/index.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ChatWindow } from '../../../components/chat';
 import { InputField } from '../../../components/common';
@@ -8,13 +10,37 @@ const ChatPage = forwardRef(({
   initialMessage = '',
   className = "",
   layout = 'guest', // 'guest' | 'registered'
-  scrollRef = null
+  scrollRef = null,
+  conversationId = null,
 }, ref) => {
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const { messages, append, isLoading, setMessages } = useChat({});
   const didInitRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Load history if conversationId provided
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      if (!conversationId) return;
+      try {
+        const history = await chatService.getHistory(conversationId);
+        if (!mounted) return;
+        const normalized = (history || [])
+          .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+          .map((m) => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+            createdAt: m.timestamp,
+          }));
+        setMessages(normalized);
+      } catch (e) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, [conversationId]);
 
   // Handle initial message
   useEffect(() => {
@@ -29,41 +55,54 @@ const ChatPage = forwardRef(({
 
   const handleSendMessage = async (message) => {
     if (!message.trim() || isLoading) return;
-
-    // Add user message
-    const userMessage = {
-      id: Date.now(),
-      content: message,
-      sender: 'user',
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setIsLoading(true);
+    await append({ role: 'user', content: message });
 
     try {
-      // Simulate AI response (replace with actual API call)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const aiMessage = {
-        id: Date.now() + 1,
-        content: `Tôi đã nhận được câu hỏi của bạn: "${message}". Đây là phản hồi mẫu từ AI assistant về vấn đề du học và visa.`,
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-      const errorMessage = {
-        id: Date.now() + 1,
-        content: 'Xin lỗi, đã có lỗi xảy ra. Vui lòng thử lại sau.',
-        sender: 'ai',
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+      const resp = await chatService.sendMessage({ content: message });
+      const { stream_id: streamId, message_id: serverMessageId, conversation_id: convId, title } = resp || {};
+
+      // Smart send: if new conversation created, reflect it
+      if (convId && !conversationId) {
+        navigate('/chat/in', { state: {} });
+      }
+
+      let assistantId = serverMessageId || `${Date.now()}-assistant`;
+      let hasInserted = false;
+
+      openStream(streamId, {
+        onChunk: (data) => {
+          const text = data?.content || data?.delta || '';
+          setMessages((prev) => {
+            const idx = prev.findIndex((m) => m.id === assistantId);
+            if (idx === -1) {
+              hasInserted = true;
+              return [
+                ...prev,
+                { id: assistantId, role: 'assistant', content: text, createdAt: new Date().toISOString() },
+              ];
+            }
+            const copy = [...prev];
+            copy[idx] = { ...copy[idx], content: (copy[idx].content || '') + text };
+            return copy;
+          });
+        },
+        onComplete: () => {
+          // nothing extra for now
+        },
+        onError: () => {
+          if (!hasInserted) {
+            setMessages((prev) => ([
+              ...prev,
+              { id: `${assistantId}-error`, role: 'assistant', content: 'Xin lỗi, luồng phản hồi bị gián đoạn.', createdAt: new Date().toISOString() },
+            ]));
+          }
+        },
+      });
+    } catch (e) {
+      setMessages((prev) => ([
+        ...prev,
+        { id: `${Date.now()}-assistant-error`, role: 'assistant', content: 'Xin lỗi, đã có lỗi xảy ra.', createdAt: new Date().toISOString() },
+      ]));
     }
   };
 
@@ -77,7 +116,12 @@ const ChatPage = forwardRef(({
       <div className="chat-page-container">
         {/* Chat Window */}
         <ChatWindow 
-          messages={messages}
+          messages={messages.map((m) => ({
+            id: m.id,
+            content: m.content,
+            sender: m.role === 'user' ? 'user' : 'ai',
+            timestamp: m.createdAt ? new Date(m.createdAt) : new Date()
+          }))}
           isLoading={isLoading}
           externalScrollContainerRef={scrollRef}
         />

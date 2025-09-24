@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Sidebar.css';
 
 // Icon imports from assets (ESM so Vite bundles correctly)
@@ -12,6 +12,7 @@ import pencilIconSVG from '../../assets/ui/pencil-icon.svg';
 import trashIconSVG from '../../assets/ui/trash-icon.svg';
 
 import checklistsService from '../../services/checklist/checklistsService.js';
+import { useConversations } from '../../hooks/index.js';
 
 const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   // Local states
@@ -21,6 +22,8 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   const [activeChecklistOptions, setActiveChecklistOptions] = useState(null);
   const [checklists, setChecklists] = useState([]);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { data: conversations = [], isFetching: isFetchingConvos } = useConversations();
 
   useEffect(() => {
     (async () => {
@@ -44,23 +47,14 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
     active: false,
   })), [checklists]);
 
-  // Mock data for chat history groups
-  const chatHistoryGroups = {
-    pinned: [
-      { id: 101, name: 'Giấy tờ tài chính cần thiết', link: '/chat/101', active: false, isPinned: true },
-      { id: 102, name: 'Thông tin đơn xin visa Mỹ', link: '/chat/102', active: false, isPinned: true }
-    ],
-    today: [
-      { id: 201, name: 'Chat hôm nay 1', link: '/chat/201', active: false, isPinned: false },
-      { id: 202, name: 'Chat hôm nay 2', link: '/chat/202', active: false, isPinned: false },
-    ],
-    yesterday: [
-      { id: 301, name: 'Yêu cầu bảng điểm đại học', link: '/chat/301', active: false, isPinned: false }
-    ],
-    previous7Days: [],
-    previous30Days: [],
-    older: []
-  };
+  // Normalize conversations -> flat items
+  const chatItems = useMemo(() => {
+    return (conversations || []).map((c) => ({
+      id: c.id,
+      name: c.title || `Cuộc trò chuyện ${c.id}`,
+      isPinned: !!c.is_pinned,
+    }));
+  }, [conversations]);
 
   // Mock handlers for actions
   const handleTogglePin = (chatId, isPinned) => {
@@ -84,13 +78,13 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
     : hoSoItems;
 
   const filteredChatHistoryItems = searchQuery
-    ? Object.values(chatHistoryGroups).flat().filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-    : [];
+    ? chatItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : chatItems;
 
   // Function to render chat groups
-  const renderChatGroup = (title, items, iconSrc = null, groupKey) => {
+  const renderChatGroup = (title, items, iconSrc = null) => {
     if (!items || items.length === 0) {
-      if (groupKey !== 'pinned' && items.length === 0) return null;
+      return null;
     }
 
     return (
@@ -107,9 +101,13 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
           {items.map(item => (
             <div key={item.id} className="sidebar-subitem-wrapper">
               <Link
-                to={item.link}
+                to="/chat/in"
                 className={`sidebar-subitem-tag ${item.active ? 'active' : ''} ${item.isPinned ? 'pinned-chat' : ''}`}
                 title={item.name}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate('/chat/in', { state: { conversationId: item.id } });
+                }}
               >
                 <span className="sidebar-subitem-text">{item.name}</span>
                 <img
@@ -156,7 +154,11 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
     );
   };
 
-  const allChatItemsEmpty = Object.values(chatHistoryGroups).every(group => group.length === 0);
+  const allChatItemsEmpty = (chatItems || []).length === 0;
+
+  useEffect(() => {
+    onLoadingChange?.(!!isFetchingConvos);
+  }, [isFetchingConvos]);
 
   return (
     <div className="sidebar-menu-content">
@@ -187,7 +189,7 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
               <span className="sidebar-dropdown-title">Đoạn chat</span>
             </div>
             <div className="sidebar-chat-history-container">
-              {renderChatGroup("Kết quả tìm kiếm", filteredChatHistoryItems, null, 'search')}
+              {renderChatGroup("Kết quả tìm kiếm", filteredChatHistoryItems, null)}
             </div>
           </div>
         </div>
@@ -283,14 +285,8 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
             </div>
             {doanChatOpen && (
               <div className="sidebar-chat-history-container">
-                {renderChatGroup("Đã ghim", chatHistoryGroups.pinned, pinIconSVG, 'pinned')}
-                {renderChatGroup("Hôm nay", chatHistoryGroups.today, null, 'today')}
-                {renderChatGroup("Hôm qua", chatHistoryGroups.yesterday, null, 'yesterday')}
-                {renderChatGroup("7 ngày trước đó", chatHistoryGroups.previous7Days, null, 'previous7Days')}
-                {renderChatGroup("30 ngày trước đó", chatHistoryGroups.previous30Days, null, 'previous30Days')}
-                {renderChatGroup("Cũ hơn", chatHistoryGroups.older, null, 'older')}
-                
-                {allChatItemsEmpty && !chatHistoryGroups.pinned.length && (
+                {renderChatGroup("Đoạn chat", chatItems, null)}
+                {allChatItemsEmpty && (
                   <p className="sidebar-no-items-text" style={{padding: '10px 20px'}}>
                     Không có lịch sử chat nào.
                   </p>
