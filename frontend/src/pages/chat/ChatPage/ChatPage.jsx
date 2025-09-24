@@ -86,13 +86,15 @@ const ChatPage = forwardRef(({
       const resp = await chatService.sendMessage({ content: message, conversationId: convIdForSend });
       const { stream_id: streamId, message_id: serverMessageId, conversation_id: convId, title } = resp || {};
 
-      // Smart send: if new conversation created, reflect it
+      // Smart send: if new conversation created, store id but DO NOT navigate yet
+      // Navigating would unmount and drop the live stream; update URL after stream completes
       if (convId && !conversationId) {
         setActiveConversationId(convId);
-        navigate(`/chat/in/${convId}`, { replace: true, state: {} });
       }
 
-      let assistantId = serverMessageId || `${Date.now()}-assistant`;
+      // Use a distinct id for the assistant placeholder to avoid merging with the user message
+      // Never reuse the server's user message id here
+      let assistantId = `assistant-${streamId || Date.now()}`;
       let firstTokenReceived = false;
 
       setIsStreaming(true);
@@ -115,6 +117,11 @@ const ChatPage = forwardRef(({
         },
         onComplete: () => {
           setIsStreaming(false);
+          // After streaming finishes, if this was a new conversation (no prop conversationId), update URL
+          if (!conversationId) {
+            const finalId = activeConversationId || convId;
+            if (finalId) navigate(`/chat/in/${finalId}`, { replace: true, state: {} });
+          }
         },
         onError: () => {
           // Replace thinking with error if nothing streamed

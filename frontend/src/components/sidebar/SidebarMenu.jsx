@@ -23,6 +23,8 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   const [activeChatOptions, setActiveChatOptions] = useState(null);
   const [activeChecklistOptions, setActiveChecklistOptions] = useState(null);
   const [checklists, setChecklists] = useState([]);
+  const [renamingChatId, setRenamingChatId] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -73,8 +75,35 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
   };
 
   const handleRenameChat = (chatId) => {
-    console.log(`Rename chat ${chatId}`);
+    const current = (chatItems.find(c => c.id === chatId)?.name) || '';
+    setRenamingChatId(chatId);
+    setRenameValue(current);
     setActiveChatOptions(null);
+  };
+
+  const commitRename = async () => {
+    const chatId = renamingChatId;
+    const trimmed = (renameValue || '').trim();
+    const current = (chatItems.find(c => c.id === chatId)?.name) || '';
+    if (!chatId) return;
+    if (!trimmed || trimmed === current) {
+      setRenamingChatId(null);
+      return;
+    }
+    try {
+      onLoadingChange?.(true);
+      await chatService.renameConversation(chatId, trimmed);
+      await queryClient.invalidateQueries({ queryKey: ['chat', 'conversations'] });
+    } catch (e) {
+      console.error('Failed to rename conversation', e);
+    } finally {
+      setRenamingChatId(null);
+      onLoadingChange?.(false);
+    }
+  };
+
+  const cancelRename = () => {
+    setRenamingChatId(null);
   };
 
   const handleDeleteChat = async (chatId) => {
@@ -120,7 +149,21 @@ const SidebarMenu = ({ isSearching, searchQuery, onLoadingChange }) => {
                   navigate(`/chat/in/${item.id}`);
                 }}
               >
-                <span className="sidebar-subitem-text">{item.name}</span>
+                {renamingChatId === item.id ? (
+                  <input
+                    autoFocus
+                    className="sidebar-subitem-text"
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onBlur={commitRename}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitRename();
+                      if (e.key === 'Escape') cancelRename();
+                    }}
+                  />
+                ) : (
+                  <span className="sidebar-subitem-text">{item.name}</span>
+                )}
                 <img
                   src={moreHorizontalIconSVG}
                   alt="More options"

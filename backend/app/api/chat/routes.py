@@ -191,6 +191,34 @@ def create_conversation():
         return jsonify({'error': str(e)}), 500
 
 
+@chat_bp.route('/conversations/<int:conversation_id>/rename', methods=['PATCH'])
+@jwt_required()
+def rename_conversation(conversation_id):
+    """Rename a conversation title (owner-only)."""
+    user_id = get_jwt_identity()
+    data = request.get_json() or {}
+
+    new_title = data.get('title')
+    if not new_title or not isinstance(new_title, str):
+        return jsonify({'error': 'Title required'}), 400
+
+    try:
+        conversation = Conversation.query.filter_by(id=conversation_id, user_id=user_id).first()
+        if not conversation:
+            return jsonify({'error': 'Conversation not found'}), 404
+
+        conversation.title = Conversation.normalize_title(new_title)
+        db.session.commit()
+
+        return jsonify({
+            'id': conversation.id,
+            'title': conversation.title
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @chat_bp.route('/conversations/<int:conversation_id>', methods=['DELETE'])
 @jwt_required()
 def delete_conversation(conversation_id):

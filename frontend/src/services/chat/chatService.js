@@ -10,6 +10,11 @@ const chatService = {
     return res.data;
   },
 
+  async renameConversation(conversationId, title) {
+    const res = await apiClient.patch(API_ENDPOINTS.CHAT.RENAME_CONVERSATION(conversationId), { title });
+    return res.data;
+  },
+
   async getConversations() {
     const res = await apiClient.get(API_ENDPOINTS.CHAT.GET_CONVERSATIONS);
     return res.data?.conversations || [];

@@ -38,6 +38,7 @@ const API_ENDPOINTS = {
     GET_CONVERSATIONS: '/chat/conversations',
     CREATE_CONVERSATION: '/chat/conversations',
     DELETE_CONVERSATION: (id) => `/chat/conversations/${id}`,
+    RENAME_CONVERSATION: (id) => `/chat/conversations/${id}/rename`,
     STREAM: (sid) => `/chat/stream/${sid}`,
   },
   
