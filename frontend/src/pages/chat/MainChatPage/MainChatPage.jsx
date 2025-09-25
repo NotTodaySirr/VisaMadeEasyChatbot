@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RegisteredLayout from '../../../layout/registered';
 import InputField from '../../../components/common/InputField/InputField';
@@ -6,9 +6,11 @@ import PromptButton from '../../../components/common/PromptButton/PromptButton';
 import CardsGrid from '../../../components/layout/CardsGrid/CardsGrid';
 import MyTasksCard from '../../../components/cards/MyTasksCard/MyTasksCard';
 import PinnedChatsCard from '../../../components/cards/PinnedChatsCard/PinnedChatsCard';
+import { useConversations } from '../../../hooks/chat/useConversations';
 
 const MainChatPage = () => {
   const navigate = useNavigate();
+  const { data: conversations = [], isFetching: isFetchingConvos } = useConversations();
 
   const handleSend = (text) => {
     if (!text) return;
@@ -22,14 +24,39 @@ const MainChatPage = () => {
     'Tóm tắt văn bản'
   ];
 
-  // Mock data removed - MyTasksCard now fetches real data
+  // Process conversations to get pinned chats (same logic as sidebar)
+  const chatItems = useMemo(() => {
+    return (conversations || []).map((c) => ({
+      id: c.id,
+      name: c.title || `Cuộc trò chuyện ${c.id}`,
+      isPinned: !!(c.pinned ?? c.is_pinned),
+      updatedAt: c.updated_at ? new Date(c.updated_at) : null,
+    }));
+  }, [conversations]);
 
-  const mockPinned = [
-    { id: 'c1', title: 'Giấy tờ tài chính cần thiết', timeLabel: 'Hôm qua' },
-    { id: 'c2', title: 'Thông tin đơn xin visa Mỹ', timeLabel: '10/4/2025' },
-    { id: 'c3', title: 'Yêu cầu bảng điểm đại học', timeLabel: '7 ngày trước đó' },
-    { id: 'c4', title: 'Cách nộp visa du học Mỹ', timeLabel: '30 ngày trước đó' }
-  ];
+  const pinnedChats = useMemo(() => chatItems.filter(i => i.isPinned), [chatItems]);
+
+  // Transform data to match PinnedChatsCard format
+  const formatTimeLabel = (date) => {
+    if (!date) return 'Older';
+    const now = new Date();
+    const diffMs = now - date;
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return 'Hôm nay';
+    if (days === 1) return 'Hôm qua';
+    if (days <= 7) return `${days} ngày trước đó`;
+    if (days <= 30) return `${Math.floor(days / 7)} tuần trước đó`;
+    return `${Math.floor(days / 30)} tháng trước đó`;
+  };
+
+  const pinnedChatsData = useMemo(() => {
+    return pinnedChats.map(chat => ({
+      id: chat.id,
+      title: chat.name,
+      timeLabel: formatTimeLabel(chat.updatedAt)
+    }));
+  }, [pinnedChats]);
 
   return (
     <RegisteredLayout>
@@ -72,7 +99,7 @@ const MainChatPage = () => {
         </div>
         <CardsGrid>
           <MyTasksCard />
-          <PinnedChatsCard chats={mockPinned} />
+          <PinnedChatsCard chats={pinnedChatsData} />
         </CardsGrid>
       </div>
     </RegisteredLayout>
