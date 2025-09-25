@@ -33,22 +33,23 @@ const LoginPage = () => {
 
   return (
     <GuestLayout pageType="started">
-        <div className="w-full max-w-md flex flex-col items-center">
-        {/* Welcome Message */}
-        <div className="mb-8">
-        <h1 className="font-bold text-3xl text-center text-[#0F172B]">
-            Chào mừng trở lại
-          </h1>
-        </div>
+        <div className="w-full h-full flex-1 flex justify-center items-center">
+          {/* Main Container - matches Frame 107 from your CSS */}
+          <div className="flex flex-col items-center gap-10 w-[356px] h-[521px]">
+            {/* Heading - separate from form */}
+            <h1 className="w-[261px] h-9 text-center font-bold text-[30px] leading-9 text-[#0F172B]">
+              Đăng nhập
+            </h1>
 
-        {/* Login Form */}
-        <AuthForm
-          mode="login"
-          onSubmit={handleLogin}
-          loading={loginLoading}
-          error={error || authError}
-        />
-      </div>
+            {/* Login Form */}
+            <AuthForm
+              mode="login"
+              onSubmit={handleLogin}
+              loading={loginLoading}
+              error={error || authError}
+            />
+          </div>
+        </div>
     </GuestLayout>
   );
 };
