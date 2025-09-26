@@ -65,5 +65,5 @@ def create_app(config_name='default'):
         
         # Set file size limits
         app.config['MAX_CONTENT_LENGTH'] = app.config.get('MAX_CONTENT_LENGTH', 16 * 1024 * 1024)
-    
+            
     return app

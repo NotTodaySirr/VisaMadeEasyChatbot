@@ -4,10 +4,11 @@
   align-items: center;
   gap: 20px;
   padding: 32px;
+  background-color: #CCDBFD; /* surface-active from design */
   border: 2px solid #7C8FBE;
   border-radius: 52px;
-  width: fit-content;
-  max-width: 100%;
+  width: 100%;
+  max-width: 576px; /* matches design card width */
   box-sizing: border-box;
   margin: 0 auto;
 }

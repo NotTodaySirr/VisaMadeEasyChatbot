@@ -20,12 +20,12 @@ services:
       - ./backend:/app
     depends_on:
       - redis
+      - postgres
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
       - FLASK_CONFIG=development
-      - DEV_DATABASE_URL=postgresql://postgres:1234@host.docker.internal:5432/visamadeeasy_dev
 
   celery-beat:
     env_file:
@@ -37,11 +37,57 @@ services:
       - ./backend:/app
     depends_on:
       - redis
+      - postgres
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - REDIS_URL=redis://redis:6379/0
       - FLASK_CONFIG=development
 
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_HOST=0.0.0.0
+      - VITE_PORT=5173
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+
+  backend:
+    build: ./backend
+    container_name: backend
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      - ./backend:/app
+      - uploads_data:/app/uploads
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - FLASK_CONFIG=development
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_docker
+    environment:
+      - POSTGRES_DB=visamadeeasy_docker
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 volumes:
   redis_data:
+  postgres_data:
+  uploads_data:

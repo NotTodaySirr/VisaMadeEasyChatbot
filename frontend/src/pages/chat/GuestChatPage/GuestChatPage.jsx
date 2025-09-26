@@ -1,109 +1,78 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GuestLayout from '../../../layout/guest';
-import ChatGreeting from '../../../components/common/ChatGreeting/ChatGreeting';
+import GuestLayout from '../../../layout/guest/GuestLayout';
 import InputField from '../../../components/common/InputField/InputField';
 import PromptButton from '../../../components/common/PromptButton/PromptButton';
-import { LoginBenefitsSection } from '../../../components/common';
-import { ChatWindow } from '../../../components/chat';
-// Sidebar not used here
+import LoginBenefitsSection from '../../../components/common/FeatureBulletPoint/LoginBenefitsSection';
+import './GuestChatPage.css';
 
 const GuestChatPage = () => {
-    const navigate = useNavigate();
-    const [messages, setMessages] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const scrollRef = useRef(null);
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const navigate = useNavigate();
 
-    const promptButtons = [ "Tra cứu", "Kiểm tra tiến độ", "Cập nhật thông tin", "Tóm tắt văn bản" ];
+  const handleInputSubmit = (message) => {
+    console.log('Message submitted:', message);
+    // Handle message submission logic here
+  };
 
-    const handleSendMessage = async (message) => {
-        if (!message.trim() || isLoading) return;
+  const handlePromptClick = (promptText) => {
+    console.log('Prompt clicked:', promptText);
+    // Handle prompt click logic here
+  };
 
-        const userMessage = { id: Date.now(), content: message, sender: 'user', timestamp: new Date() };
-        setMessages(prev => [...prev, userMessage]);
-        setIsLoading(true);
+  const handleLoginClick = () => {
+    navigate('/auth/login');
+  };
 
-        try {
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            const aiMessage = {
-                id: Date.now() + 1,
-                content: `Tôi đã nhận được câu hỏi của bạn: "${message}". Đây là phản hồi mẫu từ AI assistant.`,
-                sender: 'ai',
-                timestamp: new Date()
-            };
-            setMessages(prev => [...prev, aiMessage]);
-        } catch (error) {
-            console.error('Error sending message:', error);
-            // Handle error message display if needed
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  const promptButtons = [
+    'Research',
+    'Check progress', 
+    'Update information',
+    'Summarize'
+  ];
 
-    const handlePromptClick = (promptText) => {
-        handleSendMessage(promptText);
-    };
-
-    // Reusable component for the input field to keep code DRY
-    const ChatInput = () => (
-        <InputField
-            placeholder="Hỏi mình về hồ sơ du học nè"
-            onSubmit={handleSendMessage}
-            disabled={isLoading}
-        />
-    );
-
-    // Localized UI subcomponents (kept in-file; no new files)
-    const StartInputRow = () => (
-        <div className="w-full max-w-[760px]">
-            <ChatInput />
-        </div>
-    );
-
-    const PromptButtonsRow = ({ buttons, onClick }) => (
-        <div className="flex flex-wrap justify-center gap-4 w-full max-w-[760px] mt-6 md:mt-8">
-            {buttons.map((text, index) => (
-                <PromptButton key={index} text={text} onClick={onClick} />
+  return (
+    <GuestLayout pageType="default">
+      <div className="guest-chat-content">
+        <div className="guest-chat-main">
+          <h1 className="guest-chat-title">
+            How can I help you today?
+          </h1>
+          
+          <div className="guest-chat-input-container">
+            <InputField
+              placeholder="Ask me about documents for studying abroad..."
+              onSubmit={handleInputSubmit}
+              disabled={isInputDisabled}
+              className="guest-chat-input-field"
+              showIcon={true}
+              showMoreIcon={true}
+            />
+          </div>
+          
+          <div className="guest-chat-prompt-buttons">
+            {promptButtons.map((prompt, index) => (
+              <PromptButton
+                key={index}
+                text={prompt}
+                onClick={handlePromptClick}
+                disabled={isInputDisabled}
+                className="guest-chat-prompt-button"
+                variant="default"
+              />
             ))}
+          </div>
+          
+          <div className="guest-chat-benefits">
+            <LoginBenefitsSection
+              onLoginClick={handleLoginClick}
+              className="guest-chat-login-section"
+            />
+          </div>
         </div>
-    );
-
-    const LoginPromo = ({ onLoginClick }) => (
-        <div className="w-full max-w-[760px] mt-12 md:mt-16">
-            <LoginBenefitsSection onLoginClick={onLoginClick} />
-        </div>
-    );
-
-    const renderInputField = () => (
-        <div className="w-full max-w-[760px] p-4">
-            <ChatInput />
-        </div>
-    );
-
-    if (messages.length === 0) {
-        // STATE 1: Initial Greeting View (no messages) - Normal layout
-        return (
-            <GuestLayout pageType="started">
-                <div className="bg-slate-100 flex flex-col items-center w-full py-8 px-4 gap-y-10 md:gap-y-12 flex-1 self-stretch">
-                    <ChatGreeting greeting="Mình có thể giúp gì cho bạn?" />
-                    <StartInputRow />
-                    <PromptButtonsRow buttons={promptButtons} onClick={handlePromptClick} />
-                    <LoginPromo onLoginClick={() => navigate('/auth/login')} />
-                </div>
-            </GuestLayout>
-        );
-    }
-
-    // STATE 2: Active Chat View (messages exist) - In-chat layout
-    return (
-        <GuestLayout
-            pageType="in-chat"
-            inputField={renderInputField()}
-            scrollRef={scrollRef}
-        >
-            <ChatWindow messages={messages} isLoading={isLoading} externalScrollContainerRef={scrollRef} />
-        </GuestLayout>
-    );
+      </div>
+    </GuestLayout>
+  );
 };
 
 export default GuestChatPage;

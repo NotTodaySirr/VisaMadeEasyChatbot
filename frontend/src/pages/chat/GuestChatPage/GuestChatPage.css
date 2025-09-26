@@ -1,0 +1,106 @@
+/* GuestChatPage Styles */
+.guest-chat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  /* Avoid forcing viewport height; header + this would overflow */
+  min-height: 0;
+  background-color: #edf2fb;
+}
+
+.guest-chat-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+  width: 100%;
+  max-width: 760px;
+  padding: 0 20px;
+}
+
+.guest-chat-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 1.2;
+  color: #0f172b;
+  text-align: center;
+  margin: 0;
+}
+
+/* Input Container */
+.guest-chat-input-container {
+  width: 100%;
+  max-width: 760px;
+}
+
+.guest-chat-input-field {
+  width: 100%;
+}
+
+/* Prompt Buttons */
+.guest-chat-prompt-buttons {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.guest-chat-prompt-button {
+  flex-shrink: 0;
+}
+
+/* Login Benefits */
+.guest-chat-benefits {
+  width: 100%;
+  max-width: 576px;
+}
+
+.guest-chat-login-section {
+  width: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .guest-chat-content {
+    gap: 32px;
+    padding: 16px 0;
+  }
+  
+  .guest-chat-main {
+    gap: 32px;
+    padding: 0 16px;
+  }
+  
+  .guest-chat-title {
+    font-size: 24px;
+  }
+  
+  .guest-chat-prompt-buttons {
+    gap: 12px;
+  }
+  
+  .guest-chat-input-container {
+    gap: 12px;
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .guest-chat-title {
+    font-size: 20px;
+  }
+  
+  .guest-chat-prompt-buttons {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .guest-chat-prompt-button {
+    width: 100%;
+    max-width: 280px;
+  }
+}
