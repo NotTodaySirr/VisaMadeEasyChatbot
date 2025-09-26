@@ -20,16 +20,20 @@ const PinnedChatsCard = ({ chats = [] }) => {
   return (
     <section className="card pinnedchats-card">
       <h2 className="card-title">Đoạn chat đã ghim</h2>
-      <div className="chat-list">
-        {chats.map(c => (
-          <ChatTag 
-            key={c.id} 
-            title={c.title} 
-            timeLabel={c.timeLabel}
-            onClick={() => handleChatClick(c)}
-          />
-        ))}
-      </div>
+      {chats.length === 0 ? (
+        <div>Hiện tại chưa có đoạn chat nào được ghim.</div>
+      ) : (
+        <div className="chat-list">
+          {chats.map(c => (
+            <ChatTag 
+              key={c.id} 
+              title={c.title} 
+              timeLabel={c.timeLabel}
+              onClick={() => handleChatClick(c)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };

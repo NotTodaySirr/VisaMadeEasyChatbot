@@ -381,6 +381,8 @@ def upload_item_file(item_id):
             file_size=file_size,
             mime_type=mime_type,
             item_id=item_id,
+            user_id=user_id,
+            content_type='checklist',
             uploaded_at=func.now()
         )
         
