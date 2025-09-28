@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, forwardRef, useImperativeHandle, useState } from 'react';
+import { useEffect, useRef, forwardRef, useImperativeHandle, useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { guestChatService, guestStreamingService } from '../../../services/chat/index.js';
 import { useLocation, useNavigate } from 'react-router-dom';
