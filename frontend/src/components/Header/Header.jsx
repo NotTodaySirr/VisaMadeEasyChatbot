@@ -8,12 +8,13 @@ import moreVerticalIcon from '../../assets/ui/more-vertical.svg';
 import pencilIcon from '../../assets/ui/pencil-icon.svg';
 import trashIcon from '../../assets/ui/trash-icon.svg';
 import ContextMenu from '../cards/ContextMenu/ContextMenu';
+import ProfileCard from '../cards/ProfileCard/ProfileCard';
 import authService from '../../services/auth/authService';
 
 const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    
+
     // Determine if we're on login or register pages for active state styling
     const isOnLoginPage = location.pathname === '/auth/login';
     const isOnRegisterPage = location.pathname === '/auth/register';
@@ -21,6 +22,7 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
 
     // State for dropdown menu (for future use)
     const [isMoreOptionsOpen, setIsMoreOptionsOpen] = useState(false);
+    const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
     // Handle scroll to section for landing page navigation
     useEffect(() => {
@@ -260,17 +262,38 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                                 <span className="context-card-text">Đăng xuất</span>
                             </div>
                         </ContextMenu>
-                        {/* Avatar with logout context menu */}
+                        {/* Avatar with profile options context menu */}
                         <ContextMenu
                             trigger={
-                                <img 
-                                    src={user?.avatar || defaultAvatar} 
-                                    alt="User Avatar" 
-                                    className="topbar-avatar" 
+                                <img
+                                    src={user?.avatar || defaultAvatar}
+                                    alt="User Avatar"
+                                    className="topbar-avatar"
                                 />
                             }
                             panelClassName="context-menu"
                         >
+                            <div className="context-card-option" onClick={() => setIsProfileModalOpen(true)}>
+                                <div className="context-card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                                            stroke="#0f172b"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                        <path
+                                            d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22"
+                                            stroke="#0f172b"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </div>
+                                <span className="context-card-text">Tài khoản</span>
+                            </div>
                             <div className="context-card-option danger" onClick={handleLogout}>
                                 <img src={trashIcon} alt="Logout" className="context-card-icon" />
                                 <span className="context-card-text">Đăng xuất</span>
@@ -287,17 +310,38 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         {renderLogo()}
                     </div>
                     <div className="topbar-right">
-                        {/* Avatar with logout context menu */}
+                        {/* Avatar with profile options context menu */}
                         <ContextMenu
                             trigger={
-                                <img 
-                                    src={user?.avatar || defaultAvatar} 
-                                    alt="User Avatar" 
-                                    className="topbar-avatar" 
+                                <img
+                                    src={user?.avatar || defaultAvatar}
+                                    alt="User Avatar"
+                                    className="topbar-avatar"
                                 />
                             }
                             panelClassName="context-menu"
                         >
+                            <div className="context-card-option" onClick={() => setIsProfileModalOpen(true)}>
+                                <div className="context-card-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path
+                                            d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z"
+                                            stroke="#0f172b"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                        <path
+                                            d="M20.59 22C20.59 18.13 16.74 15 12 15C7.26 15 3.41 18.13 3.41 22"
+                                            stroke="#0f172b"
+                                            strokeWidth="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </div>
+                                <span className="context-card-text">Tài khoản</span>
+                            </div>
                             <div className="context-card-option danger" onClick={handleLogout}>
                                 <img src={trashIcon} alt="Logout" className="context-card-icon" />
                                 <span className="context-card-text">Đăng xuất</span>
@@ -310,9 +354,17 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     }
 
     return (
-        <nav className={getTopBarClasses()}>
-            {headerContent}
-        </nav>
+        <>
+            <nav className={getTopBarClasses()}>
+                {headerContent}
+            </nav>
+            {/* Profile Modal */}
+            <ProfileCard
+                isOpen={isProfileModalOpen}
+                onClose={() => setIsProfileModalOpen(false)}
+                user={user}
+            />
+        </>
     );
 };
 

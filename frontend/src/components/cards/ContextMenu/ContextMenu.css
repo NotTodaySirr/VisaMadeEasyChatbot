@@ -35,6 +35,27 @@
 .context-card-text { font-size: 16px; line-height: 19px; color: #0F172B; }
 .context-card-option.danger .context-card-text { color: #E33838; }
 
+/* Profile options menu - matches Figma design */
+.profile-options-menu {
+  background: #edf2fb;
+  border: 2px solid #7c8fbe;
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 2001;
+  min-width: 153px;
+}
+
+.profile-options-menu .context-card-option {
+  padding: 8px 12px;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.profile-options-menu .context-card-option:hover {
+  background: rgba(30, 70, 164, 0.16);
+}
+
 /* Generic fallback panel style (used by other popovers if needed) */
 .context-menu-panel {
   background: white;
