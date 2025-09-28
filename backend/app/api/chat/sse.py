@@ -1,6 +1,5 @@
 """SSE streaming endpoint for real-time AI responses."""
-from flask import Response, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Response
 from app.core.stream_manager import StreamManager
 import redis
 import json
@@ -25,14 +24,18 @@ redis_client = get_redis_client()
 stream_manager = get_stream_manager()
 
 
-def create_sse_response(stream_id: str):
+def create_sse_response(stream_id: str, current_user_id=None):
     """Create SSE response for streaming AI responses."""
-    user_id = get_jwt_identity()
-    
+
     # Verify stream exists and user has access
     stream_data = stream_manager.get_stream(stream_id)
-    if not stream_data or stream_data['user_id'] != user_id:
+    if not stream_data:
         return Response("Stream not found", status=404)
+
+    stream_user_id = stream_data.get('user_id')
+    if stream_user_id is not None:
+        if current_user_id is None or str(stream_user_id) != str(current_user_id):
+            return Response("Stream not found", status=404)
     
     def event_stream():
         events_key = stream_manager.get_events_key(stream_id)
@@ -112,6 +115,6 @@ def create_sse_response(stream_id: str):
     })
 
 
-def stream_ai_response(stream_id: str):
+def stream_ai_response(stream_id: str, current_user_id=None):
     """SSE endpoint backed by Redis Streams for streaming AI responses."""
-    return create_sse_response(stream_id)
+    return create_sse_response(stream_id, current_user_id)

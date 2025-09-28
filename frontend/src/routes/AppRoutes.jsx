@@ -39,27 +39,32 @@ const AppRoutes = () => {
         
         {/* Protected Routes */}
         <Route path="/chat" element={
-          // <ProtectedRoute>
-          //   <MainChatPage />
-          // </ProtectedRoute>
-          <MainChatPage/>
+          <ProtectedRoute>
+            <MainChatPage />
+          </ProtectedRoute>
         } />
         <Route path="/chat/in" element={
-          // <ProtectedRoute>
-          //   <RegisteredChatPage />
-          // </ProtectedRoute>
-          <RegisteredChatPage/>
+          <ProtectedRoute>
+            <RegisteredChatPage />
+          </ProtectedRoute>
         } />
         <Route path="/chat/in/:id" element={
-          // <ProtectedRoute>
-          //   <RegisteredChatPage />
-          // </ProtectedRoute>
-          <RegisteredChatPage/>
+          <ProtectedRoute>
+            <RegisteredChatPage />
+          </ProtectedRoute>
         } />
         {/* Checklist Route */}
-        <Route path="/checklist/:id" element={<ChecklistPage />} />
+        <Route path="/checklist/:id" element={
+          <ProtectedRoute>
+            <ChecklistPage />
+          </ProtectedRoute>
+        } />
         {/* Documents Route */}
-        <Route path="/documents/all" element={<ViewDocuments />} />
+        <Route path="/documents/all" element={
+          <ProtectedRoute>
+            <ViewDocuments />
+          </ProtectedRoute>
+        } />
         
         {/* Future protected routes */}
         {/* <Route path="/profile" element={

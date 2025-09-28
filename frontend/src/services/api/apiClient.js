@@ -102,18 +102,18 @@ apiClient.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${access_token}`;
           return apiClient(originalRequest);
         } catch (refreshError) {
-          // Refresh failed, clear tokens and redirect to login
+          // Refresh failed, clear tokens and redirect to landing page
           TokenManager.clearTokens();
           if (navigationCallback) {
-            navigationCallback('/auth/login');
+            navigationCallback('/landing');
           }
           return Promise.reject(refreshError);
         }
       } else {
-        // No refresh token available, redirect to login
+        // No refresh token available, redirect to landing page
         TokenManager.clearTokens();
         if (navigationCallback) {
-          navigationCallback('/auth/login');
+          navigationCallback('/landing');
         }
       }
     }
@@ -121,13 +121,54 @@ apiClient.interceptors.response.use(
     try {
       const method = error.config?.method;
       if (['post', 'patch', 'delete'].includes(method)) {
-        const msg = error.response?.data?.error || error.response?.data?.message || 'Thao tác thất bại';
+        let msg = 'Thao tác thất bại';
+
+        // Handle specific error types
+        if (error.response?.status === 503) {
+          msg = 'Dịch vụ AI hiện đang bận. Vui lòng thử lại sau ít phút.';
+        } else if (error.response?.data?.error) {
+          msg = error.response.data.error;
+        } else if (error.response?.data?.message) {
+          msg = error.response.data.message;
+        }
+
         notify(msg, 'error');
       }
     } catch {}
     return Promise.reject(error);
   }
 );
+
+// Token validation function
+export const validateToken = async () => {
+  const token = TokenManager.getAccessToken();
+  if (!token) {
+    return false;
+  }
+
+  try {
+    const response = await apiClient.get('/auth/me');
+    return response.status === 200;
+  } catch (error) {
+    // Token is invalid or expired
+    TokenManager.clearTokens();
+    return false;
+  }
+};
+
+// Initialize token validation on app load
+export const initializeAuth = async () => {
+  const token = TokenManager.getAccessToken();
+  if (!token) {
+    return false;
+  }
+
+  const isValid = await validateToken();
+  if (!isValid && navigationCallback) {
+    navigationCallback('/landing');
+  }
+  return isValid;
+};
 
 export { apiClient, TokenManager };
 export default apiClient;

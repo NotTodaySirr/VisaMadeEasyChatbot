@@ -29,6 +29,17 @@
   margin: 0;
 }
 
+/* Chat Window Container */
+.guest-chat-window-container {
+  width: 100%;
+  max-width: 760px;
+  height: 400px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background-color: white;
+  overflow: hidden;
+}
+
 /* Input Container */
 .guest-chat-input-container {
   width: 100%;

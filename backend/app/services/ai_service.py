@@ -35,7 +35,7 @@ class AIService:
         """Process AI task with Redis state management and retry logic."""
         ai_message = None
         conversation_id = None
-        
+
         try:
             # Get message and conversation data
             user_message = Message.query.get(message_id)
@@ -83,6 +83,67 @@ class AIService:
                 self._handle_ai_error(ai_message, stream_id, f"stream:{stream_id}", str(exc))
             # Mark stream as error
             self.stream_manager.mark_stream_error(stream_id, str(exc))
+
+    def process_guest_messages_stream(self, messages: list[dict], stream_id: str) -> None:
+        """Stream AI response for guest users without persisting to the database."""
+
+        events_key = self.stream_manager.get_events_key(stream_id)
+        ai_response = ""
+
+        try:
+            if not messages:
+                raise ValueError("No messages provided")
+
+            if not self.client:
+                raise RuntimeError("AI service is temporarily unavailable. Please try again later.")
+
+            from google.genai import types
+
+            gemini_messages = []
+            for msg in messages:
+                if not isinstance(msg, dict):
+                    continue
+                role = msg.get('role')
+                content = msg.get('content')
+                if not content:
+                    continue
+                if role == 'user':
+                    gemini_messages.append(types.Content(
+                        role='user',
+                        parts=[types.Part.from_text(text=str(content))]
+                    ))
+                else:
+                    gemini_messages.append(types.Content(
+                        role='model',
+                        parts=[types.Part.from_text(text=str(content))]
+                    ))
+
+            if not gemini_messages:
+                raise ValueError("No valid messages provided")
+
+            response = self.client.models.generate_content_stream(
+                model=self.model_name,
+                contents=gemini_messages,
+            )
+
+            for chunk in response:
+                if not self.stream_manager.get_stream(stream_id):
+                    break
+
+                if getattr(chunk, 'text', None):
+                    content = chunk.text
+                    ai_response += content
+                    payload = json.dumps({'type': 'chunk', 'content': content, 'message_id': None})
+                    _ = self.redis.xadd(events_key, {'payload': payload})
+                    self.stream_manager.update_stream_activity(stream_id)
+
+            complete_payload = json.dumps({'type': 'complete', 'message_id': None})
+            _ = self.redis.xadd(events_key, {'payload': complete_payload})
+            self.stream_manager.mark_stream_complete(stream_id)
+            self.stream_manager.trim_events_stream(stream_id)
+
+        except Exception as exc:
+            self._emit_guest_error(stream_id, str(exc))
     
     def _create_error_message(self, conversation_id: int, stream_id: str, error_msg: str) -> None:
         """Create an error message when AI processing fails early."""
@@ -129,7 +190,7 @@ class AIService:
             
             # Check if Gemini client is available
             if not self.client:
-                error_msg = "Gemini API key not configured"
+                error_msg = "AI service is temporarily unavailable. Please try again later."
                 self._handle_ai_error(ai_message, stream_id, f"stream:{stream_id}", error_msg)
                 return
             
@@ -253,7 +314,7 @@ class AIService:
         ai_message.status = 'error'
         ai_message.content = f"Error: {error_msg}"
         db.session.commit()
-        
+
         # Add error event to Redis Stream
         try:
             events_key = self.stream_manager.get_events_key(stream_id)
@@ -261,6 +322,17 @@ class AIService:
             _ = self.redis.xadd(events_key, {'payload': payload})
         except Exception:
             pass
-        
+
         # Mark stream as error
+        self.stream_manager.mark_stream_error(stream_id, error_msg)
+
+    def _emit_guest_error(self, stream_id: str, error_msg: str) -> None:
+        """Emit an error event for guest streams."""
+        try:
+            events_key = self.stream_manager.get_events_key(stream_id)
+            payload = json.dumps({'type': 'error', 'message': error_msg, 'message_id': None})
+            _ = self.redis.xadd(events_key, {'payload': payload})
+        except Exception:
+            pass
+
         self.stream_manager.mark_stream_error(stream_id, error_msg)

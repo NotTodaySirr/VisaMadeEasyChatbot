@@ -8,6 +8,7 @@ import moreVerticalIcon from '../../assets/ui/more-vertical.svg';
 import pencilIcon from '../../assets/ui/pencil-icon.svg';
 import trashIcon from '../../assets/ui/trash-icon.svg';
 import ContextMenu from '../cards/ContextMenu/ContextMenu';
+import authService from '../../services/auth/authService';
 
 const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
     const navigate = useNavigate();
@@ -45,10 +46,22 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
         }
     };
 
-    const handleLogout = () => {
-        // Future: Add actual logout logic
-        console.log('User logged out');
-        navigate('/auth/login');
+    const handleLogout = async () => {
+        try {
+            const result = await authService.logout();
+            if (result.success) {
+                // Successfully logged out, redirect to login
+                navigate('/auth/login');
+            } else {
+                // Even if API call fails, clear local tokens and redirect
+                console.warn('Logout API failed, clearing local tokens:', result.message);
+                navigate('/auth/login');
+            }
+        } catch (error) {
+            // Network error or other exception, still clear local tokens
+            console.error('Logout error:', error);
+            navigate('/auth/login');
+        }
     };
 
     // Close dropdown when clicking outside
@@ -247,13 +260,22 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                                 <span className="context-card-text">Đăng xuất</span>
                             </div>
                         </ContextMenu>
-                        {/* Avatar */}
-                        <img 
-                            src={user?.avatar || defaultAvatar} 
-                            alt="User Avatar" 
-                            className="topbar-avatar" 
-                            onClick={handleLogout} 
-                        />
+                        {/* Avatar with logout context menu */}
+                        <ContextMenu
+                            trigger={
+                                <img 
+                                    src={user?.avatar || defaultAvatar} 
+                                    alt="User Avatar" 
+                                    className="topbar-avatar" 
+                                />
+                            }
+                            panelClassName="context-menu"
+                        >
+                            <div className="context-card-option danger" onClick={handleLogout}>
+                                <img src={trashIcon} alt="Logout" className="context-card-icon" />
+                                <span className="context-card-text">Đăng xuất</span>
+                            </div>
+                        </ContextMenu>
                     </div>
                 </>
             );
@@ -265,13 +287,22 @@ const Header = ({ isLoggedIn = false, pageType = 'default', user = null }) => {
                         {renderLogo()}
                     </div>
                     <div className="topbar-right">
-                        {/* Avatar */}
-                        <img 
-                            src={user?.avatar || defaultAvatar} 
-                            alt="User Avatar" 
-                            className="topbar-avatar" 
-                            onClick={handleLogout} 
-                        />
+                        {/* Avatar with logout context menu */}
+                        <ContextMenu
+                            trigger={
+                                <img 
+                                    src={user?.avatar || defaultAvatar} 
+                                    alt="User Avatar" 
+                                    className="topbar-avatar" 
+                                />
+                            }
+                            panelClassName="context-menu"
+                        >
+                            <div className="context-card-option danger" onClick={handleLogout}>
+                                <img src={trashIcon} alt="Logout" className="context-card-icon" />
+                                <span className="context-card-text">Đăng xuất</span>
+                            </div>
+                        </ContextMenu>
                     </div>
                 </>
             );

@@ -1,0 +1,62 @@
+import API_ENDPOINTS from '../api/endpoints.js';
+
+// Guest SSE helper (no auth headers)
+export function openGuestStream(streamId, { onChunk, onComplete, onError }) {
+  const url = (import.meta.env.VITE_API_URL || 'http://localhost:5000') + API_ENDPOINTS.CHAT.STREAM(streamId);
+
+  // Use fetch + ReadableStream to handle SSE without Authorization header
+  fetch(url, {
+    headers: {}, // No auth headers for guests
+  })
+    .then(async (res) => {
+      if (!res.ok || !res.body) throw new Error('Stream connection failed');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+
+      let buffer = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let idx;
+        while ((idx = buffer.indexOf('\n\n')) !== -1) {
+          const raw = buffer.slice(0, idx);
+          buffer = buffer.slice(idx + 2);
+          // Expect lines like: "event: chunk" / "data: {...}"
+          const lines = raw.split('\n');
+          const typeLine = lines.find((l) => l.startsWith('event:')) || '';
+          const dataLine = lines.filter((l) => l.startsWith('data:')).map(l => l.replace('data:', '').trim()).join('\n');
+          let event = typeLine.replace('event:', '').trim();
+          const payload = dataLine;
+          try {
+            const parsed = payload ? JSON.parse(payload) : null;
+            // Fallbacks: infer event from payload if header missing
+            if (!event) event = (parsed && (parsed.event || parsed.type)) || 'chunk';
+
+            if (event === 'chunk') {
+              // Accept various shapes: {content}, {delta}, {text}
+              const normalized = parsed && (parsed.content || parsed.delta || parsed.text || parsed);
+              onChunk && onChunk(typeof normalized === 'string' ? { content: normalized } : normalized);
+            } else if (event === 'complete') {
+              onComplete && onComplete(parsed);
+            } else if (event === 'error') {
+              onError && onError(parsed);
+            } else {
+              // Treat unknown events as chunks by default
+              const normalized = parsed && (parsed.content || parsed.delta || parsed.text || parsed);
+              onChunk && onChunk(typeof normalized === 'string' ? { content: normalized } : normalized);
+            }
+          } catch (e) {
+            // If not JSON, treat as plain text token
+            if (payload) {
+              onChunk && onChunk({ content: payload });
+            }
+          }
+        }
+      }
+      if (onComplete) onComplete();
+    })
+    .catch((err) => {
+      if (onError) onError(err);
+    });
+}
