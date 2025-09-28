@@ -16,7 +16,7 @@ const GuestLayout = ({ children, pageType = 'default', inputField, scrollRef = n
 
                 {/* Footer/input at bottom (auto height) */}
                 {inputField && (
-                    <div className="bg-white border-t flex justify-center" style={{ flexShrink: 0, transform: 'translateY(calc(-1 * var(--input-lift)))' }}>
+                    <div className="guest-in-chat-footer" style={{ flexShrink: 0, transform: 'translateY(calc(-1 * var(--input-lift)))' }}>
                         {inputField}
                     </div>
                 )}

@@ -33,3 +33,10 @@
     --guest-input-offset: 8px; /* lift input a bit above the very bottom */
     --input-lift: clamp(8px, 1.5vh + env(safe-area-inset-bottom), 24px);
 }
+
+.guest-in-chat-footer {
+    display: flex;
+    justify-content: center;
+    background-color: #EDF2FB;
+}
+
