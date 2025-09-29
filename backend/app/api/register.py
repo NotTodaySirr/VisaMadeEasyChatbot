@@ -8,8 +8,10 @@ def register_blueprints(app: Flask):
     from app.api.checklists.routes import checklists_bp
     from app.api.files.routes import files_bp
     from app.api.chat.routes import chat_bp
+    from app.api.users.routes import users_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(checklists_bp)
     app.register_blueprint(files_bp)
     app.register_blueprint(chat_bp)
+    app.register_blueprint(users_bp)

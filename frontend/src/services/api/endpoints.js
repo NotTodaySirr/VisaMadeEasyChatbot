@@ -6,7 +6,6 @@ const API_ENDPOINTS = {
     LOGIN: '/auth/login',
     LOGOUT: '/auth/logout',
     REFRESH: '/auth/refresh',
-    ME: '/auth/me',
   },
   
   // Checklists and related resources
@@ -45,8 +44,8 @@ const API_ENDPOINTS = {
   
   // User management endpoints
   USER: {
-    PROFILE: '/user/profile',
-    UPDATE_PROFILE: '/user/profile',
+    PROFILE: '/users/profile',
+    UPDATE_PROFILE: '/users/profile',
     CHANGE_PASSWORD: '/user/change-password',
     DELETE_ACCOUNT: '/user/delete',
   },

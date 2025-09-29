@@ -125,28 +125,6 @@ class AuthService {
     }
   }
 
-  /**
-   * Get current user information
-   */
-  async getCurrentUser() {
-    try {
-      const response = await apiClient.get(API_ENDPOINTS.AUTH.ME);
-      
-      const { data } = response.data;
-      const { user } = data;
-      
-      // Update stored user data
-      TokenManager.setUserData(user);
-      
-      return {
-        success: true,
-        data: { user },
-        message: response.data.message,
-      };
-    } catch (error) {
-      return this._handleError(error);
-    }
-  }
 
   /**
    * Check if user is authenticated

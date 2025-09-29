@@ -74,6 +74,11 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Skip refresh logic for validation-only requests
+    if (originalRequest._validateOnly) {
+      return Promise.reject(error);
+    }
+
     // If error is 401 and we haven't already tried to refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
@@ -142,18 +147,10 @@ apiClient.interceptors.response.use(
 // Token validation function
 export const validateToken = async () => {
   const token = TokenManager.getAccessToken();
-  if (!token) {
-    return false;
-  }
+  const refreshToken = TokenManager.getRefreshToken();
 
-  try {
-    const response = await apiClient.get('/auth/me');
-    return response.status === 200;
-  } catch (error) {
-    // Token is invalid or expired
-    TokenManager.clearTokens();
-    return false;
-  }
+  // Token is valid if both access and refresh tokens exist
+  return !!(token && refreshToken);
 };
 
 // Initialize token validation on app load

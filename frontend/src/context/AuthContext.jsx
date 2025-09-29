@@ -109,30 +109,14 @@ export const AuthProvider = ({ children }) => {
         if (authService.isAuthenticated()) {
           const localUser = authService.getCurrentUserLocal();
           
-          // Try to verify with server using our new token validation
+            // Try to verify with server using our new token validation
           const isValid = await validateToken();
           if (isValid) {
-            // Token is valid, get fresh user data
-            try {
-              const result = await authService.getCurrentUser();
-              if (result.success) {
-                dispatch({
-                  type: AUTH_ACTIONS.SET_USER,
-                  payload: { user: result.data.user },
-                });
-              } else {
-                // Server verification failed, clear local data
-                await authService.logout();
-                dispatch({ type: AUTH_ACTIONS.LOGOUT });
-              }
-            } catch (error) {
-              // If server is unreachable, use local data
-              console.warn('Server verification failed, using local data:', error);
-              dispatch({
-                type: AUTH_ACTIONS.SET_USER,
-                payload: { user: localUser },
-              });
-            }
+            // Token is valid, use local user data
+            dispatch({
+              type: AUTH_ACTIONS.SET_USER,
+              payload: { user: localUser },
+            });
           } else {
             // Token is invalid, clear local data and redirect to landing
             await authService.logout();

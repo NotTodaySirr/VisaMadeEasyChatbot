@@ -171,35 +171,3 @@ def refresh():
         
     except Exception as e:
         return error_response(f'Token refresh failed: {str(e)}', 500)
-
-@auth_bp.route('/me', methods=['GET'])
-@jwt_required()
-def get_current_user():
-    """Get current user information."""
-    try:
-        current_user_id = get_jwt_identity()
-        
-        # Ensure we have a valid user ID
-        if not current_user_id:
-            return error_response('Invalid token identity', 401)
-            
-        user = db.session.get(User, current_user_id)
-        
-        if not user:
-            return error_response('User not found', 404)
-        
-        return success_response(
-            'User information retrieved',
-            {
-                'user': {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email,
-                    'educational_level': user.educational_level,
-                    'yearofbirth': user.yearofbirth
-                }
-            }
-        )
-        
-    except Exception as e:
-        return error_response(f'Failed to get user info: {str(e)}', 500)
