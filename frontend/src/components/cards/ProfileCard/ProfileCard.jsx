@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import userService from '../../../services/userService.js';
+import authService from '../../../services/auth/authService.js';
 import { getUserFromToken, isUserAuthenticated } from '../../../lib/utils.ts';
 import './ProfileCard.css';
 
@@ -9,6 +10,21 @@ const ProfileCard = ({ isOpen, onClose, user: initialUser }) => {
   const [editData, setEditData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // Password reset states
+  const [passwordResetState, setPasswordResetState] = useState('idle'); // 'idle' | 'editing' | 'loading' | 'success' | 'error'
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [passwordVisibility, setPasswordVisibility] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmPassword: false
+  });
+  const [passwordErrors, setPasswordErrors] = useState({});
+  const [passwordStrength, setPasswordStrength] = useState(0); // 0-4 strength levels
 
   // Load user data when component opens or initialUser changes
   useEffect(() => {
@@ -117,6 +133,152 @@ const ProfileCard = ({ isOpen, onClose, user: initialUser }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Password strength validation
+  const validatePasswordStrength = (password) => {
+    let strength = 0;
+    const checks = {
+      length: password.length >= 8,
+      lowercase: /[a-z]/.test(password),
+      uppercase: /[A-Z]/.test(password),
+      numbers: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+
+    strength = Object.values(checks).filter(Boolean).length;
+
+    // Bonus for longer passwords
+    if (password.length >= 12) strength += 0.5;
+
+    return Math.min(strength, 4);
+  };
+
+  // Password form handlers
+  const handlePasswordInputChange = (field, value) => {
+    setPasswordForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+
+    // Real-time validation
+    if (field === 'newPassword') {
+      const strength = validatePasswordStrength(value);
+      setPasswordStrength(strength);
+
+      // Clear errors when user starts typing
+      if (passwordErrors.newPassword) {
+        setPasswordErrors(prev => ({ ...prev, newPassword: null }));
+      }
+    }
+
+    // Check if passwords match when confirm password changes
+    if (field === 'confirmPassword' || (field === 'newPassword' && passwordForm.confirmPassword)) {
+      const newPassword = field === 'newPassword' ? value : passwordForm.newPassword;
+      const confirmPassword = field === 'confirmPassword' ? value : passwordForm.confirmPassword;
+
+      if (newPassword && confirmPassword && newPassword !== confirmPassword) {
+        setPasswordErrors(prev => ({ ...prev, confirmPassword: 'Mật khẩu xác nhận không khớp' }));
+      } else {
+        setPasswordErrors(prev => ({ ...prev, confirmPassword: null }));
+      }
+    }
+  };
+
+  const validatePasswordForm = () => {
+    const errors = {};
+
+    if (!passwordForm.currentPassword) {
+      errors.currentPassword = 'Vui lòng nhập mật khẩu hiện tại';
+    }
+
+    if (!passwordForm.newPassword) {
+      errors.newPassword = 'Vui lòng nhập mật khẩu mới';
+    } else if (passwordStrength < 2) {
+      errors.newPassword = 'Mật khẩu quá yếu';
+    }
+
+    if (!passwordForm.confirmPassword) {
+      errors.confirmPassword = 'Vui lòng xác nhận mật khẩu mới';
+    } else if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      errors.confirmPassword = 'Mật khẩu xác nhận không khớp';
+    }
+
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      errors.newPassword = 'Mật khẩu mới phải khác mật khẩu hiện tại';
+    }
+
+    setPasswordErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handlePasswordResetStart = () => {
+    setPasswordResetState('editing');
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordErrors({});
+    setPasswordStrength(0);
+  };
+
+  const handlePasswordResetCancel = () => {
+    setPasswordResetState('idle');
+    setPasswordForm({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordVisibility({
+      currentPassword: false,
+      newPassword: false,
+      confirmPassword: false
+    });
+    setPasswordErrors({});
+    setPasswordStrength(0);
+  };
+
+  const togglePasswordVisibility = (field) => {
+    setPasswordVisibility(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+
+  const handlePasswordResetSubmit = async () => {
+    if (!validatePasswordForm()) {
+      return;
+    }
+
+    setPasswordResetState('loading');
+
+    try {
+      // Call the actual password change API
+      const result = await authService.changePassword({
+        current_password: passwordForm.currentPassword,
+        new_password: passwordForm.newPassword
+      });
+
+      if (result.success) {
+        setPasswordResetState('success');
+
+        // Reset form after 2 seconds
+        setTimeout(() => {
+          handlePasswordResetCancel();
+        }, 2000);
+      } else {
+        setPasswordResetState('error');
+        setPasswordErrors({
+          general: result.message || 'Không thể thay đổi mật khẩu. Vui lòng thử lại.'
+        });
+      }
+    } catch (error) {
+      setPasswordResetState('error');
+      setPasswordErrors({
+        general: 'Không thể thay đổi mật khẩu. Vui lòng thử lại.'
+      });
+    }
   };
 
   if (!isOpen) return null;
@@ -265,11 +427,240 @@ const ProfileCard = ({ isOpen, onClose, user: initialUser }) => {
         <div className="profile-section">
           <h2 className="profile-section-title">Bảo mật</h2>
 
-          <div className="profile-field">
-            <label className="profile-field-label">Thay đổi mật khẩu</label>
-            <button className="profile-btn profile-btn-secondary">
-              Đổi mật khẩu
-            </button>
+          {/* Password Reset Section */}
+          <div className="password-reset-section">
+            <div className="password-reset-header">
+              <label className="profile-field-label">Thay đổi mật khẩu</label>
+              {passwordResetState === 'idle' && (
+                <button
+                  className="profile-btn profile-btn-secondary password-trigger-btn"
+                  onClick={handlePasswordResetStart}
+                >
+                  Đổi mật khẩu
+                </button>
+              )}
+            </div>
+
+            {passwordResetState === 'editing' && (
+              <div className="password-reset-form">
+                <div className="password-input-group">
+                  <label className="password-input-label">Mật khẩu hiện tại</label>
+                  <div className="password-input-wrapper">
+                    <input
+                      type={passwordVisibility.currentPassword ? 'text' : 'password'}
+                      placeholder="Nhập mật khẩu hiện tại"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => handlePasswordInputChange('currentPassword', e.target.value)}
+                      className={`password-input-field ${passwordErrors.currentPassword ? 'error' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      className="password-visibility-toggle"
+                      onClick={() => togglePasswordVisibility('currentPassword')}
+                      tabIndex="-1"
+                    >
+                      {passwordVisibility.currentPassword ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M2.99902 3L20.999 21M9.8433 9.91364C9.32066 10.4536 8.99902 11.1892 8.99902 12C8.99902 13.6569 10.3422 15 11.999 15C12.8215 15 13.5667 14.669 14.1086 14.133M6.49902 6.64715C4.59972 7.90034 3.15305 9.78394 2.45703 12C3.73128 16.0571 7.52159 19 11.9992 19C13.9881 19 15.8414 18.4194 17.3988 17.4184M10.999 5.04939C11.328 5.01673 11.6617 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C21.2607 12.894 20.8577 13.7338 20.3522 14.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {passwordErrors.currentPassword && (
+                    <span className="error-message">{passwordErrors.currentPassword}</span>
+                  )}
+                </div>
+
+                <div className="password-input-group">
+                  <label className="password-input-label">Mật khẩu mới</label>
+                  <div className="password-input-wrapper">
+                    <input
+                      type={passwordVisibility.newPassword ? 'text' : 'password'}
+                      placeholder="Nhập mật khẩu mới"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => handlePasswordInputChange('newPassword', e.target.value)}
+                      className={`password-input-field ${passwordErrors.newPassword ? 'error' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      className="password-visibility-toggle"
+                      onClick={() => togglePasswordVisibility('newPassword')}
+                      tabIndex="-1"
+                    >
+                      {passwordVisibility.newPassword ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M2.99902 3L20.999 21M9.8433 9.91364C9.32066 10.4536 8.99902 11.1892 8.99902 12C8.99902 13.6569 10.3422 15 11.999 15C12.8215 15 13.5667 14.669 14.1086 14.133M6.49902 6.64715C4.59972 7.90034 3.15305 9.78394 2.45703 12C3.73128 16.0571 7.52159 19 11.9992 19C13.9881 19 15.8414 18.4194 17.3988 17.4184M10.999 5.04939C11.328 5.01673 11.6617 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C21.2607 12.894 20.8577 13.7338 20.3522 14.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {/* Password strength indicator */}
+                  <div className="password-strength">
+                    <div className="strength-bar">
+                      {[1, 2, 3, 4].map(level => (
+                        <div
+                          key={level}
+                          className={`strength-segment ${
+                            level <= passwordStrength ? 'active' : ''
+                          } ${
+                            passwordStrength >= 1 && level <= passwordStrength ? 'filled' : ''
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="strength-text">
+                      {passwordStrength === 0 && 'Rất yếu'}
+                      {passwordStrength === 1 && 'Yếu'}
+                      {passwordStrength === 2 && 'Trung bình'}
+                      {passwordStrength === 3 && 'Mạnh'}
+                      {passwordStrength >= 3.5 && 'Rất mạnh'}
+                    </span>
+                  </div>
+                  {passwordErrors.newPassword && (
+                    <span className="error-message">{passwordErrors.newPassword}</span>
+                  )}
+                </div>
+
+                <div className="password-input-group">
+                  <label className="password-input-label">Xác nhận mật khẩu mới</label>
+                  <div className="password-input-wrapper">
+                    <input
+                      type={passwordVisibility.confirmPassword ? 'text' : 'password'}
+                      placeholder="Nhập lại mật khẩu mới"
+                      value={passwordForm.confirmPassword}
+                      onChange={(e) => handlePasswordInputChange('confirmPassword', e.target.value)}
+                      className={`password-input-field ${passwordErrors.confirmPassword ? 'error' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      className="password-visibility-toggle"
+                      onClick={() => togglePasswordVisibility('confirmPassword')}
+                      tabIndex="-1"
+                    >
+                      {passwordVisibility.confirmPassword ? (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M2.99902 3L20.999 21M9.8433 9.91364C9.32066 10.4536 8.99902 11.1892 8.99902 12C8.99902 13.6569 10.3422 15 11.999 15C12.8215 15 13.5667 14.669 14.1086 14.133M6.49902 6.64715C4.59972 7.90034 3.15305 9.78394 2.45703 12C3.73128 16.0571 7.52159 19 11.9992 19C13.9881 19 15.8414 18.4194 17.3988 17.4184M10.999 5.04939C11.328 5.01673 11.6617 5 11.9992 5C16.4769 5 20.2672 7.94291 21.5414 12C21.2607 12.894 20.8577 13.7338 20.3522 14.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5Z"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <circle
+                            cx="12"
+                            cy="12"
+                            r="3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                  {passwordErrors.confirmPassword && (
+                    <span className="error-message">{passwordErrors.confirmPassword}</span>
+                  )}
+                </div>
+
+                <div className="password-form-actions">
+                  <button
+                    className="profile-btn profile-btn-cancel"
+                    onClick={handlePasswordResetCancel}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    className="profile-btn profile-btn-save"
+                    onClick={handlePasswordResetSubmit}
+                    disabled={passwordResetState === 'loading'}
+                  >
+                    {passwordResetState === 'loading' ? 'Đang lưu...' : 'Lưu'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {passwordResetState === 'success' && (
+              <div className="password-success">
+                <span className="success-message">✅ Mật khẩu đã được thay đổi thành công!</span>
+              </div>
+            )}
+
+            {passwordResetState === 'error' && (
+              <div className="password-error">
+                <span className="error-message">
+                  {passwordErrors.general || 'Có lỗi xảy ra. Vui lòng thử lại.'}
+                </span>
+                <button
+                  className="profile-btn profile-btn-secondary"
+                  onClick={() => setPasswordResetState('editing')}
+                >
+                  Thử lại
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="profile-field">

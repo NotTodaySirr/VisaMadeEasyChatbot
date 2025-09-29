@@ -171,3 +171,49 @@ def refresh():
         
     except Exception as e:
         return error_response(f'Token refresh failed: {str(e)}', 500)
+
+@auth_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    """Change user password."""
+    try:
+        current_user_id = get_jwt_identity()
+
+        if not current_user_id:
+            return error_response('Invalid token identity', 401)
+
+        user = db.session.get(User, current_user_id)
+
+        if not user:
+            return error_response('User not found', 404)
+
+        data = request.get_json()
+
+        if not data:
+            return error_response('No data provided', 400)
+
+        # Validate required fields
+        if not data.get('current_password'):
+            return error_response('Current password is required', 400)
+
+        if not data.get('new_password'):
+            return error_response('New password is required', 400)
+
+        # Verify current password
+        if not user.check_password(data['current_password']):
+            return error_response('Current password is incorrect', 401)
+
+        # Validate new password strength (basic check)
+        new_password = data['new_password']
+        if len(new_password) < 8:
+            return error_response('New password must be at least 8 characters long', 400)
+
+        # Set new password
+        user.set_password(new_password)
+        db.session.commit()
+
+        return success_response('Password changed successfully')
+
+    except Exception as e:
+        db.session.rollback()
+        return error_response(f'Failed to change password: {str(e)}', 500)

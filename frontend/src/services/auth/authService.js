@@ -143,6 +143,25 @@ class AuthService {
   }
 
   /**
+   * Change user password
+   * @param {Object} passwordData - Password change data
+   * @param {string} passwordData.current_password - Current password
+   * @param {string} passwordData.new_password - New password
+   */
+  async changePassword(passwordData) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, passwordData);
+
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (error) {
+      return this._handleError(error);
+    }
+  }
+
+  /**
    * Get access token from local storage
    */
   getAccessToken() {
