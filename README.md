@@ -11,13 +11,13 @@ Manage visa‑related conversations, tasks/checklists, and documents. JWT‑base
 
 
 ## Tech Stack
-- Backend: Flask, Flask‑JWT‑Extended, SQLAlchemy, Alembic, Celery, Redis, PostgreSQL
+- Backend: Flask, SQLAlchemy, Alembic, Celery, Redis, PostgreSQL
 - Frontend: Vite, React, Axios
 - Ops: Docker, Docker Compose
 
 ## Prerequisites
-- Python 3.10+
-- Node 18+
+- Python: 3.10+
+- Node: 18+
 - Redis, PostgreSQL (or Docker Compose)
 
 ## Environment Variables
