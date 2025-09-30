@@ -82,7 +82,8 @@ const InputField = ({
             placeholder={placeholder}
             className="input-field"
             rows={1}
-            style={{ 
+            aria-label="Nhập câu hỏi về hồ sơ du học"
+            style={{
               resize: 'none',
               overflow: lineCount >= maxLines ? 'auto' : 'hidden'
             }}
