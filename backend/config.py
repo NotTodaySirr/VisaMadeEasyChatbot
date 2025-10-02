@@ -39,6 +39,21 @@ class Config:
         'allowed_types': ['images', 'documents', 'spreadsheets', 'presentations']
     }
     
+    # Email Configuration
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() == 'true'
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'false').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
+    MAIL_SUPPRESS_SEND = os.environ.get('MAIL_SUPPRESS_SEND', 'false').lower() == 'true'
+
+    PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES = int(os.environ.get('PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES', 30))
+    PASSWORD_RESET_TOKEN_RETENTION_MINUTES = int(os.environ.get('PASSWORD_RESET_TOKEN_RETENTION_MINUTES', 1440))
+    FRONTEND_BASE_URL = os.environ.get('FRONTEND_BASE_URL') or 'http://localhost:5173'
+    PASSWORD_RESET_PATH = os.environ.get('PASSWORD_RESET_PATH') or '/reset-password'
+
     # Redis Configuration
     REDIS_URL = os.environ.get('REDIS_URL') or 'redis://localhost:6379/0'
     
@@ -82,3 +97,4 @@ config = {
     'production': ProductionConfig,
     'default': DevelopmentConfig
 }
+

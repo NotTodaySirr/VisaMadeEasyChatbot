@@ -149,10 +149,7 @@ const AuthForm = ({
           <button
             type="button"
             className="auth-form-link-button"
-            onClick={() => {
-              // Future: Navigate to forgot password page
-              console.log('Navigate to forgot password page');
-            }}
+            onClick={() => navigate('/auth/forgot-password')}
           >
             Quên mật khẩu?
           </button>

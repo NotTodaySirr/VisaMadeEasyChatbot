@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute.jsx';
 import LandingPage from '../pages/LandingPage/LandingPage';
 import LoginPage from '../pages/auth/LoginPage/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage/RegisterPage';
+import PasswordResetPage from '../pages/auth/PasswordResetPage/PasswordResetPage';
 import GuestChatPage from '../pages/chat/GuestChatPage/GuestChatPage';
 import MainChatPage from '../pages/chat/MainChatPage/MainChatPage';
 import TestPage from '../pages/TestPage/TestPage';
@@ -35,7 +36,8 @@ const AppRoutes = () => {
         {/* Authentication Routes */}
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
-        {/* <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} /> */}
+        <Route path="/auth/forgot-password" element={<PasswordResetPage />} />
+        <Route path="/auth/reset-password/:token" element={<PasswordResetPage />} />
         
         {/* Protected Routes */}
         <Route path="/chat" element={

@@ -7,6 +7,9 @@ const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
     REFRESH: '/auth/refresh',
     CHANGE_PASSWORD: '/auth/change-password',
+    PASSWORD_RESET_REQUEST: '/auth/password-reset-request',
+    PASSWORD_RESET_VALIDATE: '/auth/password-reset/validate',
+    PASSWORD_RESET: '/auth/password-reset',
   },
   
   // Checklists and related resources

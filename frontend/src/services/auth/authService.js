@@ -169,6 +169,65 @@ class AuthService {
   }
 
   /**
+   * Request password reset email
+   * @param {Object} resetData - Password reset request data
+   * @param {string} resetData.email - User email
+   */
+  async requestPasswordReset(resetData) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.PASSWORD_RESET_REQUEST, resetData);
+
+      return {
+        success: true,
+        message: response.data.message,
+        data: response.data.data,
+      };
+    } catch (error) {
+      return this._handleError(error);
+    }
+  }
+
+  /**
+   * Validate password reset token
+   * @param {string} token - Password reset token
+   */
+  async validatePasswordResetToken(token) {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.AUTH.PASSWORD_RESET_VALIDATE, {
+        params: { token }
+      });
+
+      return {
+        success: true,
+        message: response.data.message,
+        data: response.data.data,
+      };
+    } catch (error) {
+      return this._handleError(error);
+    }
+  }
+
+  /**
+   * Complete password reset with new password
+   * @param {Object} resetData - Password reset completion data
+   * @param {string} resetData.token - Reset token
+   * @param {string} resetData.password - New password
+   * @param {string} resetData.confirm_password - Confirm password
+   */
+  async completePasswordReset(resetData) {
+    try {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.PASSWORD_RESET, resetData);
+
+      return {
+        success: true,
+        message: response.data.message,
+      };
+    } catch (error) {
+      return this._handleError(error);
+    }
+  }
+
+  /**
    * Handle API errors consistently
    * @private
    */

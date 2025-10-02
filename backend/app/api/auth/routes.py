@@ -1,13 +1,26 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, current_app
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, jwt_required,
     get_jwt_identity, get_jwt
 )
 from datetime import datetime, timedelta
+from sqlalchemy import func
+
 from app.core.extensions import db
 from app.db.models.user import User
 from app.db.models.token import TokenBlacklist
-from app.core.utils import validate_registration, validate_login, success_response, error_response
+from app.services.password_reset_service import (
+    build_and_send_reset_email,
+    verify_reset_token,
+)
+from app.core.utils import (
+    validate_registration,
+    validate_login,
+    success_response,
+    error_response,
+    validate_email,
+    validate_password,
+)
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -217,3 +230,118 @@ def change_password():
     except Exception as e:
         db.session.rollback()
         return error_response(f'Failed to change password: {str(e)}', 500)
+
+
+
+@auth_bp.route('/password-reset-request', methods=['POST'])
+def password_reset_request():
+    """Send a password reset link to the user's registered email."""
+    try:
+        data = request.get_json() or {}
+        email = (data.get('email') or '').strip()
+
+        # Validate email is provided
+        if not email:
+            return error_response('Email is required', 400)
+
+        # Validate email format
+        if not validate_email(email):
+            return error_response('Invalid email format', 400)
+
+        # Normalize email for database lookup
+        normalized_email = email.lower()
+
+        # Check if user exists in database
+        user = User.query.filter(func.lower(User.email) == normalized_email).first()
+
+        if not user:
+            return error_response(
+                'No account found with this email address. Please check your email or register for a new account.',
+                404
+            )
+
+        # User exists, proceed with password reset
+        try:
+            build_and_send_reset_email(user)
+            db.session.commit()
+            return success_response(
+                'Password reset instructions have been sent to your email address.',
+                {
+                    'email': user.email,
+                    'expires_in_minutes': current_app.config.get('PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES', 30)
+                }
+            )
+
+        except Exception as exc:
+            db.session.rollback()
+            current_app.logger.exception('Failed to create password reset token for %s', email)
+            return error_response(
+                'Failed to send password reset email. Please try again later or contact support if the problem persists.',
+                500
+            )
+
+    except Exception as e:
+        current_app.logger.exception('Unexpected error in password reset request')
+        return error_response(
+            'An unexpected error occurred while processing your request. Please try again later.',
+            500
+        )
+
+
+@auth_bp.route('/password-reset/validate', methods=['GET'])
+def password_reset_validate():
+    """Validate that a password reset token is active."""
+    token = (request.args.get('token') or '').strip()
+
+    if not token:
+        return error_response('Reset token is required', 400)
+
+    reset_token = verify_reset_token(token)
+    if not reset_token:
+        return error_response('Invalid or expired password reset token', 400)
+
+    return success_response(
+        'Password reset token is valid.',
+        {
+            'email': reset_token.user.email,
+            'expires_at': reset_token.expires_at.isoformat(),
+        }
+    )
+
+
+@auth_bp.route('/password-reset', methods=['POST'])
+def password_reset_complete():
+    """Update the user's password after validating a reset token."""
+    data = request.get_json() or {}
+    token = (data.get('token') or '').strip()
+    new_password = (data.get('password') or '').strip()
+    confirm_password = data.get('confirm_password')
+
+    if not token:
+        return error_response('Reset token is required', 400)
+
+    if not new_password:
+        return error_response('New password is required', 400)
+
+    if confirm_password is not None and confirm_password.strip() != new_password:
+        return error_response('Passwords do not match', 400)
+
+    is_valid, validation_message = validate_password(new_password)
+    if not is_valid:
+        return error_response(validation_message, 400)
+
+    reset_token = verify_reset_token(token)
+    if not reset_token:
+        return error_response('Invalid or expired password reset token', 400)
+
+    try:
+        user = reset_token.user
+        user.set_password(new_password)
+        reset_token.mark_consumed()
+        db.session.commit()
+    except Exception as exc:  # pragma: no cover - depends on DB/env
+        db.session.rollback()
+        current_app.logger.exception('Failed to reset password for %s', reset_token.user.email)
+        return error_response('Failed to reset password', 500)
+
+    return success_response('Password has been reset successfully.')
