@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     gcc \
     ca-certificates \
+    netcat-traditional \
     && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
@@ -19,8 +20,16 @@ RUN pip install --no-cache-dir certifi
 # Copy application code
 COPY . .
 
+COPY entrypoint.sh /entrypoint.sh
+
+#Execute the entrypoint
+RUN chmod +x /entrypoint.sh
+
 # Expose port
 EXPOSE 5000
+
+#Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Default command
 CMD ["python", "main.py"]
